@@ -1,0 +1,928 @@
+free io:channel.
+
+(********************************************************)
+(* HMAC *)
+(********************************************************)
+
+type mac_key.
+fun mk2b(mac_key):bitstring [data,typeConverter].
+fun b2mk(bitstring):mac_key [data,typeConverter].
+
+
+(********************************************************)
+(* Public Key Signatures *)
+(********************************************************)
+
+type privkey.
+type pubkey.
+fun pk(privkey): pubkey.
+const NoPubKey:pubkey.
+
+fun pubkey2b(pubkey):bitstring [data, typeConverter].
+fun b2pubkey(bitstring):pubkey [data, typeConverter].
+
+
+(********************************************************)
+(* Function mapping between Libsodium and ProVerif APIs *)
+(********************************************************)
+
+type nonce.
+fun nonce2b(nonce):bitstring [data, typeConverter].
+fun b2nonce(bitstring):nonce [data, typeConverter].
+
+(*
+  Secret key encryption
+*)
+
+(* Debug helper function to test key secrecy, not real crypto APIs *)
+fun debug_enc(bitstring, bitstring):bitstring.
+fun debug_dec(bitstring, bitstring):bitstring
+reduc forall k,msg:bitstring;
+  debug_dec(k, debug_enc(k, msg)) = msg.
+
+(* Message authentication HMAC *)
+fun crypto_auth(mac_key, bitstring):bitstring.
+
+fun crypto_auth_verify(mac_key, bitstring, bitstring):bool
+reduc forall k:mac_key, msg:bitstring;
+  crypto_auth_verify(k, msg, crypto_auth(k, msg)) = true
+otherwise forall k:mac_key, x,y:bitstring;
+  crypto_auth_verify(k, x, y) = false.
+
+(* Encrypting file streams *)
+type secretstream_key.
+type secretstream_header.
+
+fun crypto_secretstream_encrypt(secretstream_key, secretstream_header, bitstring):bitstring.
+
+fun crypto_secretstream_decrypt(secretstream_key, secretstream_header, bitstring):bitstring
+reduc forall k:secretstream_key, h:secretstream_header, msg:bitstring;
+  crypto_secretstream_decrypt(k, h, crypto_secretstream_encrypt(k, h, msg)) = msg.
+
+(*
+  Public key cryptography
+*)
+
+(* AEAD operations *)
+(* encryption(msg, nonce, receiverPubkey, senderPrivkey) *)
+fun crypto_box_easy(bitstring, nonce, pubkey, privkey):bitstring.
+
+(* decryption(ciphertext, nonce, senderPubkey, receiverPrivkey) *)
+fun crypto_box_open_easy(bitstring, nonce, pubkey, privkey):bitstring
+reduc forall msg:bitstring, n:nonce, senderPrivkey:privkey, receiverPrivkey:privkey;
+  crypto_box_open_easy(crypto_box_easy(msg, n, pk(receiverPrivkey), senderPrivkey),
+                       n, pk(senderPrivkey), receiverPrivkey) = msg.
+
+
+(* Sealed boxes for encrypting with receiver's public key *)
+fun crypto_box_seal(bitstring, pubkey):bitstring.
+
+fun crypto_box_seal_open(bitstring, privkey):bitstring
+reduc forall msg:bitstring, k:privkey;
+  crypto_box_seal_open(crypto_box_seal(msg, pk(k)), k) = msg.
+
+
+(* EdDSA signature algorithm *)
+fun crypto_sign(privkey, bitstring): bitstring.
+
+(* verify(signerPubkey, message, hashValue) *)
+fun crypto_sign_verify(pubkey, bitstring, bitstring):bool
+reduc forall k:privkey, x:bitstring;
+  crypto_sign_verify(pk(k), x, crypto_sign(k, x)) = true
+otherwise forall k:pubkey, x,y:bitstring;
+  crypto_sign_verify(k, x, y) = false.
+
+
+(*
+  Sieve cryptography functions
+*)
+
+type sieve_key.
+type rekey_token.
+
+fun sieve_key2b(sieve_key):bitstring [data, typeConverter].
+fun b2sieve_key(bitstring):sieve_key [data, typeConverter].
+
+fun sieve_enc(sieve_key, nonce, bitstring):bitstring.
+
+fun sieve_dec(sieve_key, nonce, bitstring, bitstring):bitstring
+reduc forall k:sieve_key, n:nonce, hint,msg:bitstring;
+  sieve_dec(k, n, hint, sieve_enc(k, n, msg)) = msg.
+
+fun sieve_rekey_token(sieve_key, sieve_key):rekey_token.
+
+fun sieve_rekey(bitstring, rekey_token):bitstring
+reduc forall k:sieve_key, kNew:sieve_key, n:nonce, msg:bitstring;
+  sieve_rekey(sieve_enc(k, n, msg), sieve_rekey_token(k, kNew)) = sieve_enc(kNew, n, msg).
+
+(*
+  Shamir secret sharing
+
+  Split secrets into variable number of parts.
+*)
+
+$template ${UID}
+fun split_key_shares_${UID}(secretstream_key):bitstring.
+$endtemplate
+
+fun assemble_key_shares($expand{bitstring}$with{,}$by{${UID}}):secretstream_key
+reduc forall d:secretstream_key;
+  assemble_key_shares($expand{split_key_shares_${UID}(d)}$with{,}) = d.
+
+(********************************************************)
+(* Security property prooofs *)
+(********************************************************)
+
+(*********** Debug ***********)
+(*
+  Helper variable to test out secret keys.
+
+  Expected value: query returns true so attacker doesn't know the secret.
+*)
+free debugSecret:bitstring [private].
+query attacker(debugSecret).
+
+(*********** Initialization ***********)
+event InitializationAdminAcquireDevice(pubkey, pubkey).
+event InitializationDeviceAcceptAdmin(pubkey, pubkey).
+
+(*
+  Reachability queries:
+    If the query returns "RESULT not event() is true", this means the event is
+    not reachable. Thus the corresponding code belongs to an unreachable branch.
+
+    We can use conjunction to ensure multiple events are reachable.
+
+  Expected value: Query not (event() && ... && event()) is false.
+*)
+query admin, device:pubkey;
+  event(InitializationAdminAcquireDevice(admin, device))
+  && event(InitializationDeviceAcceptAdmin(admin, device))
+  .
+
+(*
+  Property: when device accepts a new admin manager, the admin must have
+  initiated a request first.
+ *)
+query admin, device:pubkey;
+  inj-event(InitializationDeviceAcceptAdmin(admin, device))
+  ==> inj-event(InitializationAdminAcquireDevice(admin, device))
+  .
+
+
+(*********** AcquirePreAuthToken ***********)
+
+event AcquirePreAuthTokenAdminGrant(pubkey, pubkey, bitstring).
+event AcquirePreAuthTokenUserReceive(pubkey, pubkey, bitstring).
+
+query admin, user:pubkey, token:bitstring;
+  event(AcquirePreAuthTokenAdminGrant(admin, user, token))
+  && event(AcquirePreAuthTokenUserReceive(admin, user, token))
+  .
+
+(*
+  Property: When user receives a token, this is a valid token issued by
+  the official system admin.
+*)
+query admin, user:pubkey, token:bitstring;
+  inj-event(AcquirePreAuthTokenUserReceive(admin, user, token)) ==> inj-event(AcquirePreAuthTokenAdminGrant(admin, user, token)).
+
+
+(*********** ClaimDevice ***********)
+
+event ClaimDeviceDeviceAcceptUser(pubkey, pubkey, pubkey, bitstring).
+event ClaimDeviceUserFinishDevice(pubkey, pubkey, pubkey).
+
+query user, device, admin:pubkey, preAuthToken:bitstring;
+  event(ClaimDeviceDeviceAcceptUser(user, device, admin, preAuthToken))
+  && event(ClaimDeviceUserFinishDevice(user, device, admin))
+  .
+
+(*
+  Property: if a device accepts a new user, the user must have initiated it
+  and the user must possess a valid pre-auth token issued by admin.
+*)
+query user, device, admin:pubkey, preAuthToken:bitstring;
+  inj-event(ClaimDeviceUserFinishDevice(user, device, admin))
+  ==> (
+    inj-event(ClaimDeviceDeviceAcceptUser(user, device, admin, preAuthToken))
+    ==> (
+      inj-event(AcquirePreAuthTokenAdminGrant(admin, user, preAuthToken))
+    )
+  )
+  .
+
+
+(*********** DataStore ***********)
+
+free privateUserData:bitstring [private].
+query attacker(privateUserData).
+
+$template ${UID}
+(* user, device, sessionID *)
+event DataStoreUserReceiveNotification${UID}(pubkey, pubkey, bitstring).
+$endtemplate
+(* users, device, sessionID *)
+event DataStoreDeviceFinish($expand{pubkey}$with{,}$by{${UID}}, pubkey, bitstring).
+(* users, UUID, content *)
+event DataStoreAssignOwnership($expand{pubkey}$with{,}$by{${UID}}, bitstring, bitstring).
+
+(* Basic reachability queries *)
+query $expand{user${UID}}$with{,}, device:pubkey, sessionID:bitstring;
+  $expand{event(DataStoreUserReceiveNotification${UID}(user${UID}, device, sessionID))}$with{ && }
+  && event(DataStoreDeviceFinish($expand{user${UID}}$with{,}, device, sessionID))
+  .
+
+query $expand{user${UID}}$with{,}, device:pubkey, sessionID:bitstring;
+  $expand{inj-event(DataStoreUserReceiveNotification${UID}(user${UID}, device, sessionID))}$with{ && }
+  ==> inj-event(DataStoreDeviceFinish($expand{user${UID}}$with{,}, device, sessionID))
+  .
+
+
+
+
+(*********** DataAccess ***********)
+(* accessor, UUID *)
+event DataAccessAccessorDecrypt(pubkey, bitstring).
+$template ${UID}
+(* user, accessor, UUID *)
+event DataAccessUserGrantPermission${UID}(pubkey, pubkey, bitstring).
+$endtemplate
+
+
+query $expand{user${UID}}$with{,}, accessor:pubkey, metaDataUUID:bitstring;
+  event(DataAccessAccessorDecrypt(accessor, privateUserData))
+  &&
+  $expand{event(DataAccessUserGrantPermission${UID}(user${UID}, accessor, metaDataUUID))}$with{ && }
+  .
+
+
+query $expand{user${UID}}$with{,}, accessor:pubkey, metaDataUUID:bitstring;
+  inj-event(DataAccessAccessorDecrypt(accessor, privateUserData))
+  ==> (
+    $expand{inj-event(DataAccessUserGrantPermission${UID}(user${UID}, accessor, metaDataUUID))}$with{ && }
+  )
+  .
+
+(*********** DataReencryption ***********)
+$template ${UID}
+event DataReencryptionUserRequestKeySwitch${UID}(bitstring,nonce,nonce).
+event DataReencryptionUserSwitchKey${UID}(bitstring,nonce,nonce).
+event DataReencryptionStorageSwitchKey${UID}(bitstring,nonce,nonce).
+event DataReencryptionAccessorTryDecryptOldKey${UID}(bitstring,bitstring).
+event DataReencryptionAccessorSucceedDecryptOldKey${UID}(bitstring,bitstring).
+
+query metaDataUUID, sieveDataUUID:bitstring, userNonce,storeNonce:nonce;
+  event(DataReencryptionUserRequestKeySwitch${UID}(sieveDataUUID, userNonce,storeNonce))
+  && event(DataReencryptionUserSwitchKey${UID}(sieveDataUUID, userNonce,storeNonce))
+  && event(DataReencryptionStorageSwitchKey${UID}(sieveDataUUID, userNonce,storeNonce))
+  && event(DataReencryptionAccessorTryDecryptOldKey${UID}(metaDataUUID, sieveDataUUID))
+  .
+
+(*
+  This event is unreachable if re-encrypt succeeds;
+  otherwise, accessor can decrypt the data with old keys, make it reachable.
+*)
+query metaDataUUID, sieveDataUUID:bitstring;
+  event(DataReencryptionAccessorSucceedDecryptOldKey${UID}(metaDataUUID, sieveDataUUID))
+  .
+
+
+(*
+  If storage provider switches key, user must have requested it already.
+*)
+query metaDataUUID, sieveDataUUID:bitstring, userNonce,storeNonce:nonce;
+  inj-event(DataReencryptionUserSwitchKey${UID}(sieveDataUUID, userNonce,storeNonce))
+  ==> (
+    inj-event(DataReencryptionStorageSwitchKey${UID}(sieveDataUUID, userNonce,storeNonce))
+    ==> (
+      inj-event(DataReencryptionUserRequestKeySwitch${UID}(sieveDataUUID, userNonce,storeNonce))
+    )
+  )
+.
+
+$endtemplate
+
+
+(********************************************************)
+(* Protocol Message Header *)
+(********************************************************)
+(* Placeholder for switching group mode in Device Claim request *)
+$template ${UID}
+const GROUP_MODE_${UID} : bitstring.
+$endtemplate
+
+const INITIALIZATION_REQUEST
+  , INITIALIZATION_DEVICE_INFO
+  , INITIALIZATION_ADMIN_REPLY
+
+  , ACQUIRE_PRE_AUTH_TOKEN_REQUEST
+  , ACQUIRE_PRE_AUTH_TOKEN_RESPONSE
+
+  , CLAIM_DEVICE_DISCOVERY
+  , CLAIM_DEVICE_DISCOVERY_RESPONSE
+  , CLAIM_DEVICE_REQUEST
+  , CLAIM_DEVICE_RESPONSE
+
+  , DATA_STORE_SIEVE_CRED_REQUEST
+  , DATA_STORE_SIEVE_CRED_RESPONSE
+  , DATA_STORE_UPLOAD
+  , DATA_STORE_UPLOAD_NOTIFICATION
+  , DATA_STORE_DOWNLOAD_REQUEST
+  , DATA_STORE_DOWNLOAD_RESPONSE_1
+  , DATA_STORE_DOWNLOAD_RESPONSE_1_ACK
+
+  , DATA_ACCESS_FETCH
+  , DATA_ACCESS_RESPONSE
+
+  , DATA_REENCRYPTION_PRE_REQUEST
+  , DATA_REENCRYPTION_PRE_RESPONSE
+  , DATA_REENCRYPTION_REQUEST
+  , DATA_REENCRYPTION_RESPONSE
+  :bitstring.
+
+
+const ADMIN_SIGN_TYPE_DEVICE_PROOF
+  , ADMIN_SIGN_TYPE_PRE_AUTH_TOKEN
+  , USER_SIGN_TYPE_REKEY_TOKEN
+  :bitstring.
+
+const CIPHER_INITIALIZATION_REQUEST
+  , CIPHER_INITIALIZATION_DEVICE_INFO
+  , CIPHER_INITIALIZATION_ADMIN_REPLY
+
+  , CIPHER_ACQUIRE_PRE_AUTH_TOKEN_RESPONSE
+
+  , CIPHER_CLAIM_DEVICE_REQUEST
+  , CIPHER_CLAIM_DEVICE_RESPONSE
+
+  , CIPHER_DATA_STORE_SIEVE_CRED_REQUEST
+  , CIPHER_DATA_STORE_SIEVE_CRED_RESPONSE
+  , CIPHER_DATA_STORE_UPLOAD_NOFICIATION
+
+  , CIPHER_DATA_ACCESS_RESPONSE
+
+  , CIPHER_DATA_REENCRYPTION_PRE_REQUEST
+  , CIPHER_DATA_REENCRYPTION_PRE_RESPONSE
+  , CIPHER_DATA_REENCRYPTION_REQUEST
+  :bitstring.
+
+(********************************************************)
+(* Protocol Modules *)
+(********************************************************)
+
+(*********** Initialization ***********)
+
+(* device pubkey <--> device manager/accepted admin pubkey *)
+table deviceAdminKeyTable(pubkey, pubkey).
+table deviceValidProofTable(pubkey, bitstring).
+
+let AdminInitialization(setupKey:secretstream_key, adminPrivkey:privkey) =
+  new setupHeader:secretstream_header;
+  new adminChallenge:bitstring;
+  let adminPubkey = pk(adminPrivkey) in
+
+  out(io, (INITIALIZATION_REQUEST,
+          setupHeader,
+          crypto_secretstream_encrypt(
+            setupKey,
+            setupHeader,
+            (CIPHER_INITIALIZATION_REQUEST, adminPubkey, adminChallenge)
+          )));
+
+  in(io, (=INITIALIZATION_DEVICE_INFO, ciphertext:bitstring));
+
+  let (=CIPHER_INITIALIZATION_DEVICE_INFO, =adminChallenge, deviceChallenge:bitstring, devicePubkey:pubkey) = crypto_box_seal_open(ciphertext, adminPrivkey) in
+
+  event InitializationAdminAcquireDevice(adminPubkey, devicePubkey);
+
+  let validDeviceProof = crypto_sign(adminPrivkey, (ADMIN_SIGN_TYPE_DEVICE_PROOF, devicePubkey)) in
+
+  new msgNonce:nonce;
+  out(io, (INITIALIZATION_ADMIN_REPLY,
+          msgNonce,
+          crypto_box_easy(
+            (CIPHER_INITIALIZATION_ADMIN_REPLY, deviceChallenge, validDeviceProof),
+            msgNonce,
+            devicePubkey,
+            adminPrivkey
+          )));
+
+  out(io, debug_enc((setupKey, setupHeader), debugSecret)).
+
+
+let DeviceInitialization(setupKey:secretstream_key, devicePrivkey:privkey) =
+
+  let devicePubkey = pk(devicePrivkey) in
+
+  in(io, (=INITIALIZATION_REQUEST, setupHeader:secretstream_header, ciphertext:bitstring));
+  new deviceChallenge:bitstring;
+
+  let (=CIPHER_INITIALIZATION_REQUEST, adminPubkey:pubkey, adminChallenge:bitstring) = crypto_secretstream_decrypt(setupKey, setupHeader, ciphertext) in
+
+  out(io, (INITIALIZATION_DEVICE_INFO,
+          crypto_box_seal((CIPHER_INITIALIZATION_DEVICE_INFO, adminChallenge, deviceChallenge, devicePubkey),
+            adminPubkey
+          )));
+
+  in(io, (=INITIALIZATION_ADMIN_REPLY, msgNonce:nonce, msgEncrypted:bitstring));
+
+  let (=CIPHER_INITIALIZATION_ADMIN_REPLY, =deviceChallenge, validDeviceProof:bitstring) = crypto_box_open_easy(msgEncrypted, msgNonce, adminPubkey, devicePrivkey) in
+
+  insert deviceAdminKeyTable(devicePubkey, adminPubkey);
+  insert deviceValidProofTable(devicePubkey, validDeviceProof);
+  event InitializationDeviceAcceptAdmin(adminPubkey, devicePubkey);
+  out(io, debug_enc((setupKey, setupHeader), debugSecret)).
+
+
+(*********** AcquirePreAuthToken ***********)
+
+table userPreAuthTokenTable(pubkey, bitstring).
+
+let AdminAcquirePreAuthToken(adminPrivkey:privkey) =
+  in(io, (=ACQUIRE_PRE_AUTH_TOKEN_REQUEST, userPubkey:pubkey));
+
+  new boxNonce:nonce;
+  let token = crypto_sign(adminPrivkey, (ADMIN_SIGN_TYPE_PRE_AUTH_TOKEN, userPubkey)) in
+  event AcquirePreAuthTokenAdminGrant(pk(adminPrivkey), userPubkey, token);
+  out(io, (ACQUIRE_PRE_AUTH_TOKEN_RESPONSE, boxNonce, crypto_box_easy((CIPHER_ACQUIRE_PRE_AUTH_TOKEN_RESPONSE, token), boxNonce, userPubkey, adminPrivkey))).
+
+let UserAcquirePreAuthToken(userPrivkey:privkey, adminPubkey:pubkey) =
+  let userPubkey = pk(userPrivkey) in
+  out(io, (ACQUIRE_PRE_AUTH_TOKEN_REQUEST, userPubkey));
+
+  in(io, (=ACQUIRE_PRE_AUTH_TOKEN_RESPONSE, boxNonce:nonce, ciphertext:bitstring));
+  let (=CIPHER_ACQUIRE_PRE_AUTH_TOKEN_RESPONSE, token:bitstring) = crypto_box_open_easy(ciphertext, boxNonce, adminPubkey, userPrivkey) in
+  insert userPreAuthTokenTable(userPubkey, token);
+  event AcquirePreAuthTokenUserReceive(adminPubkey, userPubkey, token).
+
+
+(*********** ClaimDevice ***********)
+
+
+$template ${UID}
+table userControlDeviceTable${UID}(pubkey, pubkey).
+
+let UserClaimDevice${UID}(userPrivkey:privkey, adminPubkey:pubkey) =
+  let userPubkey = pk(userPrivkey) in
+  get userPreAuthTokenTable(=userPubkey, token) in
+
+  out(io, (CLAIM_DEVICE_DISCOVERY, userPubkey));
+  in(io, (=CLAIM_DEVICE_DISCOVERY_RESPONSE, devicePubkey:pubkey, validDeviceProof:bitstring));
+
+  if crypto_sign_verify(adminPubkey, (ADMIN_SIGN_TYPE_DEVICE_PROOF, devicePubkey), validDeviceProof) then
+    new sessionNonce:nonce;
+    new userChallenge:bitstring;
+
+    out(io, (CLAIM_DEVICE_REQUEST,
+            sessionNonce,
+            crypto_box_easy((CIPHER_CLAIM_DEVICE_REQUEST, GROUP_MODE_${UID}, token, userChallenge), sessionNonce, devicePubkey, userPrivkey)
+            ));
+    in(io, (=CLAIM_DEVICE_RESPONSE, status:bool, responseNonce:nonce, challengeResponseEncrypted:bitstring));
+    if status then
+      let (=CIPHER_CLAIM_DEVICE_RESPONSE, challengeDecrypted:bitstring) = crypto_box_open_easy(challengeResponseEncrypted, responseNonce, devicePubkey, userPrivkey) in
+      if challengeDecrypted = userChallenge then
+
+        insert userControlDeviceTable${UID}(userPubkey, devicePubkey);
+
+        event ClaimDeviceUserFinishDevice(userPubkey, devicePubkey, adminPubkey).
+$endtemplate
+
+
+$template ${UID}
+table deviceOwnerKeyTable${UID}(pubkey, pubkey).
+
+let DeviceClaimDevice${UID}(devicePrivkey:privkey) =
+  let devicePubkey = pk(devicePrivkey) in
+  get deviceValidProofTable(=devicePubkey, deviceValidProof) in
+  get deviceAdminKeyTable(=devicePubkey, adminPubkey) in
+
+  in(io, (=CLAIM_DEVICE_DISCOVERY, userPubkey:pubkey));
+
+  out(io, (CLAIM_DEVICE_DISCOVERY_RESPONSE, devicePubkey, deviceValidProof));
+
+  in(io, (=CLAIM_DEVICE_REQUEST,
+          sessionNonce:nonce,
+          msgEncrypted:bitstring
+         ));
+  let (=CIPHER_CLAIM_DEVICE_REQUEST, =GROUP_MODE_${UID}, token:bitstring, userChallenge:bitstring) = crypto_box_open_easy(msgEncrypted, sessionNonce, userPubkey, devicePrivkey) in
+  if crypto_sign_verify(adminPubkey, (ADMIN_SIGN_TYPE_PRE_AUTH_TOKEN, userPubkey), token) then
+    event ClaimDeviceDeviceAcceptUser(userPubkey, devicePubkey, adminPubkey, token);
+
+    insert deviceOwnerKeyTable${UID}(devicePubkey, userPubkey);
+
+    new responseNonce:nonce;
+    out(io, (CLAIM_DEVICE_RESPONSE, true, responseNonce, crypto_box_easy((CIPHER_CLAIM_DEVICE_RESPONSE, userChallenge), responseNonce, userPubkey, devicePrivkey)));
+    0.
+
+$endtemplate
+
+(*********** DataStore ***********)
+
+(* storageTableV0(UUID, ownerPubkey, content) *)
+const NULLPK: pubkey.
+table storageTableV0(bitstring, $expand{pubkey}$with{,}$by{${UID}}, bitstring).
+$template ${UID}
+(* Work around for rekey since tables are append-only *)
+table storageTableV${UID}
+  (bitstring, $expand{pubkey}$with{,}$by{${UID}}, bitstring).
+$endtemplate
+
+let DeviceDataStore(devicePrivkey:privkey) =
+  let devicePubkey = pk(devicePrivkey) in
+$template ${UID}
+  get deviceOwnerKeyTable${UID}(=devicePubkey, ownerPubkey${UID}) in
+$endtemplate
+
+  (* Session creds are used for communication b/w device and owner *)
+  new sessionID:bitstring;
+$template ${UID}
+  new sessionNonce${UID}:nonce;
+$endtemplate
+
+  (* Data creds are used for later accessor decryption *)
+  new dataKey:secretstream_key;
+  new dataHeader:secretstream_header;
+
+  (* Generate list of UUIDs *)
+  new dataUUID:bitstring;
+$template ${UID}
+  new sieveDataUUID${UID}:bitstring;
+$endtemplate
+  new metaDataUUID:bitstring;
+
+  (* Encrypte data locally *)
+  let dataEncrypted = crypto_secretstream_encrypt(dataKey, dataHeader, privateUserData) in
+
+  out(io, (DATA_STORE_UPLOAD, dataUUID, $expand{ownerPubkey${UID}}$with{,}, dataEncrypted));
+
+  (* Fetch Sieve creds to retrieve *)
+$template ${UID}
+  out(io, (DATA_STORE_SIEVE_CRED_REQUEST,
+          devicePubkey,
+          sessionNonce${UID},
+          ownerPubkey${UID},
+          crypto_box_easy((CIPHER_DATA_STORE_SIEVE_CRED_REQUEST, sessionID), sessionNonce${UID}, ownerPubkey${UID}, devicePrivkey)));
+
+  in(io, (=DATA_STORE_SIEVE_CRED_RESPONSE, =ownerPubkey${UID}, responseNonce${UID}:nonce, ciphertext${UID}:bitstring));
+
+  let (=CIPHER_DATA_STORE_SIEVE_CRED_RESPONSE, sieveKey${UID}:sieve_key, sieveNonce${UID}:nonce) = crypto_box_open_easy(ciphertext${UID}, responseNonce${UID}, ownerPubkey${UID}, devicePrivkey) in
+
+  (* Split data key into shares *)
+  let dataKeyShare${UID} = split_key_shares_${UID}(dataKey) in
+
+  (* Create Sieve data block per user *)
+  let sieveContentBlock${UID} = (dataKeyShare${UID}) in
+  new sieveDataHint${UID}:bitstring;
+  let sieveDataBlock${UID} = sieve_enc(sieveKey${UID}, sieveNonce${UID}, sieveContentBlock${UID}) in
+  out(io, (DATA_STORE_UPLOAD, sieveDataUUID${UID}, $foreach{i}{UID}{$if{${i} == ${UID}}{ownerPubkey${UID}}{NULLPK}}$with{,},
+   sieveDataBlock${UID}));
+$endtemplate
+
+  (* Assemble meta data block *)
+  let ownerInfo = ($expand{sieveNonce${UID}, ownerPubkey${UID}, sieveDataUUID${UID}, sieveDataHint${UID}}$with{,}) in
+  let metaData = (ownerInfo, dataUUID, dataHeader) in
+  out(io, (DATA_STORE_UPLOAD, metaDataUUID, $expand{ownerPubkey${UID}}$with{,}, metaData));
+
+  event DataStoreDeviceFinish($expand{ownerPubkey${UID}}$with{,}, devicePubkey, sessionID);
+  event DataStoreAssignOwnership($expand{ownerPubkey${UID}}$with{,}, metaDataUUID, privateUserData);
+
+  (* Send upload notification to data owner *)
+$template ${UID}
+  new notificationNonce${UID}:nonce;
+  out(io, (DATA_STORE_UPLOAD_NOTIFICATION,
+          ownerPubkey${UID},
+          notificationNonce${UID},
+          crypto_box_easy((CIPHER_DATA_STORE_UPLOAD_NOFICIATION, sessionID, metaDataUUID, sieveDataUUID${UID}), notificationNonce${UID}, ownerPubkey${UID}, devicePrivkey)));
+$endtemplate
+
+  0.
+
+
+$template ${UID}
+(* userRecordingLookupTable(userPubkey, sessionID, metaDataUUID, sieveDataUUID, sieveKey) *)
+table userRecordingLookupTable${UID}(pubkey, bitstring, bitstring, bitstring, sieve_key).
+
+
+let UserDataStore${UID}(userPrivkey:privkey) =
+  let userPubkey = pk(userPrivkey) in
+
+  in(io, (=DATA_STORE_SIEVE_CRED_REQUEST, devicePubkey:pubkey, sessionNonce:nonce, =userPubkey, ciphertext:bitstring));
+
+  let (=CIPHER_DATA_STORE_SIEVE_CRED_REQUEST, sessionID:bitstring) = crypto_box_open_easy(ciphertext, sessionNonce, devicePubkey, userPrivkey) in
+
+  get userControlDeviceTable${UID}(=userPubkey, =devicePubkey) in
+
+  new sieveKey:sieve_key;
+  new sieveNonce:nonce;
+  new responseNonce:nonce;
+
+  out(io, (DATA_STORE_SIEVE_CRED_RESPONSE,
+          userPubkey,
+          responseNonce,
+          crypto_box_easy((CIPHER_DATA_STORE_SIEVE_CRED_RESPONSE, sieveKey, sieveNonce), responseNonce, devicePubkey, userPrivkey)
+          ));
+
+  in(io, (=DATA_STORE_UPLOAD_NOTIFICATION, =userPubkey, notificationNonce:nonce, notificationPayload:bitstring));
+
+  let (=CIPHER_DATA_STORE_UPLOAD_NOFICIATION, =sessionID, metaDataUUID:bitstring, sieveDataUUID:bitstring) = crypto_box_open_easy(notificationPayload, notificationNonce, devicePubkey, userPrivkey) in
+
+  insert userRecordingLookupTable${UID}(userPubkey, sessionID, metaDataUUID, sieveDataUUID, sieveKey);
+
+  event DataStoreUserReceiveNotification${UID}(userPubkey, devicePubkey, sessionID);
+
+  out(io, metaDataUUID);
+  0.
+$endtemplate
+
+(*********** DataAccess ***********)
+table approvedAccessor(pubkey).
+
+(* Malicious accessor stores stale sieve key *)
+table accessorDataCache(bitstring, sieve_key).
+
+table malicious(bitstring).
+
+let AccessorDataAccess(accessorPrivkey:privkey) =
+  let accessorPubkey = pk(accessorPrivkey) in
+
+  in(io, metaDataUUID:bitstring);
+  insert malicious(metaDataUUID);
+
+  (* Download Sieve data block from storage *)
+  out(io, (DATA_STORE_DOWNLOAD_REQUEST, metaDataUUID));
+  in(io, (=DATA_STORE_DOWNLOAD_RESPONSE_1, $expand{ownerPubkey${UID}:pubkey}$with{,}, metaData:bitstring));
+
+  (* Unmarshalling Sieve data block *)
+  let (($expand{sieveNonce${UID}:nonce, =ownerPubkey${UID}, sieveDataUUID${UID}:bitstring, sieveDataHint${UID}:bitstring}$with{,}), dataUUID:bitstring, dataHeader:secretstream_header) = metaData in
+
+$template ${UID}
+  new randomNoise${UID}:bitstring;
+  new payloadNonce${UID}:nonce;
+  let payload${UID} = crypto_box_easy((metaDataUUID, randomNoise${UID}), payloadNonce${UID}, ownerPubkey${UID}, accessorPrivkey) in
+  out(io, (DATA_ACCESS_FETCH, accessorPubkey, payloadNonce${UID}, payload${UID}));
+
+  in(io, (=DATA_ACCESS_RESPONSE, msgNonce${UID}:nonce, ciphertext${UID}:bitstring));
+
+  (* Retrieve user specific Sieve key *)
+  let (=CIPHER_DATA_ACCESS_RESPONSE, sieveKey${UID}:sieve_key, =randomNoise${UID}) = crypto_box_open_easy(ciphertext${UID}, msgNonce${UID}, ownerPubkey${UID}, accessorPrivkey) in
+
+  (* Download metadata block and decrypt *)
+  out(io, (DATA_STORE_DOWNLOAD_REQUEST, sieveDataUUID${UID}));
+  in(io, (=DATA_STORE_DOWNLOAD_RESPONSE_1, $foreach{i}{UID}{$if{${i} == ${UID}}{=ownerPubkey${UID}}{dummy_${UID}_${i}:pubkey}}$with{,}, sieveDataBlock${UID}:bitstring));
+  let sieveContentBlock${UID} = sieve_dec(sieveKey${UID}, sieveNonce${UID}, sieveDataHint${UID}, sieveDataBlock${UID}) in
+  let (dataKeyShare${UID}:bitstring) = sieveContentBlock${UID} in
+$endtemplate
+
+  let dataKey:secretstream_key = assemble_key_shares($expand{dataKeyShare${UID}}$with{,}) in
+
+  (* Retrieve data *)
+  out(io, (DATA_STORE_DOWNLOAD_REQUEST, dataUUID));
+  in(io, (=DATA_STORE_DOWNLOAD_RESPONSE_1, $expand{=ownerPubkey${UID}}$with{,}, dataEncrypted:bitstring));
+
+(*
+  get storageTableVersion2(=dataUUID, a:pubkey, b:bitstring) in 0 else
+  insert storageTableVersion2(dataUUID, ownerPubkey, dataEncrypted);
+*)
+
+  let dataDecrypted = crypto_secretstream_decrypt(dataKey, dataHeader, dataEncrypted) in
+
+  if (dataDecrypted = privateUserData) then
+    event DataAccessAccessorDecrypt(accessorPubkey, privateUserData);
+$template ${UID}
+    insert accessorDataCache(sieveDataUUID${UID}, sieveKey${UID});
+$endtemplate
+    0.
+
+
+$template ${UID}
+let UserDataAccess${UID}(userPrivkey:privkey) =
+  let userPubkey = pk(userPrivkey) in
+  in(io, (=DATA_ACCESS_FETCH, accessorPubkey:pubkey, payloadNonce:nonce, payload:bitstring));
+
+  get approvedAccessor(=accessorPubkey) in
+
+  let (metaDataUUID:bitstring, randomNoise:bitstring) = crypto_box_open_easy(payload, payloadNonce, accessorPubkey, userPrivkey) in
+
+  get userRecordingLookupTable${UID}(=userPubkey, sessionID:bitstring, =metaDataUUID, sieveDataUUID:bitstring, sieveKey:sieve_key) in
+
+  event DataAccessUserGrantPermission${UID}(userPubkey, accessorPubkey, metaDataUUID);
+
+  new msgNonce:nonce;
+  let ciphertext = crypto_box_easy((CIPHER_DATA_ACCESS_RESPONSE, sieveKey, randomNoise), msgNonce, accessorPubkey, userPrivkey) in
+  out(io, (DATA_ACCESS_RESPONSE, msgNonce, ciphertext));
+
+  0.
+$endtemplate
+
+
+(*********** Storage daemon ***********)
+let StorageDownloadDaemon() =
+  in(io, (=DATA_STORE_DOWNLOAD_REQUEST, blockUUID:bitstring));
+  get storageTableV0(=blockUUID, $expand{ownerPubkey${UID}:pubkey}$with{,}, content:bitstring) in
+  out(io, (DATA_STORE_DOWNLOAD_RESPONSE_1, $expand{ownerPubkey${UID}}$with{,}, content));
+  0.
+
+let StorageUploadDaemon() =
+  in(io, (=DATA_STORE_UPLOAD, blockUUID:bitstring, $expand{ownerPubkey${UID}:pubkey}$with{,}, content:bitstring));
+  insert storageTableV0(blockUUID, $expand{ownerPubkey${UID}}$with{,}, content);
+  0.
+
+
+(*********** DataReencryption ***********)
+$template ${UID}
+let UserDataReencryption${UID}(userPrivkey:privkey, storagePubkey:pubkey) =
+phase $compute{(${UID}-1)*${REENCRYPT_PHASE_INTERVAL}+1};
+
+  let userPubkey = pk(userPrivkey) in
+  get userRecordingLookupTable${UID}(=userPubkey, sessionID:bitstring, metaDataUUID:bitstring, sieveDataUUID:bitstring, sieveKey:sieve_key) in
+
+  (* Model key revocation: make a fresh new sieve key *)
+  new sieveNewKey:sieve_key;
+  (* Alternatively: make the new key the same as old key to check the reachability of DataReencryptionAccessorSucceedDecryptOldKey()  *)
+  (* let sieveNewKey = sieveKey in *)
+
+  let rekeyToken = sieve_rekey_token(sieveKey, sieveNewKey) in
+
+  (* Add session-specific negotiation to prevent replay attack *)
+  new userNonce: nonce;
+  let preReqCiphertext = crypto_box_seal(
+    (
+      CIPHER_DATA_REENCRYPTION_PRE_REQUEST,
+      metaDataUUID,
+      sieveDataUUID,
+      userNonce
+    ),
+    storagePubkey) in
+  out(io, (DATA_REENCRYPTION_PRE_REQUEST, preReqCiphertext));
+  in(io, (=DATA_REENCRYPTION_PRE_RESPONSE, preResCiphertext:bitstring));
+  let (=CIPHER_DATA_REENCRYPTION_PRE_RESPONSE, =userNonce, storeNonce:nonce)
+   = crypto_box_seal_open(preResCiphertext, userPrivkey) in
+
+  event DataReencryptionUserRequestKeySwitch${UID}(sieveDataUUID, userNonce,storeNonce);
+
+  new notificationToken:bitstring;
+  new msgNonce:nonce;
+
+  out(io, (DATA_REENCRYPTION_REQUEST, metaDataUUID, msgNonce, crypto_box_easy((CIPHER_DATA_REENCRYPTION_REQUEST, rekeyToken, notificationToken, userNonce, storeNonce), msgNonce, storagePubkey, userPrivkey)));
+
+  in(io, (=DATA_REENCRYPTION_RESPONSE, =notificationToken));
+
+(* Can't update this table again here. Cause infinite loop. It's okay if we just want to validate rekey token revoke old sieve keys. As the result, the old data is never accessible after rekey in the current model... *)
+(*    insert userRecordingLookupTable(userPubkey, sessionID, metaDataUUID, dataUUID, sieveNewKey);
+*)
+  event DataReencryptionUserSwitchKey${UID}(sieveDataUUID, userNonce,storeNonce);
+  0.
+$endtemplate
+
+$template ${UID}
+let StorageDataReencryptionPhased${UID}(storagePrivkey:privkey) =
+  phase $compute{(${UID}-1)*${REENCRYPT_PHASE_INTERVAL}+1};
+
+
+  in(io, (=DATA_REENCRYPTION_PRE_REQUEST, preReqCiphertext:bitstring));
+  let (=CIPHER_DATA_REENCRYPTION_PRE_REQUEST, metaDataUUID:bitstring, sieveDataUUIDReq:bitstring, userNonce:nonce) = crypto_box_seal_open(preReqCiphertext, storagePrivkey) in
+
+  get storageTableV$compute{${UID}-1}
+    (=metaDataUUID, $expand{ownerPubkey${UID}:pubkey}$with{,}, metaData:bitstring) in
+
+  let (($expand{sieveNonce${UID}:nonce, =ownerPubkey${UID}, sieveDataUUID${UID}:bitstring, sieveDataHint${UID}:bitstring}$with{,}), dataUUID:bitstring, dataHeader:secretstream_header) = metaData in
+
+  if sieveDataUUID${UID} = sieveDataUUIDReq then
+  new storeNonce:nonce;
+  let preCiphertext = crypto_box_seal((CIPHER_DATA_REENCRYPTION_PRE_RESPONSE, userNonce, storeNonce), ownerPubkey${UID}) in
+  out(io, (DATA_REENCRYPTION_PRE_RESPONSE, preCiphertext));
+
+  in(io, (=DATA_REENCRYPTION_REQUEST, metaDataUUID:bitstring, msgNonce:nonce, ciphertext:bitstring));
+
+
+  insert storageTableV${UID}
+    (metaDataUUID, $expand{ownerPubkey${UID}}$with{,}, metaData);
+
+  let (=CIPHER_DATA_REENCRYPTION_REQUEST, rekeyToken:rekey_token, notificationToken:bitstring, =userNonce, =storeNonce) = crypto_box_open_easy(ciphertext, msgNonce, ownerPubkey${UID}, storagePrivkey) in
+
+
+  get storageTableV0(=sieveDataUUID${UID}, $foreach{i}{UID}{$if{${i} == ${UID}}{=ownerPubkey${UID}}{=NULLPK}}$with{,}, sieveDataBlock:bitstring) in
+
+  let sieveDataBlockNewKey = sieve_rekey(sieveDataBlock, rekeyToken) in
+
+  insert storageTableV${UID}
+    (sieveDataUUID${UID}, $foreach{i}{UID}{$if{${i} == ${UID}}{ownerPubkey${UID}}{NULLPK}}$with{,}, sieveDataBlockNewKey);
+
+  event DataReencryptionStorageSwitchKey${UID}(sieveDataUUID${UID}, userNonce,storeNonce);
+
+  out(io, (DATA_REENCRYPTION_RESPONSE, notificationToken));
+  0.
+$endtemplate
+
+let StorageDataReencryption(storagePrivkey:privkey) =
+  $expand{StorageDataReencryptionPhased${UID}(storagePrivkey)}$with{ | }
+  | 0.
+
+
+$template ${UID}
+let AccessorBadDataReencryptionPhased${UID}() =
+phase $compute{(${UID}-1)*${REENCRYPT_PHASE_INTERVAL}+2};
+  get malicious(metaDataUUID:bitstring) in
+
+  get storageTableV${UID}
+    (=metaDataUUID, $expand{ownerPubkey${UID}:pubkey}$with{,}, metaData) in
+
+  let (($expand{sieveNonce${UID}:nonce, =ownerPubkey${UID}, sieveDataUUID${UID}:bitstring, sieveDataHint${UID}:bitstring}$with{,}), dataUUID:bitstring, dataHeader:secretstream_header) = metaData in
+
+  $expand{get accessorDataCache(sieveDataUUID${UID}:bitstring, sieveKey${UID}:sieve_key) in }$with{ }
+
+  event DataReencryptionAccessorTryDecryptOldKey${UID}(metaDataUUID, sieveDataUUID${UID});
+
+
+  $foreach{i}{UID}{get storageTableV$if{${i} == ${UID}}{${i}}{0} (=sieveDataUUID${i}, $foreach{j}{UID}{$if{${j} == ${UID}}{=ownerPubkey${UID}}{=NULLPK}}$with{,} , sieveDataBlock${i}) in }$with{ }
+
+
+  $expand{let sieveContentBlock${UID} = sieve_dec(sieveKey${UID}, sieveNonce${UID}, sieveDataHint${UID}, sieveDataBlock${UID}) in let (dataKeyShare${UID}:bitstring) = sieveContentBlock${UID} in }$with{ }
+
+  let dataKey:secretstream_key = assemble_key_shares($expand{dataKeyShare${UID}}$with{,}) in
+
+  out(io, (DATA_STORE_DOWNLOAD_REQUEST, dataUUID));
+  in(io, (=DATA_STORE_DOWNLOAD_RESPONSE_1, a:pubkey, dataEncrypted:bitstring));
+
+  let dataDecrypted = crypto_secretstream_decrypt(dataKey, dataHeader, dataEncrypted) in
+
+    if (dataDecrypted = privateUserData) then
+    event DataReencryptionAccessorSucceedDecryptOldKey${UID}(metaDataUUID, sieveDataUUID${UID});
+
+  0.
+$endtemplate
+
+
+let AccessorBadDataReencryption() =
+  $expand{AccessorBadDataReencryptionPhased${UID}()}$with{ | }
+  | 0.
+
+
+
+(********************************************************)
+(* Main Process *)
+(********************************************************)
+
+const adminName, storageName:bitstring.
+
+(* Lookup table for canonical name <--> pubkey *)
+table KMS(bitstring, pubkey).
+
+let AdminProcess(setupKey:secretstream_key) =
+  new adminPrivkey: privkey;
+  let adminPubkey = pk(adminPrivkey) in
+  insert KMS(adminName, adminPubkey);
+  AdminInitialization(setupKey, adminPrivkey)
+  | !AdminAcquirePreAuthToken(adminPrivkey)
+  | 0.
+
+let DeviceProcess(setupKey:secretstream_key) =
+  new devicePrivkey: privkey;
+  let devicePubkey = pk(devicePrivkey) in
+  DeviceInitialization(setupKey, devicePrivkey)
+$template ${UID}
+  | DeviceClaimDevice${UID}(devicePrivkey)
+$endtemplate
+  | DeviceDataStore(devicePrivkey)
+  | 0.
+
+$template ${UID}
+let UserProcess${UID}() =
+  new userPrivkey:privkey;
+  get KMS(=adminName, adminPubkey) in
+  get KMS(=storageName, storagePubkey) in
+  UserAcquirePreAuthToken(userPrivkey, adminPubkey)
+  | UserClaimDevice${UID}(userPrivkey, adminPubkey)
+  | UserDataStore${UID}(userPrivkey)
+  | UserDataAccess${UID}(userPrivkey)
+  | UserDataReencryption${UID}(userPrivkey, storagePubkey)
+  | 0.
+$endtemplate
+
+let StorageProcess() =
+  new storagePrivkey:privkey;
+  let storagePubkey = pk(storagePrivkey) in
+  insert KMS(storageName, storagePubkey);
+  !StorageDownloadDaemon()
+  | !StorageUploadDaemon()
+  | !StorageDataReencryption(storagePrivkey)
+  | 0.
+
+let AccessorProcess() =
+  new accessorPrivkey:privkey;
+  let accessorPubkey = pk(accessorPrivkey) in
+  insert approvedAccessor(accessorPubkey);
+  AccessorDataAccess(accessorPrivkey)
+  | AccessorBadDataReencryption()
+  | 0.
+
+process
+  new setupKey:secretstream_key;
+  AdminProcess(setupKey)
+  | !DeviceProcess(setupKey)
+$template ${UID}
+  | !UserProcess${UID}()
+$endtemplate
+  | StorageProcess()
+  | !AccessorProcess()
