@@ -16,11 +16,11 @@ Then, to compile, you can set the number of users as:
 python3 build.py numUsers=<x>
 ```
 
-The output model will be in `tot-compiled.pv`.
+The output model will be in `teo-compiled.pv`.
 
 ## Run Verification
 
-Assuming you've already compiled the model at `tot-compiled.pv`, you can check properties with the following command:
+Assuming you've already compiled the model at `teo-compiled.pv`, you can check properties with the following command:
 ```bash
 ./verify.sh
 ```
