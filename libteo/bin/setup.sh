@@ -61,7 +61,7 @@ install_packages_apt() {
     wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
 
     echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-    sudo apt update
+    sudo apt update -qq
   fi
 
   sudo apt install -qq -y cmake
@@ -70,11 +70,14 @@ install_packages_apt() {
   ### Only specify version 9 on Ubuntu, since RPi doesn't have such a latest support
   if [ "$PLATFORM" = "Ubuntu" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    sudo apt update
+    sudo apt update -qq
     sudo apt install -qq -y g++-9
   else
     sudo apt install -qq -y g++
   fi
+
+  # This fix "no CMAKE_CXX_COMPILER" error on freshly installed Ubuntu
+  sudo apt install -qq -y build-essential
 }
 
 install_packages_brew() {
@@ -112,10 +115,11 @@ build_dependency() {
 
   ### Install libdecaf for Sieve cryptography
   pushd libs/ed448goldilocks-code
+  rm -rf build
   mkdir build
   cd build
   cmake -DPYTHON_EXECUTABLE=$(which python3) ..
-  make -j"$NPROC"
+  make
   sudo make install
 
   # Fix library include relative path issue

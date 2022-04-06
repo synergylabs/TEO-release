@@ -13,3 +13,7 @@ WORKDIR /app
 # Install ProVerif
 RUN bin/setup-proverif.sh
 RUN bin/setup-protocol-compiler.sh
+
+# # Build libteo library
+WORKDIR /app/libteo 
+RUN bin/setup.sh 

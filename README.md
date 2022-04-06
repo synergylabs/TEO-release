@@ -9,3 +9,6 @@ docker build -t zhanghan177/teo .
 
 See [proverif/](proverif/).
 
+## libteo -- Main C++ Library
+
+See [libteo/](libteo/).
