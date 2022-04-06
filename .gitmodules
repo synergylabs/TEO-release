@@ -1,0 +1,6 @@
+[submodule "libteo/libs/ed448goldilocks-code"]
+	path = libteo/libs/ed448goldilocks-code
+	url = https://git.code.sf.net/p/ed448goldilocks/code
+[submodule "libteo/libs/flatbuffers"]
+	path = libteo/libs/flatbuffers
+	url = https://github.com/google/flatbuffers
