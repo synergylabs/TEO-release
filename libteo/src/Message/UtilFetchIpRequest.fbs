@@ -1,0 +1,7 @@
+namespace libtot;
+
+table UtilFetchIpRequest {
+    pubkey:[ubyte];
+}
+
+root_type UtilFetchIpRequest;

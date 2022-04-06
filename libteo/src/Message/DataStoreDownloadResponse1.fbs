@@ -1,0 +1,12 @@
+namespace libtot.DataStoreDownload;
+
+table OwnerPubkey {
+    pk:[ubyte];
+}
+
+table DataStoreDownloadResponse1 {
+    owner_pubkeys:[OwnerPubkey];
+    content_len:int32;
+}
+
+root_type DataStoreDownloadResponse1;

@@ -1,0 +1,9 @@
+namespace libtot;
+
+table DataStoreSieveCredRequest {
+    device_pubkey:[ubyte];
+    session_nonce:[ubyte];
+    ciphertext:[ubyte];
+}
+
+root_type DataStoreSieveCredRequest;

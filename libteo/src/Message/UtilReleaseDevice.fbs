@@ -1,0 +1,7 @@
+namespace libtot;
+
+table UtilReleaseDevice {
+    user_pubkey:[ubyte];
+}
+
+root_type UtilReleaseDevice;

@@ -1,0 +1,8 @@
+namespace libtot.DataStoreUpload;
+
+table DataStoreUploadNotification {
+    session_header_refresh:[ubyte];
+    ciphertext:[ubyte];
+}
+
+root_type DataStoreUploadNotification;

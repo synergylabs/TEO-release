@@ -1,0 +1,13 @@
+namespace libtot.DataStoreUpload;
+
+table OwnerPubkey {
+    pk:[ubyte];
+}
+
+table DataStoreUpload {
+    uuid:string;
+    owner_pubkeys:[OwnerPubkey];
+    content_len:int32;
+}
+
+root_type DataStoreUpload;

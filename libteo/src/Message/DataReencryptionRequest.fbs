@@ -1,0 +1,10 @@
+namespace libtot;
+
+table DataReencryptionRequest {
+    sieve_data_block_uuid:string;
+    owner_pubkey:[ubyte];
+    msg_nonce:[ubyte];
+    ciphertext:[ubyte];
+}
+
+root_type DataReencryptionRequest;

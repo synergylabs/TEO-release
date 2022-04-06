@@ -1,0 +1,8 @@
+namespace libtot;
+
+table DataStoreSieveCredResponse {
+    session_header:[ubyte];
+    ciphertext:[ubyte];
+}
+
+root_type DataStoreSieveCredResponse;

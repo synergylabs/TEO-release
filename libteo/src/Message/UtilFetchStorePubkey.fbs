@@ -1,0 +1,7 @@
+namespace libtot;
+
+table UtilFetchStorePubkey {
+    pubkey:[ubyte];
+}
+
+root_type UtilFetchStorePubkey;

@@ -1,0 +1,7 @@
+namespace libtot;
+
+table DataReencryptionPreRequest {
+    ciphertext:[ubyte];
+}
+
+root_type DataReencryptionPreRequest;

@@ -1,0 +1,16 @@
+namespace libtot.SieveDataBlock;
+
+table OwnerInfo {
+    sieve_nonce:[ubyte];
+    owner_pubkey:[ubyte];
+    encrypted_metadata_uuid:string;
+    metadata_hint:[int];
+}
+
+table SieveDataBlock {
+    owners:[OwnerInfo];
+    data_uuid:[string];
+    data_header:[ubyte];
+}
+
+root_type SieveDataBlock;

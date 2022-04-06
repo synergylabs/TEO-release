@@ -1,0 +1,9 @@
+namespace libtot;
+
+table DataAccessFetch {
+    accessor_pubkey:[ubyte];
+    message_nonce:[ubyte];
+    ciphertext:[ubyte];
+}
+
+root_type DataAccessFetch;

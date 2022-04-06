@@ -1,0 +1,7 @@
+namespace libtot;
+
+table InitializationDeviceInfo {
+    ciphertext:[ubyte];
+}
+
+root_type InitializationDeviceInfo;

@@ -1,0 +1,7 @@
+namespace libtot;
+
+table ClaimDeviceDiscovery {
+    user_pubkey:[ubyte];
+}
+
+root_type ClaimDeviceDiscovery;

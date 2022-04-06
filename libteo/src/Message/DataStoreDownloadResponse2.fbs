@@ -1,0 +1,7 @@
+namespace libtot.DataStoreDownload;
+
+table DataStoreDownloadResponse2 {
+    content:[ubyte];
+}
+
+root_type DataStoreDownloadResponse2;

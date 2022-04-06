@@ -1,0 +1,8 @@
+namespace libtot;
+
+table UtilFetchIpResponse {
+    ip:string;
+    port:int16;
+}
+
+root_type UtilFetchIpResponse;

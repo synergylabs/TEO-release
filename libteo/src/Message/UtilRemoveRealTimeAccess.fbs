@@ -1,0 +1,7 @@
+namespace libtot;
+
+table UtilRemoveRealTimeAccess {
+    user_pubkey:[ubyte];
+}
+
+root_type UtilRemoveRealTimeAccess;

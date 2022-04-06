@@ -1,0 +1,8 @@
+namespace libtot;
+
+table UtilHeartbeat {
+    user_pubkey:[ubyte];
+    proximity_nonce:[ubyte];
+}
+
+root_type UtilHeartbeat;
