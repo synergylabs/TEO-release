@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
     sleep(2);
     fmt::print("\n");
 
-    dev.wait_all();
+    // dev.wait_all();
 
     return 0;
 }

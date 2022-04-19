@@ -40,6 +40,22 @@ Pass these options to CMake configuration command, e.g.
 | TEO_STANDALONE_APP | **ON** / OFF | Build standard Linux app (instead of Android native libraries) |
 | TEO_STORAGE_MODULE | **ON** / OFF | Build storage module for third-party storage server |
 | TEO_DEMO_APPS | **ON** / OFF | Build apps for demonstration |
+| TEO_BLUETOOTH_BEACON | ON / **OFF** | Enable bluetooth beacons for proximity keep-alive |
+| JSON_BuildTests | **ON** / OFF | [Third-party] JSON library unit tests (leave on if you care or want to make sure library works) |
+
+## Command Line Test Apps
+
+### Basic Functionality
+
+Run the simple unit test at
+```bash
+# terminal 1
+./build/apps/storage
+
+# terminal 2: collect storage server information from above
+./build/apps/app <storage-ip> <storage-port>
+```
+This standalone test app demonstrates some basic TEO functinalities and crypto primitives.
 
 ## Case Studies
 

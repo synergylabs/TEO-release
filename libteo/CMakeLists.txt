@@ -21,6 +21,7 @@ option(TEO_EXTENDED_TESTS "Run additional tests" OFF)
 option(TEO_STANDALONE_APP "Build standard Linux app (instead of Android native libraries)" ON)
 option(TEO_STORAGE_MODULE "Build storage module for third-party storage server" ON)
 option(TEO_DEMO_APPS      "Build apps for demonstration" ON)
+option(TEO_BLUETOOTH_BEACON "Enable bluetooth beacons for proximity keep-alive" OFF)
 
 # propagates CMake configuration options to the compiler
 function(configureProject)
@@ -29,6 +30,9 @@ function(configureProject)
     endif()
     if (TEO_STANDALONE_APP)
         add_definitions(-DTEO_STANDALONE_APP)
+    endif()
+    if (TEO_BLUETOOTH_BEACON)
+        add_definitions(-DTEO_BLUETOOTH_BEACON)
     endif()
 endfunction()
 
@@ -48,6 +52,8 @@ message(STATUS "-- TEO_STANDALONE_APP      Build standard Linux app            $
 message(STATUS "                              (instead of Android native libraries)")
 message(STATUS "-- TEO_STORAGE_MODULE      Build storage module                ${TEO_STORAGE_MODULE}")
 message(STATUS "-- TEO_DEMO_APPS           Build apps for demonstration        ${TEO_DEMO_APPS}")
+message(STATUS "-- TEO_BLUETOOTH_BEACON    Enable bluetooth beacons for        ${TEO_BLUETOOTH_BEACON}")
+message(STATUS "                              proximity keep-alive ")
 message(STATUS "----------------------------------------------------------------------------")
 
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")

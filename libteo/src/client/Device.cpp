@@ -24,14 +24,18 @@ namespace teo
     Device::Device()
     {
         set_server_port(default_device_port);
+
+        // We have to do this first since creating BLE Beacon requires sudo password
+#if defined(TEO_BLUETOOTH_BEACON)
+        pthread_create(get_thread(DEVICE_THREAD_BEACON), nullptr,
+                       beacon_wrapper, this);
+#endif
+
         pthread_create(get_thread(DEVICE_THREAD_SERVER), nullptr,
                        server_wrapper, this);
 
         pthread_create(get_thread(DEVICE_THREAD_INFO_PRITNER), nullptr,
                        print_info_wrapper, this);
-
-        pthread_create(get_thread(DEVICE_THREAD_BEACON), nullptr,
-                       beacon_wrapper, this);
 
         LOGV("Client %d is Device", get_id());
     }
