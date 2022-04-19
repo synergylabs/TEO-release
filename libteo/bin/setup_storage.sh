@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Additional setup for storage node
 
+set -euxo pipefail
+
 ###############################################################################
 #### Installation
 ###############################################################################
 
-sudo apt udpate -qq 
+sudo apt update -qq 
 sudo apt upgrade -y -qq
 
 ### Install RocksDB

@@ -36,17 +36,17 @@ FetchContent_MakeAvailable(json)
 # Compile executables
 #####################################
 
-add_executable(app app.cpp )
+add_executable(app app.cpp)
 target_compile_features(app PRIVATE cxx_std_17)
 
 target_link_libraries(app PRIVATE teo fmt::fmt argparse stdc++fs)
 
+if (TEO_STORAGE_MODULE)
+    add_executable(storage storage.cpp)
+    target_compile_features(storage PRIVATE cxx_std_17)
 
-add_executable(storage storage.cpp )
-target_compile_features(storage PRIVATE cxx_std_17)
-
-target_link_libraries(storage PRIVATE teo-storage fmt::fmt argparse curl)
-
+    target_link_libraries(storage PRIVATE teo-storage fmt::fmt argparse curl)
+endif()
 
 add_executable(device device.cpp)
 target_compile_features(device PRIVATE cxx_std_17)

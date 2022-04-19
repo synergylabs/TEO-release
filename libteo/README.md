@@ -1,8 +1,5 @@
 # Transient Ownership for IoT Devices
 
-![Compile Workflow](https://github.com/synergylabs/libtot/actions/workflows/cmake.yml/badge.svg)
-
-
 ## Dependency
 
 `CryptoPP`: Need this library for Shamir secret sharing.
@@ -19,13 +16,18 @@ linking the library in this project's CMake.
 
 Instructions on how to set up on a fresh Ubuntu machine.
 
-- Run `./bin/setup.sh`.
+- Run `./bin/setup.sh`
 
 Must use **GCC-9**, as one of the dependency (json library) doesn't play well with GCC-10.
 
+**[Additional step for storage server]**
+You need to install additional dependencies if you want to build storage module (hence deploy the storage server on targeted platform).
+
+- Run `./bin/setup_storage.sh`
+
 ## Build
 
-- \[Optional\] Run `./bin/compile_flatbuffers_models.sh --cpp -o include/teo/` to generate the flatbuffer files for message format. (This step is included in the [setup](#setup) script.)
+- [Optional] Run `./bin/compile_flatbuffers_models.sh --cpp -o include/teo/` to generate the flatbuffer files for message format. (This step is included in the [setup](#setup) script.)
 - Run `cmake -B build -S .` to generate a buildsystem and then run the actual build command `cd build && make`. 
 
 ## CMake configuration options

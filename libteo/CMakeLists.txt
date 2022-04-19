@@ -74,7 +74,8 @@ message("")
 
 # https://stackoverflow.com/questions/13428910/how-to-set-the-environmental-variable-ld-library-path-in-linux
 SET(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,/usr/local/lib")
+        # "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,/usr/local/lib")
+        "${CMAKE_EXE_LINKER_FLAGS}")
 
 # FetchContent added in CMake 3.11, downloads during the configure step
 include(FetchContent)
