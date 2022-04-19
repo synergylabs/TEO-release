@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
 
     fmt::print("\n\nTesting public facing APIs\n");
 
-    teo::SharedSecretKey setup_token = teo::SharedSecretKey();
+    teo::SharedSecretKey setup_key = teo::SharedSecretKey();
 
-    teo::Device dev(setup_token, storage_ip, storage_port);
+    teo::Device dev(setup_key, storage_ip, storage_port);
 
     teo::Admin admin(storage_ip, storage_port);
 
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     sleep(2);
     fmt::print("\nInitialize device...\n");
 
-    admin.initialize_device(setup_token);
+    admin.initialize_device(setup_key);
 
     sleep(2);
     fmt::print("\nAcquire pre auth token...\n");

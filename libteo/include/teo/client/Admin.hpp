@@ -26,7 +26,7 @@ namespace teo
          * Try to acquire a Device and become the manager.
          * @return
          */
-        int initialize_device(SharedSecretKey &setup_token, std::string device_pubkey_b64 = "");
+        int initialize_device(SharedSecretKey &setup_key, std::string device_pubkey_b64 = "");
 
         int pre_auth_handler(int connection);
 

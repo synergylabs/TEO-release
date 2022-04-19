@@ -24,7 +24,7 @@ namespace teo
         acquire_pre_auth_token,
 
         claim_device_request,
-        clain_device_response,
+        claim_device_response,
 
         data_store_sieve_cred_request,
         data_store_sieve_cred_response,

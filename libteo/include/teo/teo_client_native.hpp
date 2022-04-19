@@ -8,7 +8,7 @@ namespace teo
 {
     int admin_initialize_device_impl(const char *device_ip_load, const int device_port_in,
                                      const void *user_pubkey_ptr, size_t user_pubkey_len,
-                                     SharedSecretKey &setup_token,
+                                     SharedSecretKey &setup_key,
                                      AsymmetricEncryptionKeySet &keySet);
 
     int user_acquire_pre_auth_token_impl(const char *admin_ip_load, const int admin_port_in,

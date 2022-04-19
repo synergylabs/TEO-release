@@ -40,10 +40,10 @@ namespace teo
         LOGV("Client %d is Device", get_id());
     }
 
-    Device::Device(SharedSecretKey &setup_token_in, const std::string &storage_ip,
+    Device::Device(SharedSecretKey &setup_key_in, const std::string &storage_ip,
                    int storage_port) : Device()
     {
-        setup_token = setup_token_in;
+        setup_key = setup_key_in;
 
         set_storage_info(storage_ip, storage_port);
         register_ip_kms();
@@ -318,11 +318,11 @@ namespace teo
         network_read(connection, request_buf, READ_BUFFER_SIZE);
         auto request_msg = GetInitializationRequest(request_buf);
 
-        setup_token.load_header_decryption(request_msg->setup_header()->Data(),
+        setup_key.load_header_decryption(request_msg->setup_header()->Data(),
                                            request_msg->setup_header()->size());
 
         CiphertextInitializationRequest request_payload;
-        setup_token.decrypt(reinterpret_cast<unsigned char *>(&request_payload), sizeof(request_payload),
+        setup_key.decrypt(reinterpret_cast<unsigned char *>(&request_payload), sizeof(request_payload),
                             request_msg->ciphertext()->Data(), request_msg->ciphertext()->size());
 
         if (request_payload.type != CipherType::initialization_request)
@@ -453,7 +453,7 @@ namespace teo
 
         // Send back notification to end-user
         CiphertextClaimDeviceResponse response_payload;
-        response_payload.type = CipherType::clain_device_response;
+        response_payload.type = CipherType::claim_device_response;
         memcpy(response_payload.challenge_decrypted, request_payload.user_challenge,
                sizeof(request_payload.user_challenge));
         size_t ciphertext_len = AsymmetricEncryptionKeySet::get_box_easy_cipher_len(sizeof(response_payload));
@@ -485,7 +485,7 @@ namespace teo
                            int *sieve_nego_timer,
                            int *upload_notify_timer)
     {
-        return store_data_tot_impl(sieve_block_result,
+        return store_data_teo_impl(sieve_block_result,
                                    file_path,
                                    nullptr,
                                    0,
@@ -505,7 +505,7 @@ namespace teo
                            int *sieve_nego_timer,
                            int *upload_notify_timer)
     {
-        return store_data_tot_impl(sieve_block_result,
+        return store_data_teo_impl(sieve_block_result,
                                    "",
                                    file_content_ptr,
                                    file_content_len,
@@ -523,7 +523,7 @@ namespace teo
         uint8_t *cipher_buf;
     };
 
-    int Device::store_data_tot_impl(UUID *sieve_block_result,
+    int Device::store_data_teo_impl(UUID *sieve_block_result,
                                     const std::string &file_path,
                                     const uint8_t *input_buf,
                                     size_t input_buf_len,

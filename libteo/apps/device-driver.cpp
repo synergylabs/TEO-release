@@ -46,7 +46,7 @@ const string EXEC_TIME = "driver_execution_time";
 const char *HTTP_CONTENT_TYPE_JSON = "application/json";
 const char *HTTP_CONTENT_TYPE_RAW = "text/plain";
 
-teo::SharedSecretKey setup_token;
+teo::SharedSecretKey setup_key;
 
 void *PrintDeviceDetail(void *dev_in)
 {
@@ -57,7 +57,7 @@ void *PrintDeviceDetail(void *dev_in)
         string device_pubkey_b64 = teo::base64_encode(dev_ptr->get_keyset().get_full_pk());
 
         // Test QR code
-        string setup_token_b64 = teo::base64_encode(setup_token.get_key(), teo::SharedSecretKey::KEY_SIZE);
+        string setup_token_b64 = teo::base64_encode(setup_key.get_key(), teo::SharedSecretKey::KEY_SIZE);
         string admin_qr_content_base = "{{ \"issuer\": \"device\", \"type\": \"admin\", \"DeviceSecret\": \"{}\", \"Pubkey\":\"{}\", \"IP\": \"{}\", \"Port\": \"{}\" }}";
         string admin_qr_content = fmt::format(admin_qr_content_base, setup_token_b64, device_pubkey_b64, dev_ptr->get_server_ip(), dev_ptr->get_server_port());
 
@@ -130,8 +130,8 @@ int main(int argc, char **argv)
 
     teo::api_initialize();
 
-    setup_token = teo::SharedSecretKey();
-    teo::Device dev(setup_token, storage_ip, storage_port);
+    setup_key = teo::SharedSecretKey();
+    teo::Device dev(setup_key, storage_ip, storage_port);
 
     // Start task to periodically print setup details
     pthread_t thread_id;

@@ -10,7 +10,7 @@ namespace teo
 {
     int admin_initialize_device_impl(const char *device_ip_load, const int device_port_in,
                                      const void *user_pubkey_ptr, size_t user_pubkey_len,
-                                     SharedSecretKey &setup_token, AsymmetricEncryptionKeySet &keySet)
+                                     SharedSecretKey &setup_key, AsymmetricEncryptionKeySet &keySet)
     {
 
         int sockfd = network_connect(device_ip_load, device_port_in);
@@ -31,11 +31,11 @@ namespace teo
 
         size_t request_ciphertext_len = SharedSecretKey::get_cipher_len(sizeof(request_payload));
         auto request_ciphertext = new uint8_t[request_ciphertext_len];
-        setup_token.encrypt(request_ciphertext, request_ciphertext_len,
+        setup_key.encrypt(request_ciphertext, request_ciphertext_len,
                             reinterpret_cast<const uint8_t *>(&request_payload),
                             sizeof(request_payload));
 
-        auto setup_header_obj = builder.CreateVector(setup_token.get_header(),
+        auto setup_header_obj = builder.CreateVector(setup_key.get_header(),
                                                      SharedSecretKey::HEADER_SIZE);
         auto request_ciphertext_obj = builder.CreateVector(request_ciphertext,
                                                            request_ciphertext_len);
@@ -265,7 +265,7 @@ namespace teo
                                  response_msg->response_nonce()->Data(),
                                  discovery_response_msg->device_pubkey()->Data());
 
-        if (response_payload.type != CipherType::clain_device_response)
+        if (response_payload.type != CipherType::claim_device_response)
         {
             LOGW("Invalid response type");
             delete[] request_cipher_buf;

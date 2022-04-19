@@ -24,7 +24,7 @@ namespace teo
         static const int DEVICE_THREAD_PROXIMITY_DETECT = 3;
 
         uint8_t valid_device_proof[AsymmetricEncryptionKeySet::SIGNATURE_SIZE]{0};
-        SharedSecretKey setup_token;
+        SharedSecretKey setup_key;
         uint8_t admin_key[AsymmetricEncryptionKeySet::FULL_PK_SIZE]{};
 
         std::vector<const uint8_t *> owner_keys;
@@ -39,7 +39,7 @@ namespace teo
     public:
         Device();
 
-        explicit Device(SharedSecretKey &setup_token_in,
+        explicit Device(SharedSecretKey &setup_key_in,
                         const std::string &storage_ip = default_device_ip,
                         int storage_port = default_device_port);
 
@@ -86,7 +86,7 @@ namespace teo
                        int *sieve_nego_timer = nullptr,
                        int *upload_notify_timer = nullptr);
 
-        int store_data_tot_impl(UUID *sieve_block_result,
+        int store_data_teo_impl(UUID *sieve_block_result,
                                 const std::string &file_path,
                                 const uint8_t *input_buf,
                                 size_t input_buf_len,

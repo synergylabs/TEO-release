@@ -37,7 +37,7 @@ namespace teo
         return 0;
     }
 
-    int Admin::initialize_device(SharedSecretKey &setup_token, std::string device_pubkey_b64)
+    int Admin::initialize_device(SharedSecretKey &setup_key, std::string device_pubkey_b64)
     {
         std::string device_ip = default_device_ip;
         int device_port = default_device_port;
@@ -51,7 +51,7 @@ namespace teo
 
         return admin_initialize_device_impl(device_ip.c_str(), device_port,
                                             nullptr, AsymmetricEncryptionKeySet::FULL_PK_SIZE,
-                                            setup_token, get_keyset());
+                                            setup_key, get_keyset());
     }
 
     int Admin::pre_auth_handler(int connection)
