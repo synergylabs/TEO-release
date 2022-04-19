@@ -1,5 +1,5 @@
-#include <libtot/libtot.hpp>
-#include <libtot/client/Storage.hpp>
+#include <teo/teo.hpp>
+#include <teo/client/Storage.hpp>
 
 #include <chrono>
 #include <fmt/format.h>
@@ -18,8 +18,8 @@ using decaf::Block;
 using decaf::SecureBuffer;
 using decaf::SpongeRng;
 
-typedef typename libtot::LIBTOT_EC_Group::Scalar Scalar;
-typedef typename libtot::LIBTOT_EC_Group::Point Point;
+typedef typename teo::TEO_EC_Group::Scalar Scalar;
+typedef typename teo::TEO_EC_Group::Point Point;
 
 typedef std::chrono::high_resolution_clock Clock;
 
@@ -29,8 +29,8 @@ void *PrintStorageDetail(void *store_in)
 {
     while (true)
     {
-        libtot::Storage *store_ptr = (libtot::Storage *)store_in;
-        string store_pubkey_b64 = libtot::base64_encode(store_ptr->get_keyset().get_full_pk());
+        teo::Storage *store_ptr = (teo::Storage *)store_in;
+        string store_pubkey_b64 = teo::base64_encode(store_ptr->get_keyset().get_full_pk());
 
         string user_qr_content_base = "{{ \"issuer\": \"storage\", \"type\": \"user\", \"Pubkey\":\"{}\", \"IP\": \"{}\", \"Port\": \"{}\" }}";
         string user_qr_content = fmt::format(user_qr_content_base, store_pubkey_b64, store_ptr->get_server_ip(),
@@ -59,9 +59,9 @@ int main()
 {
     fmt::print("Running Storage node...\n\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    libtot::Storage store;
+    teo::Storage store;
 
     pthread_t thread_id;
     pthread_create(&thread_id, nullptr, PrintStorageDetail, (void *)&store);

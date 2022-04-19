@@ -1,7 +1,7 @@
 // Partial code content referred from
 // https://gist.github.com/syohex/b1aa695dc6ac5dced139
 
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 #include <string>
@@ -20,18 +20,18 @@ typedef std::chrono::high_resolution_clock Clock;
 
 static const size_t QR_CODE_WIDTH = 500;
 
-libtot::SharedSecretKey setup_token;
+teo::SharedSecretKey setup_token;
 
 void *PrintDeviceDetail(void *dev_in)
 {
     while (true)
     {
-        libtot::Device *dev_ptr = (libtot::Device *)dev_in;
+        teo::Device *dev_ptr = (teo::Device *)dev_in;
 
-        string device_pubkey_b64 = libtot::base64_encode(dev_ptr->get_keyset().get_full_pk());
+        string device_pubkey_b64 = teo::base64_encode(dev_ptr->get_keyset().get_full_pk());
 
         // Test QR code
-        string setup_token_b64 = libtot::base64_encode(setup_token.get_key(), libtot::SharedSecretKey::KEY_SIZE);
+        string setup_token_b64 = teo::base64_encode(setup_token.get_key(), teo::SharedSecretKey::KEY_SIZE);
         string admin_qr_content_base = "{{ \"issuer\": \"device\", \"type\": \"admin\", \"DeviceSecret\": \"{}\", \"Pubkey\":\"{}\", \"IP\": \"{}\", \"Port\": \"{}\" }}";
         string admin_qr_content = fmt::format(admin_qr_content_base, setup_token_b64, device_pubkey_b64, dev_ptr->get_server_ip(), dev_ptr->get_server_port());
 
@@ -75,10 +75,10 @@ int main()
 {
     fmt::print("Running Device node...\n\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    setup_token = libtot::SharedSecretKey();
-    libtot::Device dev(setup_token);
+    setup_token = teo::SharedSecretKey();
+    teo::Device dev(setup_token);
 
     pthread_t thread_id;
     pthread_create(&thread_id, nullptr, PrintDeviceDetail, (void *)&dev);
@@ -96,8 +96,8 @@ int main()
         std::string homedir = std::string(pw->pw_dir);
 
         auto before = Clock::now();
-        std::string test_hello_world_path = homedir + "/libtot/tests/hello-world.txt";
-        libtot::UUID sieve_uuid_hello_world;
+        std::string test_hello_world_path = homedir + "/teo/tests/hello-world.txt";
+        teo::UUID sieve_uuid_hello_world;
         dev.store_data(test_hello_world_path, &sieve_uuid_hello_world);
 
         auto after = Clock::now();

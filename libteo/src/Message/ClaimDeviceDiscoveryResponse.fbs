@@ -1,4 +1,4 @@
-namespace libtot;
+namespace teo;
 
 table ClaimDeviceDiscoveryResponse {
     device_pubkey:[ubyte];

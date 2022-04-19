@@ -4,10 +4,10 @@
 
 #include <arpa/inet.h>
 
-#include <libtot/libtot.hpp>
-#include <libtot/client/Storage.hpp>
+#include <teo/teo.hpp>
+#include <teo/client/Storage.hpp>
 
-namespace libtot
+namespace teo
 {
     Storage::Storage()
     {
@@ -78,7 +78,7 @@ namespace libtot
         return 0;
     }
 
-    std::vector<std::string> construct_pk_str(const flatbuffers::Vector<flatbuffers::Offset<libtot::DataStoreUpload::OwnerPubkey>> *owners_obj)
+    std::vector<std::string> construct_pk_str(const flatbuffers::Vector<flatbuffers::Offset<teo::DataStoreUpload::OwnerPubkey>> *owners_obj)
     {
         std::vector<std::string> res;
         for (int i = 0; i < owners_obj->size(); i++)
@@ -90,7 +90,7 @@ namespace libtot
         return res;
     }
 
-    bool Storage::compare_owner_keys(const std::vector<std::string> &owners_val, const flatbuffers::Vector<flatbuffers::Offset<libtot::DataStoreUpload::OwnerPubkey>> *owners_obj)
+    bool Storage::compare_owner_keys(const std::vector<std::string> &owners_val, const flatbuffers::Vector<flatbuffers::Offset<teo::DataStoreUpload::OwnerPubkey>> *owners_obj)
     {
         std::vector<std::string> owners_v_obj = construct_pk_str(owners_obj);
         bool eq = (owners_val.size() == owners_v_obj.size());
@@ -173,7 +173,7 @@ namespace libtot
 
         flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE + res.owners_val.size() * AsymmetricEncryptionKeySet::FULL_PK_SIZE + res.content_val.size());
 
-        std::vector<flatbuffers::Offset<libtot::DataStoreDownload::OwnerPubkey>> owner_pks_v;
+        std::vector<flatbuffers::Offset<teo::DataStoreDownload::OwnerPubkey>> owner_pks_v;
         for (auto &pk : res.owners_val)
         {
             auto owner_pk_obj = builder.CreateVector(reinterpret_cast<const uint8_t *>(pk.c_str()), pk.size());

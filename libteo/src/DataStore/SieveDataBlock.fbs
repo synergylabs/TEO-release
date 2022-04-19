@@ -1,4 +1,4 @@
-namespace libtot.SieveDataBlock;
+namespace teo.SieveDataBlock;
 
 table OwnerInfo {
     sieve_nonce:[ubyte];

@@ -2,9 +2,9 @@
 // Created by han on 2/11/21.
 //
 
-#include <libtot/libtot.hpp>
-#include <libtot/client/Device.hpp>
-#include <libtot/libtot_semaphore.hpp>
+#include <teo/teo.hpp>
+#include <teo/client/Device.hpp>
+#include <teo/teo_semaphore.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -19,7 +19,7 @@
 #include <map>
 #include <stdlib.h>
 
-namespace libtot
+namespace teo
 {
     Device::Device()
     {

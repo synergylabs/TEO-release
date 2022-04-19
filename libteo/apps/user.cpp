@@ -1,4 +1,4 @@
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 #include <string>
@@ -51,9 +51,9 @@ int main(int argc, char *argv[])
 
     fmt::print("Running User node...\n\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    libtot::User user(reinterpret_cast<const uint8_t *>(libtot::base64_decode(admin_pubkey_b64).c_str()),
+    teo::User user(reinterpret_cast<const uint8_t *>(teo::base64_decode(admin_pubkey_b64).c_str()),
                       "0.0.0.0", 9011, storage_ip, storage_port);
 
     user.acquire_pre_auth_token();
@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
     uint8_t *cert = nullptr;
     size_t cert_len = 0;
     user.sign_access_cert(reinterpret_cast<const uint8_t *>(msg), msg_len, &cert, &cert_len);
-    string msg_b64 = libtot::base64_encode(reinterpret_cast<const uint8_t *>(msg), msg_len);
-    string cert_b64 = libtot::base64_encode(cert, cert_len);
+    string msg_b64 = teo::base64_encode(reinterpret_cast<const uint8_t *>(msg), msg_len);
+    string cert_b64 = teo::base64_encode(cert, cert_len);
 
     fmt::print("Msg content: {}\n", msg_b64);
     fmt::print("Cert content: {}\n", cert_b64);

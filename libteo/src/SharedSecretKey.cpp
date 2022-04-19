@@ -6,11 +6,11 @@
 #include <cassert>
 #include <cstring>
 
-#include "libtot/libtot_logger.hpp"
-#include "libtot/SharedSecretKey.hpp"
+#include "teo/teo_logger.hpp"
+#include "teo/SharedSecretKey.hpp"
 
 
-namespace libtot {
+namespace teo {
 
     SharedSecretKey::SharedSecretKey() {
         initialize();

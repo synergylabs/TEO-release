@@ -1,4 +1,4 @@
-namespace libtot;
+namespace teo;
 
 table UtilHeartbeat {
     user_pubkey:[ubyte];

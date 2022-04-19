@@ -4,9 +4,9 @@
 #include <cassert>
 #include <cstring>
 
-#include "libtot/PreAuthToken.hpp"
+#include "teo/PreAuthToken.hpp"
 
-namespace libtot {
+namespace teo {
     PreAuthToken::PreAuthToken(const uint8_t *raw_token, size_t token_len) {
         assert (token_len == get_token_len());
         initialized = true;

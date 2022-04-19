@@ -7,10 +7,10 @@
 #include <iostream>
 #include <cassert>
 
-#include "libtot/libtot_logger.hpp"
-#include "libtot/AsymmetricEncryptionKeySet.hpp"
+#include "teo/teo_logger.hpp"
+#include "teo/AsymmetricEncryptionKeySet.hpp"
 
-namespace libtot
+namespace teo
 {
 
     AsymmetricEncryptionKeySet::AsymmetricEncryptionKeySet()

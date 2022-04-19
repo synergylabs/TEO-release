@@ -7,11 +7,11 @@
 #include <cmath>
 #include <algorithm>
 
-#include "libtot/libtot_helper.hpp"
-#include "libtot/libtot_logger.hpp"
-#include "libtot/Sieve.hpp"
+#include "teo/teo_helper.hpp"
+#include "teo/teo_logger.hpp"
+#include "teo/Sieve.hpp"
 
-namespace libtot
+namespace teo
 {
     using decaf::Block;
     using decaf::FixedBlock;
@@ -19,8 +19,8 @@ namespace libtot
     using decaf::SHA3;
     using decaf::SpongeRng;
 
-    typedef typename LIBTOT_EC_Group::Scalar Scalar;
-    typedef typename LIBTOT_EC_Group::Point Point;
+    typedef typename TEO_EC_Group::Scalar Scalar;
+    typedef typename TEO_EC_Group::Point Point;
 
     const int SHA3_512 = 512;
 
@@ -89,7 +89,7 @@ namespace libtot
         return (k != 0 && k != 1);
     }
 
-    Point SieveKey::sieve_f_k_x(LIBTOT_EC_Group::Scalar k, unsigned int nonce_offset, const uint8_t *nonce)
+    Point SieveKey::sieve_f_k_x(TEO_EC_Group::Scalar k, unsigned int nonce_offset, const uint8_t *nonce)
     {
         if (!_validate_k(k))
         {
@@ -271,4 +271,4 @@ namespace libtot
         return 0;
     }
 
-} // namespace libtot
+} // namespace teo

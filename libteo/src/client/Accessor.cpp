@@ -3,14 +3,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include "libtot/client/Accessor.hpp"
-#include "libtot/libtot_helper.hpp"
-#include "libtot/libtot_logger.hpp"
-#include "libtot/libtot_file_io.hpp"
-#include "libtot/base64.hpp"
-#include "libtot/CipherType.hpp"
+#include "teo/client/Accessor.hpp"
+#include "teo/teo_helper.hpp"
+#include "teo/teo_logger.hpp"
+#include "teo/teo_file_io.hpp"
+#include "teo/base64.hpp"
+#include "teo/CipherType.hpp"
 
-namespace libtot
+namespace teo
 {
     Accessor::Accessor(const std::string &storage_ip,
                        int storage_port)

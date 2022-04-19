@@ -1,4 +1,4 @@
-namespace libtot;
+namespace teo;
 
 table InitializationRequest {
     setup_header:[ubyte];

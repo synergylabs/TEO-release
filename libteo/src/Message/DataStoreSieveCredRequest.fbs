@@ -1,4 +1,4 @@
-namespace libtot;
+namespace teo;
 
 table DataStoreSieveCredRequest {
     device_pubkey:[ubyte];

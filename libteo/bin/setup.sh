@@ -152,7 +152,7 @@ build_dependency() {
   #   echo '
   # # Add custom local c++ library to LD_LIBRARY_PATH
   # #configure environment variables
-  # LIBTOT_PREFIX=/usr/local #the prefix where you installed libtot
+  # LIBTOT_PREFIX=/usr/local #the prefix where you installed teo
   # export C_INCLUDE_PATH=$C_INCLUDE_PATH:$LIBTOT_PREFIX/include
   # export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$LIBTOT_PREFIX/include
   # export LIBRARY_PATH=$LIBRARY_PATH:$LIBTOT_PREFIX/lib
@@ -189,12 +189,12 @@ post_install_setup() {
   #### Post Installation Configuration
   ###############################################################################
 
-  ### Generate libtot flatbuffer headers
-  ./bin/compile_flatbuffers_models.sh --cpp -o include/libtot/
+  ### Generate teo flatbuffer headers
+  ./bin/compile_flatbuffers_models.sh --cpp -o include/teo/
 
   ### Link default user config file to home
 
-  ln -vis "$(pwd)"/include/libtot/libtot_user_config.cfg ~/libtot_user_config.cfg
+  ln -vis "$(pwd)"/include/teo/teo_user_config.cfg ~/teo_user_config.cfg
 
   testSize=(10K 100K 1M 10M 100M)
   for i in "${testSize[@]}"; do

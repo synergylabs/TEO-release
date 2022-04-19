@@ -2,9 +2,9 @@
 // Created by han on 2/22/21.
 //
 
-#include "libtot/SignatureKey.hpp"
+#include "teo/SignatureKey.hpp"
 
-namespace libtot {
+namespace teo {
 
     size_t SignatureKey::get_pk_size() const {
         return PUBLICKEYBYTES;

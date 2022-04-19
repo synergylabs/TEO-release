@@ -1,4 +1,4 @@
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 #include <string>
@@ -48,15 +48,15 @@ int main(int argc, char *argv[])
 
     fmt::print("Running Admin node...\n\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    libtot::SharedSecretKey device_secret(libtot::base64_decode(device_secret_b64_str));
+    teo::SharedSecretKey device_secret(teo::base64_decode(device_secret_b64_str));
 
-    libtot::Admin admin(storage_ip, storage_port);
+    teo::Admin admin(storage_ip, storage_port);
 
     admin.initialize_device(device_secret, device_pubkey_b64);
 
-    string admin_pubkey_b64 = libtot::base64_encode(admin.get_keyset().get_full_pk());
+    string admin_pubkey_b64 = teo::base64_encode(admin.get_keyset().get_full_pk());
     string user_qr_content_base = "{{ \"issuer\": \"admin\", \"type\": \"user\", \"Pubkey\":\"{}\", \"IP\": \"{}\", \"Port\": \"{}\" }}";
     string user_qr_content = fmt::format(user_qr_content_base, admin_pubkey_b64, admin.get_server_ip(), admin.get_server_port());
 

@@ -1,4 +1,4 @@
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 #include <string>
@@ -60,13 +60,13 @@ int main(int argc, char *argv[])
 
     fmt::print("Start user groups v1.1\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    std::vector<libtot::User *> group;
+    std::vector<teo::User *> group;
 
     for (int i = 0; i < group_size; i++)
     {
-        libtot::User *user = new libtot::User(reinterpret_cast<const uint8_t *>(libtot::base64_decode(admin_pubkey_b64).c_str()),
+        teo::User *user = new teo::User(reinterpret_cast<const uint8_t *>(teo::base64_decode(admin_pubkey_b64).c_str()),
                                               "0.0.0.0", USER_PORT_BASE + i,
                                               storage_ip, storage_port);
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         group.push_back(user);
     }
 
-    for (libtot::User *u : group)
+    for (teo::User *u : group)
     {
         u->wait_all();
     }

@@ -1,4 +1,4 @@
-namespace libtot.DataStoreUpload;
+namespace teo.DataStoreUpload;
 
 table DataStoreUploadNotification {
     session_header_refresh:[ubyte];

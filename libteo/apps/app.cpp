@@ -1,4 +1,4 @@
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 
 #include <chrono>
 #include <filesystem>
@@ -16,8 +16,8 @@ using decaf::Block;
 using decaf::SecureBuffer;
 using decaf::SpongeRng;
 
-typedef typename libtot::LIBTOT_EC_Group::Scalar Scalar;
-typedef typename libtot::LIBTOT_EC_Group::Point Point;
+typedef typename teo::TEO_EC_Group::Scalar Scalar;
+typedef typename teo::TEO_EC_Group::Point Point;
 
 typedef std::chrono::high_resolution_clock Clock;
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     std::string storage_ip = program.get("storage_ip");
     int storage_port = program.get<int>("storage_port");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
     // Testing secret sharing
     fmt::print("\n\nTesting Shamir Secret Sharing\n");
@@ -61,57 +61,57 @@ int main(int argc, char *argv[])
 
     std::cout << "Original content: " << std::endl;
     std::cout << content.size() << std::endl;
-    libtot::hexprint(content.c_str(), content.size());
+    teo::hexprint(content.c_str(), content.size());
     std::cout << std::endl;
 
     std::vector<std::string> secret_shares;
     int thresh = 2;
-    libtot::SecretShareContent(thresh, 3, content, secret_shares, "0");
+    teo::SecretShareContent(thresh, 3, content, secret_shares, "0");
 
     for (auto &s : secret_shares)
     {
         std::cout << s.size() << std::endl;
-        libtot::hexprint(s.c_str(), s.size());
+        teo::hexprint(s.c_str(), s.size());
     }
 
     std::string recovery;
-    libtot::SecretRecoverContent(thresh, recovery, secret_shares);
+    teo::SecretRecoverContent(thresh, recovery, secret_shares);
     std::cout << "Recovery: " << std::endl;
     std::cout << recovery.size() << std::endl;
-    libtot::hexprint(recovery.c_str(), recovery.size());
+    teo::hexprint(recovery.c_str(), recovery.size());
     std::cout << std::endl;
 
     // Test constructing elliptic curve cryptography
     fmt::print("\nTesting elliptic curve cryptography...\n");
-    libtot::test_ec();
+    teo::test_ec();
 
     fmt::print("\nTesting Sieve crypto...\n");
     string x = "abc";
 
-    Scalar k = libtot::sieve_keygen();
-    SecureBuffer fkx = libtot::test_sieve_prf(k, x.c_str());
-    libtot::hexprint("fkx", fkx);
+    Scalar k = teo::sieve_keygen();
+    SecureBuffer fkx = teo::test_sieve_prf(k, x.c_str());
+    teo::hexprint("fkx", fkx);
 
-    SecureBuffer fNkx = libtot::test_sieve_prf(-k, x.c_str());
-    libtot::hexprint("f(-k)x", fNkx);
+    SecureBuffer fNkx = teo::test_sieve_prf(-k, x.c_str());
+    teo::hexprint("f(-k)x", fNkx);
 
     fmt::print("\n");
 
     Point fkxp(fkx), fNkxp(fNkx);
-    libtot::print("fkxp", fkxp);
-    libtot::print("fNkxp", fNkxp);
-    libtot::print("two point sum", fkxp + fNkxp);
+    teo::print("fkxp", fkxp);
+    teo::print("fNkxp", fNkxp);
+    teo::print("two point sum", fkxp + fNkxp);
 
     fmt::print("\n");
 
     string message = "hello";
-    libtot::test_sieve_encrypt_block(message, fkxp);
+    teo::test_sieve_encrypt_block(message, fkxp);
 
     message = "abc def";
-    libtot::test_sieve_encrypt_block(message, fkxp);
+    teo::test_sieve_encrypt_block(message, fkxp);
 
     message = "hello";
-    libtot::test_sieve_encrypt_block(message, fkxp);
+    teo::test_sieve_encrypt_block(message, fkxp);
 
     /**
      * TOT API tests
@@ -119,17 +119,17 @@ int main(int argc, char *argv[])
 
     fmt::print("\n\nTesting public facing APIs\n");
 
-    libtot::SharedSecretKey setup_token = libtot::SharedSecretKey();
+    teo::SharedSecretKey setup_token = teo::SharedSecretKey();
 
-    libtot::Device dev(setup_token, storage_ip, storage_port);
+    teo::Device dev(setup_token, storage_ip, storage_port);
 
-    libtot::Admin admin(storage_ip, storage_port);
+    teo::Admin admin(storage_ip, storage_port);
 
-    uint8_t admin_pubkey[libtot::AsymmetricEncryptionKeySet::FULL_PK_SIZE];
+    uint8_t admin_pubkey[teo::AsymmetricEncryptionKeySet::FULL_PK_SIZE];
     admin.get_keyset().get_full_pk(admin_pubkey, sizeof(admin_pubkey));
-    libtot::User user(admin_pubkey, "127.0.0.1", 9010, storage_ip, storage_port);
+    teo::User user(admin_pubkey, "127.0.0.1", 9010, storage_ip, storage_port);
 
-    libtot::Accessor acc(storage_ip, storage_port);
+    teo::Accessor acc(storage_ip, storage_port);
 
     sleep(2);
     fmt::print("\nInitialize device...\n");
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 
     auto before = Clock::now();
     std::string test_hello_world_path = std::filesystem::current_path().string() + "/../../tests/hello-world.txt";
-    libtot::UUID sieve_uuid_hello_world;
+    teo::UUID sieve_uuid_hello_world;
     dev.store_data(test_hello_world_path, &sieve_uuid_hello_world);
 
     auto after = Clock::now();
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 
     before = Clock::now();
     std::string test_big_path = std::filesystem::current_path().string() + "/../../tests/big-10MB.txt";
-    libtot::UUID sieve_uuid_big;
+    teo::UUID sieve_uuid_big;
     dev.store_data(test_big_path, &sieve_uuid_big);
     after = Clock::now();
     std::cout << "Encoding bit-10MB takes: "
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     sleep(2);
     fmt::print("\nTest group membership...\n");
 
-    libtot::User companion(admin_pubkey, "127.0.0.1", 9011, storage_ip, storage_port);
+    teo::User companion(admin_pubkey, "127.0.0.1", 9011, storage_ip, storage_port);
     companion.acquire_pre_auth_token();
     companion.claim_device(false);
 

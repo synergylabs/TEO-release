@@ -1,7 +1,7 @@
 //
 // Created by han on 10/28/20.
 //
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 
 #include <iostream>
 
@@ -33,7 +33,7 @@ using decaf::SecureBuffer;
 using decaf::FixedBlock;
 using decaf::SHA3;
 
-namespace libtot {
+namespace teo {
 
     typedef typename LIBTOT_EC_Group::Scalar Scalar;
     typedef typename LIBTOT_EC_Group::Point Point;
@@ -92,7 +92,7 @@ namespace libtot {
 
         // Question: why do we need to mod 2x the scalar size?
         size_t sob =
-                (LIBTOT_EC_Group::Scalar::SER_BYTES * 3) % (2 * LIBTOT_EC_Group::Scalar::SER_BYTES);
+                (LIBTOT_EC_Group::Scalar::SER_BYTES * 3) % (2 * TEO_EC_Group::Scalar::SER_BYTES);
         SecureBuffer xx = rng.read(sob), yy = rng.read(sob), zz = rng.read(sob);
 
         x = Scalar(xx);
@@ -290,4 +290,4 @@ namespace libtot {
              << std::chrono::duration<double, std::milli>(t_end - t_start).count()
              << " ms" << endl;
     }
-} // namespace libtot
+} // namespace teo

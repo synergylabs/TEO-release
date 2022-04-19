@@ -2,7 +2,7 @@
 // Created by han on 2/19/21.
 //
 
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -11,7 +11,7 @@
 #include <iostream>
 #include <thread>
 
-namespace libtot
+namespace teo
 {
     User::User(const uint8_t *admin_pubkey_in, const std::string &user_ip, short user_port,
                const std::string &storage_ip, int storage_port)

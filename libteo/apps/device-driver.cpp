@@ -1,7 +1,7 @@
 // Partial code content referred from
 // https://gist.github.com/syohex/b1aa695dc6ac5dced139
 
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 #include <string>
@@ -46,18 +46,18 @@ const string EXEC_TIME = "driver_execution_time";
 const char *HTTP_CONTENT_TYPE_JSON = "application/json";
 const char *HTTP_CONTENT_TYPE_RAW = "text/plain";
 
-libtot::SharedSecretKey setup_token;
+teo::SharedSecretKey setup_token;
 
 void *PrintDeviceDetail(void *dev_in)
 {
     while (true)
     {
-        libtot::Device *dev_ptr = (libtot::Device *)dev_in;
+        teo::Device *dev_ptr = (teo::Device *)dev_in;
 
-        string device_pubkey_b64 = libtot::base64_encode(dev_ptr->get_keyset().get_full_pk());
+        string device_pubkey_b64 = teo::base64_encode(dev_ptr->get_keyset().get_full_pk());
 
         // Test QR code
-        string setup_token_b64 = libtot::base64_encode(setup_token.get_key(), libtot::SharedSecretKey::KEY_SIZE);
+        string setup_token_b64 = teo::base64_encode(setup_token.get_key(), teo::SharedSecretKey::KEY_SIZE);
         string admin_qr_content_base = "{{ \"issuer\": \"device\", \"type\": \"admin\", \"DeviceSecret\": \"{}\", \"Pubkey\":\"{}\", \"IP\": \"{}\", \"Port\": \"{}\" }}";
         string admin_qr_content = fmt::format(admin_qr_content_base, setup_token_b64, device_pubkey_b64, dev_ptr->get_server_ip(), dev_ptr->get_server_port());
 
@@ -128,10 +128,10 @@ int main(int argc, char **argv)
 
     fmt::print("Running Device Driver node...\n\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    setup_token = libtot::SharedSecretKey();
-    libtot::Device dev(setup_token, storage_ip, storage_port);
+    setup_token = teo::SharedSecretKey();
+    teo::Device dev(setup_token, storage_ip, storage_port);
 
     // Start task to periodically print setup details
     pthread_t thread_id;
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 
                  auto req_json = json::parse(req.body);
 
-                 libtot::UUID sieve_uuid_result;
+                 teo::UUID sieve_uuid_result;
 
                  int sieve_enc_timer = 0;
                  int sym_enc_timer = 0;
@@ -212,8 +212,8 @@ int main(int argc, char **argv)
                      // fmt::print("Cert content b64: {}\n", cert_content_b64);
                      // fmt::print("Cert sign b64: {}\n", cert_sign_b64);
 
-                     string cert_content = libtot::base64_decode(cert_content_b64);
-                     string cert_sign = libtot::base64_decode(cert_sign_b64);
+                     string cert_content = teo::base64_decode(cert_content_b64);
+                     string cert_sign = teo::base64_decode(cert_sign_b64);
 
                      // fmt::print("Cert content {}, length {}\n", cert_content, cert_content.size());
                      // fmt::print("Cert sign length {}\n", cert_sign.size());

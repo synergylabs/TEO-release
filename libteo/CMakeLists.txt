@@ -3,9 +3,9 @@
 ################################################################################################################
 
 cmake_minimum_required(VERSION 3.16)
-project(libtot
-        VERSION 0.1.0
-        DESCRIPTION "I have no idea what I'm doing"
+project(teo
+        VERSION 1.0.0
+        DESCRIPTION "Source code for TEO: Ephemeral Ownership for IoT Devices to Provide Granular Data Control. This is the C++ library and companion apps for demonstrations on Linux machines."
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -17,16 +17,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # HEADER Project configuration.
 ################################################################################################################
 
-option(LIBTOT_EXTENDED_TESTS "Run additional tests" OFF)
-option(LIBTOT_STANDALONE_APP "Build standard Linux app (instead of Android native libraries)" ON)
+option(TEO_EXTENDED_TESTS "Run additional tests" OFF)
+option(TEO_STANDALONE_APP "Build standard Linux app (instead of Android native libraries)" ON)
+option(TEO_STORAGE_MODULE "Build storage module for third-party storage server" ON)
+option(TEO_DEMO_APPS      "Build apps for demonstration" ON)
 
 # propagates CMake configuration options to the compiler
 function(configureProject)
-    if (LIBTOT_EXTENDED_TESTS)
-        add_definitions(-DLIBTOT_EXTENDED_TESTS)
+    if (TEO_EXTENDED_TESTS)
+        add_definitions(-DTEO_EXTENDED_TESTS)
     endif()
-    if (LIBTOT_STANDALONE_APP)
-        add_definitions(-DLIBTOT_STANDALONE_APP)
+    if (TEO_STANDALONE_APP)
+        add_definitions(-DTEO_STANDALONE_APP)
     endif()
 endfunction()
 
@@ -41,9 +43,11 @@ message(STATUS "----------------------------------------------------------------
 message(STATUS "-- CMake ${CMAKE_VERSION}")
 message(STATUS "-- Build ${CMAKE_BUILD_TYPE} / ${CMAKE_SYSTEM_NAME}")
 message(STATUS "----------------------------------------------------------------- components")
-message(STATUS "-- LIBTOT_EXTENDED_TESTS      Run additional tests                ${LIBTOT_EXTENDED_TESTS}")
-message(STATUS "-- LIBTOT_STANDALONE_APP      Build standard Linux app            ${LIBTOT_STANDALONE_APP}")
+message(STATUS "-- TEO_EXTENDED_TESTS      Run additional tests                ${TEO_EXTENDED_TESTS}")
+message(STATUS "-- TEO_STANDALONE_APP      Build standard Linux app            ${TEO_STANDALONE_APP}")
 message(STATUS "                              (instead of Android native libraries)")
+message(STATUS "-- TEO_STORAGE_MODULE      Build storage module                ${TEO_STORAGE_MODULE}")
+message(STATUS "-- TEO_DEMO_APPS           Build apps for demonstration        ${TEO_DEMO_APPS}")
 message(STATUS "----------------------------------------------------------------------------")
 
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
@@ -75,9 +79,11 @@ SET(CMAKE_EXE_LINKER_FLAGS
 # FetchContent added in CMake 3.11, downloads during the configure step
 include(FetchContent)
 
-# The compiled library code is here
+# The core library code is here
 add_subdirectory(src)
 
-# The executable code is here
-add_subdirectory(apps)
+# The executable code for demo apps is here
+if (TEO_DEMO_APPS)
+    add_subdirectory(apps)
+endif()
 

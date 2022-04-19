@@ -1,4 +1,4 @@
-namespace libtot;
+namespace teo;
 
 enum MessageType : ubyte {
     NO_TYPE = 0,

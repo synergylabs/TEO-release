@@ -1,13 +1,13 @@
 //
 // Created by han on 2/10/21.
 //
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <libtot/client/Admin.hpp>
+#include <teo/client/Admin.hpp>
 
-namespace libtot
+namespace teo
 {
     Admin::Admin(const std::string &storage_ip,
                        int storage_port)

@@ -1,4 +1,4 @@
-namespace libtot.DataStoreDownload;
+namespace teo.DataStoreDownload;
 
 table DataStoreDownloadResponse2 {
     content:[ubyte];

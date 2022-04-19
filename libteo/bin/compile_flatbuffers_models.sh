@@ -3,7 +3,7 @@ set -euxo pipefail
 
 HELP=false
 LANGUAGE=""
-OUTPUT_DIR="include/libtot/"
+OUTPUT_DIR="include/teo/"
 
 USAGE="
         -c|--cpp|-j|--java  Set output language (Java or C++).

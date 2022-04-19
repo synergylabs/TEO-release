@@ -1,4 +1,4 @@
-namespace libtot;
+namespace teo;
 
 table AcquirePreAuthTokenResponse {
     box_nonce:[ubyte];

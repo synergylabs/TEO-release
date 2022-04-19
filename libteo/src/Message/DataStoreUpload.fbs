@@ -1,4 +1,4 @@
-namespace libtot.DataStoreUpload;
+namespace teo.DataStoreUpload;
 
 table OwnerPubkey {
     pk:[ubyte];

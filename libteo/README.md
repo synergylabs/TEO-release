@@ -25,17 +25,19 @@ Must use **GCC-9**, as one of the dependency (json library) doesn't play well wi
 
 ## Build
 
-- Run `./bin/compile_flatbuffers.sh` to generate the flatbuffer files for message format.
-- Run `mkdir build && cd build && cmake ..` and then run the actual build command `make`. 
+- \[Optional\] Run `./bin/compile_flatbuffers_models.sh --cpp -o include/teo/` to generate the flatbuffer files for message format. (This step is included in the [setup](#setup) script.)
+- Run `cmake -B build -S .` to generate a buildsystem and then run the actual build command `cd build && make`. 
 
 ## CMake configuration options
 
 Pass these options to CMake configuration command, e.g.
 
-```bash
-cmake ..
-```
-
+| CMake option | Values | Description |
+| ------------ | ------ | ----------- |
+| TEO_EXTENDED_TESTS | ON / **OFF** | Run additional tests (Please leave off, deprecated) |
+| TEO_STANDALONE_APP | **ON** / OFF | Build standard Linux app (instead of Android native libraries) |
+| TEO_STORAGE_MODULE | **ON** / OFF | Build storage module for third-party storage server |
+| TEO_DEMO_APPS | **ON** / OFF | Build apps for demonstration |
 
 ## Case Studies
 
@@ -58,10 +60,3 @@ Learn CMake basics: https://cliutils.gitlab.io/modern-cmake/
 
 Reference repository: https://gitlab.com/CLIUtils/modern-cmake/tree/master/examples/extended-project
 
-## Changes to libdecaf
-
-[Deprecated. Use the default libdecaf version plz.]
-
-- Change `eligator.tmpl.c` to make from_hash_nonuniform to return hint.
-- Also change `point.tmpl.h` to make same function return hint (unsigned char).
-- Change `point.tmpl.hxx` to make `set_to_hash` return the hint.

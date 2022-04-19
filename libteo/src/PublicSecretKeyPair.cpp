@@ -6,10 +6,10 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
-#include "libtot/PublicSecretKeyPair.hpp"
+#include "teo/PublicSecretKeyPair.hpp"
 
 
-namespace libtot {
+namespace teo {
     int PublicSecretKeyPair::deterministic_seed_counter = 0;
 
     void PublicSecretKeyPair::initialize() {

@@ -18,14 +18,14 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-#include "libtot/client/Client.hpp"
-#include "libtot/libtot_network.hpp"
-#include "libtot/libtot_logger.hpp"
-#include "libtot/libtot_api.hpp"
-#include "libtot/libtot_client_native.hpp"
-#include "libtot/base64.hpp"
+#include "teo/client/Client.hpp"
+#include "teo/teo_network.hpp"
+#include "teo/teo_logger.hpp"
+#include "teo/teo_api.hpp"
+#include "teo/teo_client_native.hpp"
+#include "teo/base64.hpp"
 
-namespace libtot
+namespace teo
 {
     void SecretShareContent(int threshold, int nShares, const std::string &payload, std::vector<std::string> &res, const char *seed)
     {
@@ -153,7 +153,7 @@ namespace libtot
 
     Client::Client()
     {
-        assert(api_libtot_initialized());
+        assert(api_teo_initialized());
 
         id = (client_counter + 1);
         client_counter = (client_counter + 1) % MAX_CLIENTS;

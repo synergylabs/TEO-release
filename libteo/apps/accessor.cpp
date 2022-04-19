@@ -1,4 +1,4 @@
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 #include <string>
@@ -62,11 +62,11 @@ int main(int argc, char *argv[])
 
     fmt::print("\nRunning Accessor node...\n\n");
 
-    libtot::api_initialize();
+    teo::api_initialize();
 
-    libtot::Accessor acc(storage_ip, storage_port);
+    teo::Accessor acc(storage_ip, storage_port);
 
-    libtot::UUID dataUUID(data_block_uuid);
+    teo::UUID dataUUID(data_block_uuid);
 
     std::string res = "";
     res += "sieve_dec_timer,sym_dec_timer,download_timer,total_timer\n";

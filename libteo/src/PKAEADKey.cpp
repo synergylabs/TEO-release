@@ -2,9 +2,9 @@
 // Created by han on 2/22/21.
 //
 
-#include "libtot/PKAEADKey.hpp"
+#include "teo/PKAEADKey.hpp"
 
-namespace libtot {
+namespace teo {
     PKAEADKey::PKAEADKey(const unsigned char *seed) {
         initialize(seed);
     }

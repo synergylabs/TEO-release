@@ -31,12 +31,12 @@
 
 */
 
-#include <libtot/libtot.hpp>
+#include <teo/teo.hpp>
 
 #include <algorithm>
 #include <stdexcept>
 
-namespace libtot
+namespace teo
 {
    //
    // Depending on the url parameter in base64_chars, one of
