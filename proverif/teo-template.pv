@@ -593,7 +593,7 @@ $template ${UID}
   out(io, (DATA_STORE_UPLOAD_NOTIFICATION,
           ownerPubkey${UID},
           notificationNonce${UID},
-          crypto_box_easy((CIPHER_DATA_STORE_UPLOAD_NOFICIATION, sessionID, metaDataUUID, sieveDataUUID${UID}), notificationNonce${UID}, ownerPubkey${UID}, devicePrivkey)));
+          crypto_box_easy((CIPHER_DATA_STORE_UPLOAD_NOFICIATION, sessionID, metaDataUUID, sieveDataUUID${UID}, dataUUID), notificationNonce${UID}, ownerPubkey${UID}, devicePrivkey)));
 $endtemplate
 
   0.
@@ -625,7 +625,7 @@ let UserDataStore${UID}(userPrivkey:privkey) =
 
   in(io, (=DATA_STORE_UPLOAD_NOTIFICATION, =userPubkey, notificationNonce:nonce, notificationPayload:bitstring));
 
-  let (=CIPHER_DATA_STORE_UPLOAD_NOFICIATION, =sessionID, metaDataUUID:bitstring, sieveDataUUID:bitstring) = crypto_box_open_easy(notificationPayload, notificationNonce, devicePubkey, userPrivkey) in
+  let (=CIPHER_DATA_STORE_UPLOAD_NOFICIATION, =sessionID, metaDataUUID:bitstring, sieveDataUUID:bitstring, dataUUID:bitstring) = crypto_box_open_easy(notificationPayload, notificationNonce, devicePubkey, userPrivkey) in
 
   insert userRecordingLookupTable${UID}(userPubkey, sessionID, metaDataUUID, sieveDataUUID, sieveKey);
 
