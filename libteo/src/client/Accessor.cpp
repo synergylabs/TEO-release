@@ -23,14 +23,14 @@ namespace teo
 
     Accessor::~Accessor() {}
 
-    int Accessor::request_access(const UUID &sieve_data_block_uuid, std::string orig_file_path,
+    int Accessor::request_access(const UUID &metadata_uuid, std::string orig_file_path,
                                  bool from_cache, bool exp_fail,
                                  int *sieve_dec_timer, int *sym_dec_timer, int *download_timer)
     {
         int err = 0;
         int conn = 0;
 
-        char *sieve_data_buf = nullptr;
+        char *metadata_buf = nullptr;
         uint8_t *accessor_pubkey = nullptr;
 
         accessor_pubkey = new uint8_t[AsymmetricEncryptionKeySet::FULL_PK_SIZE];
@@ -39,19 +39,19 @@ namespace teo
         flatbuffers::FlatBufferBuilder parent_builder(G_FBS_SIZE);
 
         /*
-         Download Sieve data block
+         Download metadata block
          */
-        sieve_data_buf = nullptr;
-        size_t sieve_data_buf_len = 0;
+        metadata_buf = nullptr;
+        size_t metadata_buf_len = 0;
 
         conn = network_connect(get_storage_ip().c_str(), get_storage_port());
-        err = download_file(conn, sieve_data_block_uuid, &sieve_data_buf, &sieve_data_buf_len);
+        err = download_file(conn, metadata_uuid, &metadata_buf, &metadata_buf_len);
 
         if (err != 0)
         {
             return -1;
         }
-        auto sieve_data_content = SieveDataBlock::GetSieveDataBlock(sieve_data_buf);
+        auto metadata_content = MetadataBlock::GetMetadataBlock(metadata_buf);
 
         /*
          Fetch Sieve key from each owner
@@ -60,16 +60,16 @@ namespace teo
         std::unordered_map<std::string, int> owner_sockfd;
         if (!from_cache)
         {
-            std::vector<std::thread *> fetch_sieve_t;
-            auto fetch_sieve_lambda = [&](const SieveDataBlock::OwnerInfo *owner_info)
+            std::vector<std::thread *> fetch_sieve_key_t;
+            auto fetch_sieve_key_lambda = [&](const MetadataBlock::OwnerInfo *owner_info)
             {
                 std::unique_lock<std::mutex> data_lock(g_data_mutex, std::defer_lock);
-        flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
+                flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
 
 #if !defined(NDEBUG)
                 hexprint(owner_info->owner_pubkey()->data(), owner_info->owner_pubkey()->size());
 #endif
-                LOGV("Metadata UUID: %s", owner_info->encrypted_metadata_uuid()->data());
+                LOGV("This owner's Sieve data UUID: %s", owner_info->sieve_data_uuid()->data());
 
                 std::string owner_key_b64 = base64_encode(owner_info->owner_pubkey()->data(),
                                                           owner_info->owner_pubkey()->size());
@@ -90,8 +90,8 @@ namespace teo
                 CiphertextDataAccessFetch fetch_payload;
                 fetch_payload.type = CipherType::data_access_fetch;
                 memcpy(fetch_payload.sieve_data_block_uuid,
-                       sieve_data_block_uuid.get_uuid().c_str(),
-                       sizeof(fetch_payload.sieve_data_block_uuid));
+                       owner_info->sieve_data_uuid()->data(),
+                       owner_info->sieve_data_uuid()->size());
                 random_buf(fetch_payload.random_challenge, sizeof(fetch_payload.random_challenge));
 
                 size_t fetch_ciphertext_len = AsymmetricEncryptionKeySet::get_box_easy_cipher_len(sizeof(fetch_payload));
@@ -156,14 +156,14 @@ namespace teo
                 return 0;
             };
 
-            for (int i = 0; i < sieve_data_content->owners()->size(); i++)
+            for (int i = 0; i < metadata_content->owners()->size(); i++)
             {
-                const SieveDataBlock::OwnerInfo *owner_info = sieve_data_content->owners()->Get(i);
-                std::thread *ot = new std::thread(fetch_sieve_lambda, owner_info);
-                fetch_sieve_t.push_back(ot);
+                const MetadataBlock::OwnerInfo *owner_info = metadata_content->owners()->Get(i);
+                std::thread *ot = new std::thread(fetch_sieve_key_lambda, owner_info);
+                fetch_sieve_key_t.push_back(ot);
             }
 
-            for (auto t : fetch_sieve_t)
+            for (auto t : fetch_sieve_key_t)
             {
                 t->join();
                 delete t;
@@ -172,63 +172,65 @@ namespace teo
         else
         {
             // Fetching from the cache
-            assert(sieve_key_cache.find(sieve_data_block_uuid) != sieve_key_cache.end());
-            owner_sieve_keys = sieve_key_cache[sieve_data_block_uuid];
+            assert(sieve_key_cache.find(metadata_uuid) != sieve_key_cache.end());
+            owner_sieve_keys = sieve_key_cache[metadata_uuid];
         }
 
         /*
-         Get encrypted metadata block
+         Get Sieve data block
         */
         std::unordered_map<std::string, std::vector<uint8_t>> data_key_shares;
-        std::vector<std::thread *> fetch_meta_t;
-        auto fetch_meta_lambda = [&](const SieveDataBlock::OwnerInfo *owner_info)
+        std::vector<std::thread *> fetch_sieve_data_t;
+        auto fetch_meta_lambda = [&](const MetadataBlock::OwnerInfo *owner_info)
         {
             std::unique_lock<std::mutex> data_lock(g_data_mutex, std::defer_lock);
 
             std::string owner_key_b64 = base64_encode(owner_info->owner_pubkey()->data(),
                                                       owner_info->owner_pubkey()->size());
-            UUID metadata_enc_uuid = UUID(owner_info->encrypted_metadata_uuid()->str());
-            char *metadata_enc_buf = nullptr;
-            size_t metadata_enc_len = 0;
+            UUID sieve_data_uuid = UUID(owner_info->sieve_data_uuid()->str());
+            char *enc_sieve_data_buf = nullptr;
+            size_t enc_sieve_data_len = 0;
 
             conn = network_connect(get_storage_ip().c_str(), get_storage_port());
-            err = download_file(conn, metadata_enc_uuid, &metadata_enc_buf, &metadata_enc_len);
+            err = download_file(conn, sieve_data_uuid, &enc_sieve_data_buf, &enc_sieve_data_len);
 
-            // Decrypt metadata block
-            uint8_t *metadata_buf = new uint8_t[metadata_enc_len]{};
-            std::vector<int> hints_cast(owner_info->metadata_hint()->begin(),
-                                        owner_info->metadata_hint()->end());
-            owner_sieve_keys[owner_key_b64].decrypt(reinterpret_cast<const uint8_t *>(metadata_enc_buf), metadata_enc_len,
-                                                    metadata_buf, hints_cast);
+            // Decrypt Sieve data block
+            uint8_t *sieve_data_buf = new uint8_t[enc_sieve_data_len]{};
+            std::vector<int> hints_cast(owner_info->sieve_data_hint()->begin(),
+                                        owner_info->sieve_data_hint()->end());
+            owner_sieve_keys[owner_key_b64].decrypt(reinterpret_cast<const uint8_t *>(enc_sieve_data_buf),
+                                                    enc_sieve_data_len,
+                                                    sieve_data_buf,
+                                                    hints_cast);
 
             // This memory copy prevents buffer overflow, since encrypted metadata might be longer
             // than metadata's memory size
-            MetadataBlock metadata;
-            memcpy(&metadata, metadata_buf, sizeof(metadata));
+            SieveDataBlock sieve_data_block;
+            memcpy(&sieve_data_block, sieve_data_buf, sizeof(sieve_data_block));
 
 #if !defined(NDEBUG)
-            LOGV("Decrypted metadata:");
-            hexprint(metadata.data_key, sizeof(metadata.data_key), 1);
+            LOGV("Decrypted Sieve data:");
+            hexprint(sieve_data_block.data_key, sizeof(sieve_data_block.data_key), 1);
 #endif // NDEBUG
 
             data_lock.lock();
-            data_key_shares[owner_key_b64].resize(sizeof(metadata.data_key));
-            memcpy(&data_key_shares[owner_key_b64][0], metadata.data_key, sizeof(metadata.data_key));
+            data_key_shares[owner_key_b64].resize(sizeof(sieve_data_block.data_key));
+            memcpy(&data_key_shares[owner_key_b64][0], sieve_data_block.data_key, sizeof(sieve_data_block.data_key));
             data_lock.unlock();
 
-            delete[] metadata_enc_buf;
-            delete[] metadata_buf;
+            delete[] enc_sieve_data_buf;
+            delete[] sieve_data_buf;
         };
 
         // Fetch all Sieve-protected data key shares
-        for (int i = 0; i < sieve_data_content->owners()->size(); i++)
+        for (int i = 0; i < metadata_content->owners()->size(); i++)
         {
-            auto owner_info = sieve_data_content->owners()->Get(i);
+            auto owner_info = metadata_content->owners()->Get(i);
             std::thread *ot = new std::thread(fetch_meta_lambda, owner_info);
-            fetch_meta_t.push_back(ot);
+            fetch_sieve_data_t.push_back(ot);
         }
 
-        for (auto t : fetch_meta_t)
+        for (auto t : fetch_sieve_data_t)
         {
             t->join();
             delete t;
@@ -245,9 +247,9 @@ namespace teo
         size_t data_enc_len = 0;
 
         std::vector<DataEncBuf> data_enc_v;
-        for (int i = 0; i < sieve_data_content->data_uuid()->size(); i++)
+        for (int i = 0; i < metadata_content->data_uuid()->size(); i++)
         {
-            auto data_chunk_uuid_obj = sieve_data_content->data_uuid()->Get(i);
+            auto data_chunk_uuid_obj = metadata_content->data_uuid()->Get(i);
             DataEncBuf enc;
             UUID data_enc_uuid = UUID(data_chunk_uuid_obj->c_str(),
                                       data_chunk_uuid_obj->size());
@@ -272,8 +274,8 @@ namespace teo
          */
         SharedSecretKey data_key;
         assemble_key_shares(data_key, data_key_shares);
-        data_key.load_header_decryption(sieve_data_content->data_header()->data(),
-                                        sieve_data_content->data_header()->size());
+        data_key.load_header_decryption(metadata_content->data_header()->data(),
+                                        metadata_content->data_header()->size());
 
         uint8_t *data_buf = new uint8_t[data_enc_len]{};
 
@@ -325,12 +327,12 @@ namespace teo
         }
 
         // Store key for cache and re-encryption tests
-        sieve_key_cache[sieve_data_block_uuid] = owner_sieve_keys;
+        sieve_key_cache[metadata_uuid] = owner_sieve_keys;
 
         delete[] data_buf;
         delete[] data_enc_buf;
 
-        delete[] sieve_data_buf;
+        delete[] metadata_buf;
         delete[] accessor_pubkey;
 
         return 0;

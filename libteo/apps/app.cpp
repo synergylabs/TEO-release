@@ -164,11 +164,11 @@ int main(int argc, char *argv[])
     fmt::print("\n");
 
     before = Clock::now();
-    std::string test_big_path = std::filesystem::current_path().string() + "/../../tests/big-10MB.txt";
+    std::string test_big_path = std::filesystem::current_path().string() + "/../../tests/eval-10MB.txt";
     teo::UUID sieve_uuid_big;
     dev.store_data(test_big_path, &sieve_uuid_big);
     after = Clock::now();
-    std::cout << "Encoding bit-10MB takes: "
+    std::cout << "Encoding eval-10MB takes: "
               << std::dec
               << std::chrono::duration_cast<std::chrono::microseconds>(after - before).count()
               << " microseconds" << std::endl;
@@ -208,6 +208,8 @@ int main(int argc, char *argv[])
     fmt::print("\n");
 
     // dev.wait_all();
+
+    fmt::print("\nPassed basic function tests.\n\n");
 
     return 0;
 }

@@ -6,7 +6,7 @@
 #define TEO_MESSAGE_HPP
 
 
-#include "DataStore/SieveDataBlock_generated.h"
+#include "DataStore/MetadataBlock_generated.h"
 
 #include "Message/AcquirePreAuthTokenRequest_generated.h"
 #include "Message/AcquirePreAuthTokenResponse_generated.h"

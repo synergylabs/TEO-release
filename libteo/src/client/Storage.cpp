@@ -225,24 +225,24 @@ namespace teo
             return -1;
         }
 
-        // Load Sieve data block
-        Storage::Query record = fetch_db(std::string(reinterpret_cast<char *>(&pre_req_payload.sieve_data_block_uuid),
-                                                     sizeof(pre_req_payload.sieve_data_block_uuid)));
+        // Load metadata block
+        Storage::Query record = fetch_db(std::string(reinterpret_cast<char *>(&pre_req_payload.metadata_uuid),
+                                                     sizeof(pre_req_payload.metadata_uuid)));
         if (!record.s.ok())
         {
-            LOGW("Record not found");
+            LOGW("Metadata Record not found");
             return -1;
         }
-        auto sieve_data_content = SieveDataBlock::GetSieveDataBlock(record.content_val.c_str());
-        const SieveDataBlock::OwnerInfo *owner_ptr = nullptr;
-        for (int i = 0; i < sieve_data_content->owners()->size(); i++)
+        auto metadata_content = MetadataBlock::GetMetadataBlock(record.content_val.c_str());
+        const MetadataBlock::OwnerInfo *owner_ptr = nullptr;
+        for (int i = 0; i < metadata_content->owners()->size(); i++)
         {
-            auto owner_info = sieve_data_content->owners()->Get(i);
-            if (memcmp(owner_info->encrypted_metadata_uuid()->data(),
-                       pre_req_payload.encrypted_metadata_uuid,
-                       sizeof(pre_req_payload.encrypted_metadata_uuid)) == 0)
+            auto owner_info = metadata_content->owners()->Get(i);
+            if (memcmp(owner_info->sieve_data_uuid()->data(),
+                       pre_req_payload.sieve_data_block_uuid,
+                       sizeof(pre_req_payload.sieve_data_block_uuid)) == 0)
             {
-                // Found enc metadata block, update owner information
+                // Found sieve data block, update owner information
                 owner_ptr = owner_info;
                 break;
             }
@@ -250,7 +250,7 @@ namespace teo
 
         if (owner_ptr == nullptr)
         {
-            LOGW("Owner not found based on Enc Meta UUID");
+            LOGW("Owner not found based on Sieve data UUID");
             return -1;
         }
 
@@ -305,23 +305,23 @@ namespace teo
         }
 
         std::vector<int> hints;
-        for (int i = 0; i < owner_ptr->metadata_hint()->size(); i++)
+        for (int i = 0; i < owner_ptr->sieve_data_hint()->size(); i++)
         {
-            hints.push_back(owner_ptr->metadata_hint()->Get(i));
+            hints.push_back(owner_ptr->sieve_data_hint()->Get(i));
         }
 
-        UUID metadata_block_uuid = UUID(owner_ptr->encrypted_metadata_uuid()->data(),
-                                        owner_ptr->encrypted_metadata_uuid()->size());
+        UUID sieve_data_block_uuid = UUID(owner_ptr->sieve_data_uuid()->data(),
+                                          owner_ptr->sieve_data_uuid()->size());
 
-        Storage::Query metadata_record = fetch_db(metadata_block_uuid.get_uuid());
-        if (!metadata_record.s.ok())
+        Storage::Query sieve_data_record = fetch_db(sieve_data_block_uuid.get_uuid());
+        if (!sieve_data_record.s.ok())
         {
-            LOGW("Failed to fetch metadata");
+            LOGW("Failed to fetch Sieve data");
             return -1;
         }
 
-        SieveKey::apply_rekey_token_cipher(reinterpret_cast<uint8_t *>(&(metadata_record.content_val[0])),
-                                           metadata_record.content_val.size(),
+        SieveKey::apply_rekey_token_cipher(reinterpret_cast<uint8_t *>(&(sieve_data_record.content_val[0])),
+                                           sieve_data_record.content_val.size(),
                                            hints,
                                            request_payload.rekey_token,
                                            owner_ptr->sieve_nonce()->data());
@@ -329,9 +329,9 @@ namespace teo
         std::vector<std::string> owner_pk_v = {
             std::string(reinterpret_cast<const char *>(owner_ptr->owner_pubkey()->data()),
                         owner_ptr->owner_pubkey()->size())};
-        leveldb::Status s = write_db(metadata_block_uuid.get_uuid(),
+        leveldb::Status s = write_db(sieve_data_block_uuid.get_uuid(),
                                      owner_pk_v,
-                                     metadata_record.content_val);
+                                     sieve_data_record.content_val);
 
         if (!s.ok())
         {

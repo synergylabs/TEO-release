@@ -319,11 +319,11 @@ namespace teo
         auto request_msg = GetInitializationRequest(request_buf);
 
         setup_key.load_header_decryption(request_msg->setup_header()->Data(),
-                                           request_msg->setup_header()->size());
+                                         request_msg->setup_header()->size());
 
         CiphertextInitializationRequest request_payload;
         setup_key.decrypt(reinterpret_cast<unsigned char *>(&request_payload), sizeof(request_payload),
-                            request_msg->ciphertext()->Data(), request_msg->ciphertext()->size());
+                          request_msg->ciphertext()->Data(), request_msg->ciphertext()->size());
 
         if (request_payload.type != CipherType::initialization_request)
         {
@@ -478,14 +478,14 @@ namespace teo
     }
 
     int Device::store_data(const std::string &file_path,
-                           UUID *sieve_block_result,
+                           UUID *metadata_block_result,
                            int *sieve_enc_timer,
                            int *sym_enc_timer,
                            int *upload_timer,
                            int *sieve_nego_timer,
                            int *upload_notify_timer)
     {
-        return store_data_teo_impl(sieve_block_result,
+        return store_data_teo_impl(metadata_block_result,
                                    file_path,
                                    nullptr,
                                    0,
@@ -498,14 +498,14 @@ namespace teo
 
     int Device::store_data(const uint8_t *file_content_ptr,
                            size_t file_content_len,
-                           UUID *sieve_block_result,
+                           UUID *metadata_block_result,
                            int *sieve_enc_timer,
                            int *sym_enc_timer,
                            int *upload_timer,
                            int *sieve_nego_timer,
                            int *upload_notify_timer)
     {
-        return store_data_teo_impl(sieve_block_result,
+        return store_data_teo_impl(metadata_block_result,
                                    "",
                                    file_content_ptr,
                                    file_content_len,
@@ -516,14 +516,14 @@ namespace teo
                                    upload_notify_timer);
     }
 
-    struct DSComplete
+    struct NotifyCompletion
     {
         size_t idx;
         size_t cipher_len;
         uint8_t *cipher_buf;
     };
 
-    int Device::store_data_teo_impl(UUID *sieve_block_result,
+    int Device::store_data_teo_impl(UUID *metadata_block_result,
                                     const std::string &file_path,
                                     const uint8_t *input_buf,
                                     size_t input_buf_len,
@@ -599,9 +599,10 @@ namespace teo
             return -1;
         }
 
+        // Manual rounding
         int total_chunks = (content_len + G_FILE_CHUNK_SIZE - 1) / G_FILE_CHUNK_SIZE;
 
-        std::queue<DSComplete *> completion_queue;
+        std::queue<NotifyCompletion *> completion_queue;
         Semaphore comp_q_smph;
 
         std::map<size_t, UUID *> data_chunk_uuid_m;
@@ -625,7 +626,7 @@ namespace teo
                                  &content_buf[idx], chunk_len,
                                  idx + chunk_len == content_len);
 
-                DSComplete *notify = new DSComplete();
+                NotifyCompletion *notify = new NotifyCompletion();
                 notify->idx = idx;
                 notify->cipher_len = enc_chunk_len;
                 notify->cipher_buf = enc_chunk_buf;
@@ -697,7 +698,7 @@ namespace teo
         enc_file_t.join();
         upload_file_t.join();
 
-        // Clean up head usage
+        // Clean up heap usage
         if (!file_path.empty())
         {
             delete[] content_buf;
@@ -711,7 +712,7 @@ namespace teo
         uint8_t device_pubkey[AsymmetricEncryptionKeySet::FULL_PK_SIZE]{};
         get_keyset().get_full_pk(device_pubkey, sizeof(device_pubkey));
 
-        std::unordered_map<std::string, SharedSecretKey> owner_session_keys;
+        // std::unordered_map<std::string, SharedSecretKey> owner_session_keys;
         std::unordered_map<std::string, SieveKey> owner_sieve_keys;
         std::unordered_map<std::string, int> owner_sockfd;
 
@@ -727,12 +728,12 @@ namespace teo
 
             // Fetch Sieve credential request to owner
             data_lock.lock();
-            owner_session_keys[owner_key_b64] = SharedSecretKey();
+            // owner_session_keys[owner_key_b64] = SharedSecretKey();
             data_lock.unlock();
 
             CiphertextDataStoreSieveCredRequest request_payload;
             request_payload.type = CipherType::data_store_sieve_cred_request;
-            memcpy(request_payload.session_key, owner_session_keys[owner_key_b64].get_key(), SharedSecretKey::KEY_SIZE);
+            // memcpy(request_payload.session_key, owner_session_keys[owner_key_b64].get_key(), SharedSecretKey::KEY_SIZE);
             memcpy(request_payload.session_id, session_id, sizeof(request_payload.session_id));
 
             // Encrypt request payload with current owner's key
@@ -772,16 +773,19 @@ namespace teo
             network_read(owner_sockfd[owner_key_b64], response_buf, sizeof(response_buf));
             auto response_msg = GetDataStoreSieveCredResponse(response_buf);
 
-            owner_session_keys[owner_key_b64].load_header_decryption(response_msg->session_header()->data(),
-                                                                     response_msg->session_header()->size());
+            // owner_session_keys[owner_key_b64].load_header_decryption(response_msg->session_header()->data(),
+            //                                                          response_msg->session_header()->size());
 
             CiphertextDataStoreSieveCredResponse response_payload;
-            owner_session_keys[owner_key_b64].decrypt(reinterpret_cast<uint8_t *>(&response_payload), sizeof(response_payload),
-                                                      response_msg->ciphertext()->data(), response_msg->ciphertext()->size());
+            // owner_session_keys[owner_key_b64].decrypt(reinterpret_cast<uint8_t *>(&response_payload), sizeof(response_payload),
+            //                                           response_msg->ciphertext()->data(), response_msg->ciphertext()->size());
+            get_keyset().box_open_easy(reinterpret_cast<uint8_t *>(&response_payload), sizeof(response_payload),
+                                       response_msg->ciphertext()->data(), response_msg->ciphertext()->size(),
+                                       response_msg->session_header()->data(), owner_key);
 
             if (response_payload.type != CipherType::data_store_sieve_cred_response)
             {
-                LOGW("Unexpected response type in encrypted_metadata\n");
+                LOGW("Unexpected response type in encrypted_sieve_data\n");
                 return -1;
             }
 
@@ -815,54 +819,56 @@ namespace teo
         }
 
         /*
-            Assemble metadata block (the one that stores data key)
+            Assemble Sieve data block (the one that stores data key)
         */
         std::unordered_map<std::string, std::vector<uint8_t>> data_key_shares;
         split_key_shares(data_key, data_key_shares, owner_keys);
 
-        std::unordered_map<std::string, UUID> encrypted_metadata_uuids;
-        std::unordered_map<std::string, std::vector<int>> hints;
+        std::unordered_map<std::string, UUID> sieve_data_uuids;
+        std::unordered_map<std::string, std::vector<int>> sieve_data_hints;
 
-        std::vector<std::thread *> upload_meta_t;
-        auto upload_meta_lambda = [&](int i)
+        std::vector<std::thread *> upload_encrypted_sieve_t;
+        auto upload_encrypted_sieve_lambda = [&](int i)
         {
             auto owner_key = owner_keys[i];
             std::string owner_key_b64 = base64_encode(owner_key, AsymmetricEncryptionKeySet::FULL_PK_SIZE);
 
             std::unique_lock<std::mutex> data_lock(g_data_mutex, std::defer_lock);
             auto key_share = data_key_shares[owner_key_b64];
-            MetadataBlock metadata;
-            memcpy(metadata.data_key, &key_share[0], sizeof(metadata.data_key));
+            SieveDataBlock sieveData;
+            memcpy(sieveData.data_key, &key_share[0], sizeof(sieveData.data_key));
 
 #if !defined(NDEBUG)
-            LOGV("Original metadata:");
-            hexprint(metadata.data_key, sizeof(metadata.data_key), 1);
+            LOGV("Original sieveData:");
+            hexprint(sieveData.data_key, sizeof(sieveData.data_key), 1);
 #endif
 
-            decaf::SecureBuffer encrypted_metadata;
-            owner_sieve_keys[owner_key_b64].encrypt(reinterpret_cast<uint8_t *>(&metadata), sizeof(metadata),
-                                                    hints[owner_key_b64], encrypted_metadata);
+            decaf::SecureBuffer encrypted_sieve_data;
+            owner_sieve_keys[owner_key_b64].encrypt(reinterpret_cast<uint8_t *>(&sieveData),
+                                                    sizeof(sieveData),
+                                                    sieve_data_hints[owner_key_b64],
+                                                    encrypted_sieve_data);
 
             data_lock.lock();
-            encrypted_metadata_uuids[owner_key_b64] = UUID();
+            sieve_data_uuids[owner_key_b64] = UUID();
             data_lock.unlock();
 
             int storage_conn = network_connect(get_storage_ip().c_str(), get_storage_port());
-            upload_content(storage_conn, encrypted_metadata_uuids[owner_key_b64],
-                           &encrypted_metadata[0],
-                           encrypted_metadata.size() * sizeof(encrypted_metadata[0]),
+            upload_content(storage_conn, sieve_data_uuids[owner_key_b64],
+                           &encrypted_sieve_data[0],
+                           encrypted_sieve_data.size() * sizeof(encrypted_sieve_data[0]),
                            owner_keys);
         };
 
         parent_timer_start = std::chrono::high_resolution_clock::now();
-        // Upload each user's metadata block (encrypted)
+        // Upload each user's sieveData block (encrypted)
         for (int i = 0; i < owner_keys.size(); i++)
         {
-            std::thread *ot = new std::thread(upload_meta_lambda, i);
-            upload_meta_t.push_back(ot);
+            std::thread *ot = new std::thread(upload_encrypted_sieve_lambda, i);
+            upload_encrypted_sieve_t.push_back(ot);
         }
 
-        for (auto t : upload_meta_t)
+        for (auto t : upload_encrypted_sieve_t)
         {
             t->join();
             delete t;
@@ -876,8 +882,8 @@ namespace teo
                     .count();
         }
 
-        // Assemble Sieve data block (the plaintext data block)
-        std::vector<flatbuffers::Offset<SieveDataBlock::OwnerInfo>> owners_v;
+        // Assemble metadata block (the plaintext data block)
+        std::vector<flatbuffers::Offset<MetadataBlock::OwnerInfo>> owners_v;
         flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
         for (auto &owner_key : owner_keys)
         {
@@ -885,14 +891,14 @@ namespace teo
 
             auto sieve_nonce_obj = builder.CreateVector(owner_sieve_keys[owner_key_b64].get_nonce(), SIEVE_NONCE_SIZE);
             auto owner_pubkey_obj = builder.CreateVector(owner_key, AsymmetricEncryptionKeySet::FULL_PK_SIZE);
-            auto encrypted_metadata_uuid_obj = builder.CreateString(encrypted_metadata_uuids[owner_key_b64].get_uuid());
-            auto metadata_hint_obj = builder.CreateVector(hints[owner_key_b64]);
+            auto sieve_data_uuid_obj = builder.CreateString(sieve_data_uuids[owner_key_b64].get_uuid());
+            auto sieve_data_hint_obj = builder.CreateVector(sieve_data_hints[owner_key_b64]);
 
-            auto owner_info_obj = SieveDataBlock::CreateOwnerInfo(builder,
-                                                                  sieve_nonce_obj,
-                                                                  owner_pubkey_obj,
-                                                                  encrypted_metadata_uuid_obj,
-                                                                  metadata_hint_obj);
+            auto owner_info_obj = MetadataBlock::CreateOwnerInfo(builder,
+                                                                 sieve_nonce_obj,
+                                                                 owner_pubkey_obj,
+                                                                 sieve_data_uuid_obj,
+                                                                 sieve_data_hint_obj);
             owners_v.push_back(owner_info_obj);
         }
 
@@ -908,16 +914,21 @@ namespace teo
         }
         auto data_uuid_v_obj = builder.CreateVector(data_chunk_v);
         auto data_header_obj = builder.CreateVector(data_key.get_header(), SharedSecretKey::HEADER_SIZE);
-        auto sieve_data_block_msg = SieveDataBlock::CreateSieveDataBlock(builder, owners_v_obj,
-                                                                         data_uuid_v_obj, data_header_obj);
-        builder.Finish(sieve_data_block_msg);
+        auto metadata_block_msg = MetadataBlock::CreateMetadataBlock(builder,
+                                                                     owners_v_obj,
+                                                                     data_uuid_v_obj,
+                                                                     data_header_obj);
+        builder.Finish(metadata_block_msg);
 
-        UUID sieve_data_block_uuid;
+        UUID metadata_block_uuid;
 
         parent_timer_start = std::chrono::high_resolution_clock::now();
 
         int storage_conn = network_connect(get_storage_ip().c_str(), get_storage_port());
-        upload_content(storage_conn, sieve_data_block_uuid, builder.GetBufferPointer(), builder.GetSize(),
+        upload_content(storage_conn,
+                       metadata_block_uuid,
+                       builder.GetBufferPointer(),
+                       builder.GetSize(),
                        owner_keys);
 
         parent_timer_stop = std::chrono::high_resolution_clock::now();
@@ -935,30 +946,41 @@ namespace teo
             std::unique_lock<std::mutex> data_lock(g_data_mutex, std::defer_lock);
             std::string owner_key_b64 = base64_encode(owner_key, AsymmetricEncryptionKeySet::FULL_PK_SIZE);
 
-            owner_session_keys[owner_key_b64].init_header_encryption(true);
+            // owner_session_keys[owner_key_b64].init_header_encryption(true);
 
             CiphertextDataStoreUploadNotification notification_payload;
-            size_t notification_cipher_len = SharedSecretKey::get_cipher_len(sizeof(notification_payload));
+            size_t notification_cipher_len = get_keyset().get_box_easy_cipher_len(sizeof(notification_payload));
             auto notification_cipher = new uint8_t[notification_cipher_len]{};
 
             notification_payload.type = CipherType::data_store_upload_notification;
-            memcpy(notification_payload.sieve_data_block_uuid, sieve_data_block_uuid.get_uuid().c_str(),
-                   UUID::UUID_SIZE);
             memcpy(notification_payload.session_id, session_id, sizeof(session_id));
-            memcpy(notification_payload.encrypted_metadata_uuid, encrypted_metadata_uuids[owner_key_b64].get_uuid().c_str(),
+            memcpy(notification_payload.metadata_block_uuid,
+                   metadata_block_uuid.get_uuid().c_str(),
+                   UUID::UUID_SIZE);
+            memcpy(notification_payload.sieve_data_uuid,
+                   sieve_data_uuids[owner_key_b64].get_uuid().c_str(),
                    UUID::UUID_SIZE);
 
-            owner_session_keys[owner_key_b64].encrypt(notification_cipher,
-                                                      notification_cipher_len,
-                                                      reinterpret_cast<const unsigned char *>(&notification_payload),
-                                                      sizeof(notification_payload));
+            // owner_session_keys[owner_key_b64].encrypt(notification_cipher,
+            //                                           notification_cipher_len,
+            //                                           reinterpret_cast<const unsigned char *>(&notification_payload),
+            //                                           sizeof(notification_payload));
+            uint8_t session_nonce_notification[AsymmetricEncryptionKeySet::NONCE_SIZE]{0};
+            get_keyset().box_easy(notification_cipher,
+                                  notification_cipher_len,
+                                  reinterpret_cast<const unsigned char *>(&notification_payload),
+                                  sizeof(notification_payload),
+                                  session_nonce_notification,
+                                  owner_key);
 
             flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
-            auto session_header_refresh_obj = builder.CreateVector(owner_session_keys[owner_key_b64].get_header(),
-                                                                   SharedSecretKey::HEADER_SIZE);
+            // auto session_header_refresh_obj = builder.CreateVector(owner_session_keys[owner_key_b64].get_header(),
+            //                                                        SharedSecretKey::HEADER_SIZE);
+            auto session_nonce_notification_obj = builder.CreateVector(session_nonce_notification,
+                                                                       sizeof(session_nonce_notification));
             auto notification_cipher_obj = builder.CreateVector(notification_cipher, notification_cipher_len);
             auto notification_msg = DataStoreUpload::CreateDataStoreUploadNotification(builder,
-                                                                                       session_header_refresh_obj,
+                                                                                       session_nonce_notification_obj,
                                                                                        notification_cipher_obj);
             builder.Finish(notification_msg);
 
@@ -989,9 +1011,9 @@ namespace teo
                     .count();
         }
 
-        if (sieve_block_result != nullptr)
+        if (metadata_block_result != nullptr)
         {
-            *sieve_block_result = sieve_data_block_uuid;
+            *metadata_block_result = metadata_block_uuid;
         }
 
         return 0;

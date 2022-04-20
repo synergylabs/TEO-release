@@ -1,4 +1,4 @@
-//
+// Client is the base class of all TEO entities.
 // Created by han on 2/11/21.
 //
 

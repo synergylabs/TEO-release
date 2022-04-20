@@ -1,7 +1,7 @@
 namespace teo.DataStoreUpload;
 
 table DataStoreUploadNotification {
-    session_header_refresh:[ubyte];
+    session_nonce_notification:[ubyte];
     ciphertext:[ubyte];
 }
 

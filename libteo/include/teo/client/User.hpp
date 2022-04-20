@@ -28,8 +28,10 @@ namespace teo
         PreAuthToken pre_auth_token;
         uint8_t claimed_device[AsymmetricEncryptionKeySet::FULL_PK_SIZE];
 
-        std::unordered_map<UUID, SieveKey, UUIDHasher> sieve_key_table;
-        std::unordered_map<UUID, UUID, UUIDHasher> enc_meta_block_table;
+        std::unordered_map<UUID, SieveKey, UUIDHasher> sieve_data_key_lookup;
+        std::unordered_map<UUID, UUID, UUIDHasher> metadata_sieve_lookup;
+        std::unordered_map<UUID, UUID, UUIDHasher> sieve_metadata_lookup;
+
 
     public:
         explicit User(const uint8_t *admin_pubkey_in,

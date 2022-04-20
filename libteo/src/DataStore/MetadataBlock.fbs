@@ -1,16 +1,16 @@
-namespace teo.SieveDataBlock;
+namespace teo.MetadataBlock;
 
 table OwnerInfo {
     sieve_nonce:[ubyte];
     owner_pubkey:[ubyte];
-    encrypted_metadata_uuid:string;
-    metadata_hint:[int];
+    sieve_data_uuid:string;
+    sieve_data_hint:[int];
 }
 
-table SieveDataBlock {
+table MetadataBlock {
     owners:[OwnerInfo];
     data_uuid:[string];
     data_header:[ubyte];
 }
 
-root_type SieveDataBlock;
+root_type MetadataBlock;

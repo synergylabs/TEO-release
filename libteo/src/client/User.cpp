@@ -93,7 +93,7 @@ namespace teo
         CiphertextDataStoreSieveCredRequest request_payload;
         get_keyset().box_open_easy(reinterpret_cast<uint8_t *>(&request_payload), sizeof(request_payload),
                                    request_msg->ciphertext()->Data(), request_msg->ciphertext()->size(),
-                                   request_msg->session_nonce()->Data(), request_msg->device_pubkey()->Data());
+                                   request_msg->session_nonce()->Data(), request_msg->device_pubkey()->data());
 
         if (request_payload.type != CipherType::data_store_sieve_cred_request)
         {
@@ -101,7 +101,7 @@ namespace teo
             return -1;
         }
 
-        SharedSecretKey session_key(request_payload.session_key, sizeof(request_payload.session_key));
+        // SharedSecretKey session_key(request_payload.session_key, sizeof(request_payload.session_key));
 
         if (memcmp(claimed_device, request_msg->device_pubkey()->Data(), sizeof(claimed_device)) != 0)
         {
@@ -116,15 +116,20 @@ namespace teo
         sieve_key.serialize_key_into(response_payload.sieve_key, sizeof(response_payload.sieve_key));
         sieve_key.serialize_nonce_into(response_payload.sieve_nonce, sizeof(response_payload.sieve_nonce));
 
-        size_t response_cipher_len = SharedSecretKey::get_cipher_len(sizeof(response_payload));
+        size_t response_cipher_len = get_keyset().get_box_easy_cipher_len(sizeof(response_payload));
         auto response_cipher = new uint8_t[response_cipher_len]{};
-        session_key.encrypt(response_cipher, response_cipher_len,
-                            reinterpret_cast<uint8_t *>(&response_payload),
-                            sizeof(response_payload));
+        // session_key.encrypt(response_cipher, response_cipher_len,
+        //                     reinterpret_cast<uint8_t *>(&response_payload),
+        //                     sizeof(response_payload));
+        uint8_t nonce[AsymmetricEncryptionKeySet::NONCE_SIZE];
+        get_keyset().box_easy(response_cipher, response_cipher_len,
+                              reinterpret_cast<uint8_t *>(&response_payload), sizeof(response_payload),
+                              nonce, request_msg->device_pubkey()->data());
 
         flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
-        auto response_session_header_obj = builder.CreateVector(session_key.get_header(),
-                                                                SharedSecretKey::HEADER_SIZE);
+        // auto response_session_header_obj = builder.CreateVector(session_key.get_header(),
+        //                                                         SharedSecretKey::HEADER_SIZE);
+        auto response_session_header_obj = builder.CreateVector(nonce, sizeof(nonce));
         auto response_cipher_obj = builder.CreateVector(response_cipher, response_cipher_len);
         auto response_msg = CreateDataStoreSieveCredResponse(builder, response_session_header_obj,
                                                              response_cipher_obj);
@@ -143,11 +148,17 @@ namespace teo
         network_read(connection, notification_buf, sizeof(notification_buf));
         auto notification_msg = DataStoreUpload::GetDataStoreUploadNotification(notification_buf);
 
-        session_key.load_header_decryption(notification_msg->session_header_refresh()->Data(),
-                                           notification_msg->session_header_refresh()->size());
+        // session_key.load_header_decryption(notification_msg->session_header_refresh()->Data(),
+        //                                    notification_msg->session_header_refresh()->size());
         CiphertextDataStoreUploadNotification notification_payload;
-        session_key.decrypt(reinterpret_cast<uint8_t *>(&notification_payload), sizeof(notification_payload),
-                            notification_msg->ciphertext()->Data(), notification_msg->ciphertext()->size());
+        // session_key.decrypt(reinterpret_cast<uint8_t *>(&notification_payload), sizeof(notification_payload),
+        //                     notification_msg->ciphertext()->Data(), notification_msg->ciphertext()->size());
+        get_keyset().box_open_easy(reinterpret_cast<uint8_t *>(&notification_payload),
+                                   sizeof(notification_payload),
+                                   notification_msg->ciphertext()->data(),
+                                   notification_msg->ciphertext()->size(),
+                                   notification_msg->session_nonce_notification()->data(),
+                                   request_msg->device_pubkey()->data());
 
         if (notification_payload.type != CipherType::data_store_upload_notification)
         {
@@ -155,14 +166,15 @@ namespace teo
             return -1;
         }
 
-        UUID sieve_data_UUID = UUID(notification_payload.sieve_data_block_uuid,
-                                    sizeof(notification_payload.sieve_data_block_uuid));
-        UUID enc_meta_UUID = UUID(notification_payload.encrypted_metadata_uuid,
-                                  sizeof(notification_payload.encrypted_metadata_uuid));
+        UUID metadata_UUID = UUID(notification_payload.metadata_block_uuid,
+                                  sizeof(notification_payload.metadata_block_uuid));
+        UUID sieve_data_UUID = UUID(notification_payload.sieve_data_uuid,
+                                    sizeof(notification_payload.sieve_data_uuid));
 
         // Store session key and ID for later use...
-        sieve_key_table[sieve_data_UUID] = sieve_key;
-        enc_meta_block_table[sieve_data_UUID] = enc_meta_UUID;
+        sieve_data_key_lookup[sieve_data_UUID] = sieve_key;
+        metadata_sieve_lookup[metadata_UUID] = sieve_data_UUID;
+        sieve_metadata_lookup[sieve_data_UUID] = metadata_UUID;
 
         return 0;
     }
@@ -196,7 +208,7 @@ namespace teo
             return -1;
         }
 
-        if (sieve_key_table.find(sieve_uuid) == sieve_key_table.end())
+        if (sieve_data_key_lookup.find(sieve_uuid) == sieve_data_key_lookup.end())
         {
             LOGW("Sieve uuid not found: %s", sieve_uuid.get_uuid().c_str());
             return -1;
@@ -204,7 +216,7 @@ namespace teo
 
         CiphertextDataAccessResponse response;
         response.type = CipherType::data_access_response;
-        sieve_key_table[sieve_uuid].serialize_key_into(response.sieve_key, sizeof(response.sieve_key));
+        sieve_data_key_lookup[sieve_uuid].serialize_key_into(response.sieve_key, sizeof(response.sieve_key));
         memcpy(response.random_challenge_response,
                fetch_payload.random_challenge,
                sizeof(fetch_payload.random_challenge));
@@ -230,26 +242,54 @@ namespace teo
 
     bool User::delegate_access(const UUID &sieve_uuid, const uint8_t *request_pubkey, size_t request_pubkey_len)
     {
-        // TODO
+        // FIXME: Add your custom access control code here
         return true;
     }
 
-    int User::re_encrypt(const UUID &sieve_data_block_uuid, const uint8_t *storage_pk)
+    int User::re_encrypt(const UUID &block_uuid, const uint8_t *storage_pk)
     {
         uint8_t user_pubkey[AsymmetricEncryptionKeySet::FULL_PK_SIZE]{};
         get_keyset().get_full_pk(user_pubkey, sizeof(user_pubkey));
 
-        if (sieve_key_table.find(sieve_data_block_uuid) == sieve_key_table.end() ||
-            enc_meta_block_table.find(sieve_data_block_uuid) == enc_meta_block_table.end())
+        const UUID *sieve_data_block_uuid = nullptr;
+        const UUID *metadata_uuid = nullptr;
+        if (sieve_data_key_lookup.find(block_uuid) == sieve_data_key_lookup.end())
         {
-            LOGW("Sieve data UUID not found");
-            return -1;
+            // block_uuid is the metadata block UUID
+            // Try look up Sieve block from metadata
+            if (metadata_sieve_lookup.find(block_uuid) == metadata_sieve_lookup.end())
+            {
+                LOGW("Sieve data UUID not found");
+                return -1;
+            }
+
+            sieve_data_block_uuid = &metadata_sieve_lookup[block_uuid];
+            metadata_uuid = &block_uuid;
+        }
+        else {
+            // block_uuid is the Sieve block
+            // Try search for the metadata block UUID
+            if (sieve_metadata_lookup.find(block_uuid) == sieve_metadata_lookup.end())
+            {
+                LOGW("Corresponding metadata UUID not found");
+                return  -1;
+            }
+
+            sieve_data_block_uuid = &block_uuid;
+            metadata_uuid = &sieve_metadata_lookup[block_uuid];
         }
 
-        auto re_encrypt_target = enc_meta_block_table[sieve_data_block_uuid];
+        // if (sieve_data_key_lookup.find(sieve_data_block_uuid) == sieve_data_key_lookup.end() ||
+        //     metadata_sieve_lookup.find(sieve_data_block_uuid) == metadata_sieve_lookup.end())
+        // {
+        //     LOGW("Sieve data UUID not found");
+        //     return -1;
+        // }
+
+        // auto re_encrypt_target = metadata_sieve_lookup[sieve_data_block_uuid];
 
         SieveKey sieve_key_new;
-        RekeyToken token = sieve_key_table[sieve_data_block_uuid].gen_rekey_token(sieve_key_new);
+        RekeyToken token = sieve_data_key_lookup[*sieve_data_block_uuid].gen_rekey_token(sieve_key_new);
 
         const uint8_t *dynamic_pk = storage_pk;
         if (dynamic_pk == nullptr)
@@ -277,11 +317,11 @@ namespace teo
         CiphertextDataReencryptionPreRequest pre_req_payload;
         pre_req_payload.type = CipherType::data_reencryption_pre_request;
         memcpy(pre_req_payload.sieve_data_block_uuid,
-               sieve_data_block_uuid.get_uuid().c_str(),
+               sieve_data_block_uuid->get_uuid().c_str(),
                sizeof(pre_req_payload.sieve_data_block_uuid));
-        memcpy(pre_req_payload.encrypted_metadata_uuid,
-               enc_meta_block_table[sieve_data_block_uuid].get_uuid().c_str(),
-               sizeof(pre_req_payload.encrypted_metadata_uuid));
+        memcpy(pre_req_payload.metadata_uuid,
+               metadata_uuid->get_uuid().c_str(),
+               sizeof(pre_req_payload.metadata_uuid));
         random_buf(pre_req_payload.user_nonce, sizeof(pre_req_payload.user_nonce));
 
         cipher_len = AsymmetricEncryptionKeySet::get_box_seal_cipher_len(sizeof(pre_req_payload));
@@ -300,7 +340,7 @@ namespace teo
         network_send_message_type(conn, MessageType_DATA_REENCRYPTION_PRE_REQUEST);
         network_send(conn, builder.GetBufferPointer(), builder.GetSize());
 
-        // Process pre response
+        // Process pre-response
         if (network_read_message_type(conn) != MessageType_DATA_REENCRYPTION_PRE_RESPONSE)
         {
             LOGW("Unexpected message for Pre-response!");
@@ -357,7 +397,7 @@ namespace teo
                               sizeof(request_payload), nonce, dynamic_pk);
 
         builder.Clear();
-        auto sieve_uuid_obj = builder.CreateString(re_encrypt_target.get_uuid());
+        auto sieve_uuid_obj = builder.CreateString(sieve_data_block_uuid->get_uuid());
         auto owner_pk_obj = builder.CreateVector(user_pubkey, sizeof(user_pubkey));
         auto msg_nonce_obj = builder.CreateVector(nonce, sizeof(nonce));
         auto cipher_obj = builder.CreateVector(cipher, cipher_len);
@@ -387,7 +427,7 @@ namespace teo
         delete[] cipher;
         delete[] dynamic_pk;
 
-        sieve_key_table[sieve_data_block_uuid].apply_rekey_token_key(token);
+        sieve_data_key_lookup[*sieve_data_block_uuid].apply_rekey_token_key(token);
 
         return 0;
     }

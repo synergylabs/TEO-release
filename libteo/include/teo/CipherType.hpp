@@ -82,7 +82,7 @@ namespace teo
     struct CiphertextDataStoreSieveCredRequest
     {
         CipherType type = CipherType::no_type;
-        uint8_t session_key[SharedSecretKey::KEY_SIZE]{};
+        // uint8_t session_key[SharedSecretKey::KEY_SIZE]{};
         uint8_t session_id[G_SESS_ID_SIZE]{};
     };
 
@@ -97,8 +97,8 @@ namespace teo
     {
         CipherType type = CipherType::no_type;
         uint8_t session_id[G_SESS_ID_SIZE]{};
-        int8_t sieve_data_block_uuid[UUID::UUID_SIZE]{};
-        int8_t encrypted_metadata_uuid[UUID::UUID_SIZE]{};
+        int8_t metadata_block_uuid[UUID::UUID_SIZE]{};
+        int8_t sieve_data_uuid[UUID::UUID_SIZE]{};
     };
 
     struct CiphertextDataAccessFetch
@@ -115,7 +115,7 @@ namespace teo
         uint8_t random_challenge_response[G_CHALLENGE_SIZE]{};
     };
 
-    struct MetadataBlock
+    struct SieveDataBlock
     {
         uint8_t data_key[G_SECRET_SHARE_CHANNEL_ID_LEN + SharedSecretKey::KEY_SIZE]{};
     };
@@ -124,7 +124,7 @@ namespace teo
     {
         CipherType type = CipherType::no_type;
         int8_t sieve_data_block_uuid[UUID::UUID_SIZE]{};
-        int8_t encrypted_metadata_uuid[UUID::UUID_SIZE]{};
+        int8_t metadata_uuid[UUID::UUID_SIZE]{};
         uint8_t user_nonce[G_CHALLENGE_SIZE]{};
     };
 
