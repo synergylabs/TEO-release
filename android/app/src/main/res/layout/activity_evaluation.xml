@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.EvaluationActivity">
+
+    <TextView
+        android:id="@+id/eval_welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Evaluation Panel"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_eval_reps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:text="Set evaluation repetitions:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/eval_welcome" />
+
+    <RadioGroup
+        android:id="@+id/radio_group_eval_reps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:checkedButton="@id/radio_eval_rep_5"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_eval_reps">
+
+        <RadioButton
+            android:id="@+id/radio_eval_rep_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/eval_rep_radio_5" />
+
+        <RadioButton
+            android:id="@+id/radio_eval_rep_100"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@string/eval_rep_radio_100" />
+        <RadioButton
+            android:id="@+id/radio_eval_rep_300"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@string/eval_rep_radio_300" />
+        <RadioButton
+            android:id="@+id/radio_eval_rep_400"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@string/eval_rep_radio_400" />
+    </RadioGroup>
+
+    <ScrollView
+        android:layout_width="409dp"
+        android:layout_height="678dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radio_group_eval_reps">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btn_eval_qr_scan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnQRScanOnClick"
+                android:text="QR Scan" />
+
+            <Button
+                android:id="@+id/btn_init_test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnEvalInitOnClick"
+                android:text="Init Test" />
+
+
+            <Button
+                android:id="@+id/btn_pre_auth_claim_test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnEvalPreAuthClaimOnClick"
+                android:text="Pre Auth + Claim Device Test" />
+
+
+            <Button
+                android:id="@+id/btn_claim_test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnEvalClaimOnClick"
+                android:text="Claim Device Test" />
+
+
+            <Button
+                android:id="@+id/btn_re_encrypt_eval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnEvalReEncryptOnClick"
+                android:text="Re-encrypt test" />
+
+            <Button
+                android:id="@+id/btn_battery_reading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnBatteryReadingOnClick"
+                android:text="Read Battery" />
+
+            <Button
+                android:id="@+id/btn_beacon_measure"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnBeaconMeasureOnClick"
+                android:text="Beacon Power Measure" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

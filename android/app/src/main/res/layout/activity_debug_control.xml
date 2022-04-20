@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.DebugControlActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/show_keypair_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="128dp"
+                android:onClick="btnShowKeypairOnClick"
+                android:text="User Keypair Info" />
+
+            <Button
+                android:id="@+id/flush_keypair_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnFlushKeypairOnClick"
+                android:text="@string/flush_keypair" />
+
+            <Button
+                android:id="@+id/btn_show_device_secret"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnDisplayDeviceSecretOnClick"
+                android:text="Device Secret" />
+
+            <Button
+                android:id="@+id/btn_show_admin_pubkey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnShowAdminPubkeyOnClick"
+                android:text="Admin Pubkey" />
+
+            <Button
+                android:id="@+id/btn_show_pre_auth_token"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnShowPreAuthTokenOnClick"
+                android:text="Pre Auth Token" />
+
+            <Button
+                android:id="@+id/btn_show_claimed_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnShowClaimedDeviceOnClick"
+                android:text="Claimed Device" />
+
+            <Button
+                android:id="@+id/btn_show_storage_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnShowStorageInfoOnClick"
+                android:text="Storage Info" />
+
+            <Button
+                android:id="@+id/btn_send_admin_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btnSendAdminNotificationOnClick"
+                android:text="Send Admin Notification" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

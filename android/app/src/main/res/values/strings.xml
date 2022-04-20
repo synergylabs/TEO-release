@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">tot_mobile_native</string>
+    <string name="btn_qr_scan_text">QR Scan</string>
+    <string name="textview_placeholder">TextView</string>
+    <string name="qr_scanner">QR Scanner</string>
+    <string name="pref_key_camerax_rear_camera_target_resolution" translatable="false">crctas</string>
+    <string name="pref_key_camerax_front_camera_target_resolution" translatable="false">cfctas</string>
+    <string name="crypto_key_file_key">me.zhanghan177.PREFERENCE_CRYPTO_FILE_KEY</string>
+    <string name="user_pubkey_b64">user_pubkey_b64</string>
+    <string name="user_privkey_b64">user_privkey_b64</string>
+    <string name="btn_debug_pane_text">[Debug] Config</string>
+    <string name="flush_keypair">Flush Keypair</string>
+    <string name="btn_init_device_text">[ADMIN] Init Device</string>
+    <string name="btn_claim_device_text">Claim Device</string>
+    <string name="btn_pre_auth_text">Acquire Pre-Auth Token</string>
+    <string name="btn_reencrypt_text">Re-encrypt</string>
+    <string name="channel_name">TOT Channel</string>
+    <string name="channel_description">TOT Notification Channel</string>
+    <string name="btn_eval_text">Evaluation</string>
+    <string name="eval_rep_radio_5">5</string>
+    <string name="eval_rep_radio_100">100</string>
+    <string name="eval_rep_radio_400">400</string>
+    <string name="radio_data_size_1kb">1KB</string>
+    <string name="radio_data_size_100kb">100KB</string>
+    <string name="radio_data_size_10mb">10MB</string>
+    <string name="radio_data_size_1gb">1GB</string>
+    <string name="tv_data_size_prefix">Select data block size:</string>
+    <string name="approve">approve</string>
+    <string name="deny">deny</string>
+    <string name="release_device">Release Device</string>
+    <string name="eval_rep_radio_300">300</string>
+</resources>

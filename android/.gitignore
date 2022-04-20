@@ -1,0 +1,21 @@
+# Flatbuffers generated output
+app/src/main/java/libtot
+app/src/main/java/com/google/flatbuffers
+
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.idea
+spreadsheet.properties
