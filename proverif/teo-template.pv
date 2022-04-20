@@ -327,7 +327,8 @@ const INITIALIZATION_REQUEST
   , DATA_STORE_SIEVE_CRED_REQUEST
   , DATA_STORE_SIEVE_CRED_RESPONSE
   , DATA_STORE_UPLOAD
-  , DATA_STORE_UPLOAD_NOTIFICATION
+  , DATA_STORE_UPLOAD_NOTIFICATION_1
+  , DATA_STORE_UPLOAD_NOTIFICATION_2
   , DATA_STORE_DOWNLOAD_REQUEST
   , DATA_STORE_DOWNLOAD_RESPONSE_1
   , DATA_STORE_DOWNLOAD_RESPONSE_1_ACK
@@ -358,7 +359,8 @@ const CIPHER_INITIALIZATION_REQUEST
 
   , CIPHER_DATA_STORE_SIEVE_CRED_REQUEST
   , CIPHER_DATA_STORE_SIEVE_CRED_RESPONSE
-  , CIPHER_DATA_STORE_UPLOAD_NOFICIATION
+  , CIPHER_DATA_STORE_UPLOAD_NOTIFICATION_1
+  , CIPHER_DATA_STORE_UPLOAD_NOTIFICATION_2
 
   , CIPHER_DATA_ACCESS_RESPONSE
 
@@ -577,6 +579,12 @@ $template ${UID}
   let sieveDataBlock${UID} = sieve_enc(sieveKey${UID}, sieveNonce${UID}, sieveContentBlock${UID}) in
   out(io, (DATA_STORE_UPLOAD, sieveDataUUID${UID}, $foreach{i}{UID}{$if{${i} == ${UID}}{ownerPubkey${UID}}{NULLPK}}$with{,},
    sieveDataBlock${UID}));
+
+  new notificationNonce1${UID}:nonce;
+  out(io, (DATA_STORE_UPLOAD_NOTIFICATION_1,
+          ownerPubkey${UID},
+          notificationNonce1${UID},
+          crypto_box_easy((CIPHER_DATA_STORE_UPLOAD_NOTIFICATION_1, sessionID, sieveDataUUID${UID}, dataUUID), notificationNonce1${UID}, ownerPubkey${UID}, devicePrivkey)));
 $endtemplate
 
   (* Assemble meta data block *)
@@ -589,11 +597,11 @@ $endtemplate
 
   (* Send upload notification to data owner *)
 $template ${UID}
-  new notificationNonce${UID}:nonce;
-  out(io, (DATA_STORE_UPLOAD_NOTIFICATION,
+  new notificationNonce2${UID}:nonce;
+  out(io, (DATA_STORE_UPLOAD_NOTIFICATION_2,
           ownerPubkey${UID},
-          notificationNonce${UID},
-          crypto_box_easy((CIPHER_DATA_STORE_UPLOAD_NOFICIATION, sessionID, metaDataUUID, sieveDataUUID${UID}, dataUUID), notificationNonce${UID}, ownerPubkey${UID}, devicePrivkey)));
+          notificationNonce2${UID},
+          crypto_box_easy((CIPHER_DATA_STORE_UPLOAD_NOTIFICATION_2, sessionID, metaDataUUID), notificationNonce2${UID}, ownerPubkey${UID}, devicePrivkey)));
 $endtemplate
 
   0.
@@ -623,9 +631,13 @@ let UserDataStore${UID}(userPrivkey:privkey) =
           crypto_box_easy((CIPHER_DATA_STORE_SIEVE_CRED_RESPONSE, sieveKey, sieveNonce), responseNonce, devicePubkey, userPrivkey)
           ));
 
-  in(io, (=DATA_STORE_UPLOAD_NOTIFICATION, =userPubkey, notificationNonce:nonce, notificationPayload:bitstring));
+  in(io, (=DATA_STORE_UPLOAD_NOTIFICATION_1, =userPubkey, notificationNonce1:nonce, notificationPayload1:bitstring));
 
-  let (=CIPHER_DATA_STORE_UPLOAD_NOFICIATION, =sessionID, metaDataUUID:bitstring, sieveDataUUID:bitstring, dataUUID:bitstring) = crypto_box_open_easy(notificationPayload, notificationNonce, devicePubkey, userPrivkey) in
+  let (=CIPHER_DATA_STORE_UPLOAD_NOTIFICATION_1, =sessionID, sieveDataUUID:bitstring, dataUUID:bitstring) = crypto_box_open_easy(notificationPayload1, notificationNonce1, devicePubkey, userPrivkey) in
+  
+   in(io, (=DATA_STORE_UPLOAD_NOTIFICATION_2, =userPubkey, notificationNonce2:nonce, notificationPayload2:bitstring));
+
+  let (=CIPHER_DATA_STORE_UPLOAD_NOTIFICATION_2, =sessionID, metaDataUUID:bitstring) = crypto_box_open_easy(notificationPayload2, notificationNonce2, devicePubkey, userPrivkey) in
 
   insert userRecordingLookupTable${UID}(userPubkey, sessionID, metaDataUUID, sieveDataUUID, sieveKey);
 
