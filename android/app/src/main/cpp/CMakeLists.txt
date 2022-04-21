@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
 
-project("tot_mobile_native")
+project("teo_mobile")
 
 
 option(TOT_MOBILE_NATIVE "Instruct the libtot functions we are building native libs" ON)
@@ -35,16 +35,16 @@ add_library( # Sets the name of the library.
         test_decaf.cpp
         tot-helper.cpp
 
-        libtot_client_native.cpp
-        libtot_helper.cpp
-        libtot_network.cpp
-        AsymmetricEncryptionKeySet.cpp
-        PKAEADKey.cpp
-        PreAuthToken.cpp
-        PublicSecretKeyPair.cpp
-        SharedSecretKey.cpp
-        Sieve.cpp
-        SignatureKey.cpp
+#        libtot_client_native.cpp
+#        libtot_helper.cpp
+#        libtot_network.cpp
+#        AsymmetricEncryptionKeySet.cpp
+#        PKAEADKey.cpp
+#        PreAuthToken.cpp
+#        PublicSecretKeyPair.cpp
+#        SharedSecretKey.cpp
+#        Sieve.cpp
+#        SignatureKey.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

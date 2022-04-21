@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="me.zhanghan177.tot_mobile_native">
+    package="me.zhanghan177.teo_mobile">
 
     <uses-sdk tools:overrideLibrary="           androidx.camera.camera2, androidx.camera.core,           androidx.camera.view, androidx.camera.lifecycle" />
 
@@ -18,7 +18,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,10 +25,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tot_mobile_native">
+        <activity
+            android:name=".activities.ConfigActivity"
+            android:exported="false" />
+        <activity android:name=".activities.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".TOTBeaconScanService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity android:name=".activities.EvaluationActivity" />
 
@@ -61,13 +71,7 @@
             android:value="barcode,face,ocr,ica" />
 
         <activity android:name=".activities.QRScanActivity" />
-        <activity android:name=".activities.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".activities.MainActivity2" />
     </application>
 
 </manifest>

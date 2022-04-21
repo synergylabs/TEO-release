@@ -14,7 +14,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "me.zhanghan177.tot_mobile_native"
+        applicationId "me.zhanghan177.teo_mobile"
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1

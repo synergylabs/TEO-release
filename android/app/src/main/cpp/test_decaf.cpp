@@ -27,11 +27,11 @@ using decaf::SHA3;
 
 using std::string;
 
-typedef typename decaf::Ed448Goldilocks LIBTOT_EC_Group;
-typedef typename LIBTOT_EC_Group::Scalar Scalar;
-typedef typename LIBTOT_EC_Group::Point Point;
-typedef typename LIBTOT_EC_Group::DhLadder DhLadder;
-typedef typename LIBTOT_EC_Group::Precomputed Precomputed;
+typedef typename decaf::Ed448Goldilocks TEO_EC_Group;
+typedef typename TEO_EC_Group::Scalar Scalar;
+typedef typename TEO_EC_Group::Point Point;
+typedef typename TEO_EC_Group::DhLadder DhLadder;
+typedef typename TEO_EC_Group::Precomputed Precomputed;
 
 static uint64_t leint(const SecureBuffer &xx) {
     uint64_t out = 0;
@@ -94,7 +94,7 @@ void test_scalar_arithmetic() {
 
     // Question: why do we need to mod 2x the scalar size?
     size_t sob =
-            (LIBTOT_EC_Group::Scalar::SER_BYTES * 3) % (2 * LIBTOT_EC_Group::Scalar::SER_BYTES);
+            (TEO_EC_Group::Scalar::SER_BYTES * 3) % (2 * TEO_EC_Group::Scalar::SER_BYTES);
     SecureBuffer xx = rng.read(sob), yy = rng.read(sob), zz = rng.read(sob);
 
     x = Scalar(xx);

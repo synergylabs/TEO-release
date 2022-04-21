@@ -1,4 +1,4 @@
-# Install script for directory: /Users/hanzhang/Research/Transient-IoT-Ownership/tot_mobile_native/app/src/main/cpp/ed448goldilocks-code/src/ed448goldilocks
+# Install script for directory: /Users/hanzhang/Research/Transient-IoT-Ownership/teo_mobile/app/src/main/cpp/ed448goldilocks-code/src/ed448goldilocks
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

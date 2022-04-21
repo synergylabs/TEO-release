@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.MainActivity2">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="178dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="175dp"
+        android:text="@string/hello_user_prompt"
+        android:textSize="@dimen/font_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/sample_text"
+        android:layout_width="wrap_content"
+        android:layout_height="19dp"
+        android:layout_marginTop="32dp"
+        android:text="Hello World!"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sample_text">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btn_qr_scan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnQrScanOnClick"
+                android:text="@string/btn_qr_scan_text" />
+
+            <Button
+                android:id="@+id/btn_acquire_pre_auth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnAcquirePreAuthOnClick"
+                android:text="@string/btn_pre_auth_text" />
+
+            <Button
+                android:id="@+id/btn_claim_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnClaimDeviceOnClick"
+                android:text="@string/btn_claim_device_text" />
+
+            <Button
+                android:id="@+id/btn_remove_real_time_access"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnRemoveRealTimeAccessOnClick"
+                android:text="Remove Access" />
+
+            <Button
+                android:id="@+id/btn_release_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnReleaseDeviceOnClick"
+                android:text="@string/release_device" />
+
+            <Button
+                android:id="@+id/btn_reencrypt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnReencryptOnClick"
+                android:text="@string/btn_reencrypt_text" />
+
+            <Button
+                android:id="@+id/btn_admin_init_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnAdminInitDeviceOnClick"
+                android:text="@string/btn_init_device_text" />
+
+            <Button
+                android:id="@+id/btn_debug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnDebugOnClick"
+                android:text="@string/btn_debug_pane_text" />
+
+            <Button
+                android:id="@+id/btn_eval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="btnEvalOnClick"
+                android:text="@string/btn_eval_text" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

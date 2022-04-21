@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">tot_mobile_native</string>
+    <string name="app_name">TEO Mobile App</string>
     <string name="btn_qr_scan_text">QR Scan</string>
     <string name="textview_placeholder">TextView</string>
     <string name="qr_scanner">QR Scanner</string>
@@ -29,4 +29,7 @@
     <string name="deny">deny</string>
     <string name="release_device">Release Device</string>
     <string name="eval_rep_radio_300">300</string>
+    <string name="hello_user_prompt">Hello User</string>
+    <string name="edit_client_name_prompt">Client Name:</string>
+    <string name="default_client_name">Anonymous User</string>
 </resources>
