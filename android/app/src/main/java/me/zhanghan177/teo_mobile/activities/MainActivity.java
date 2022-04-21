@@ -35,4 +35,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ConfigActivity.class);
         startActivity(intent);
     }
+
+    public void btnQRScanOnClick(View view) {
+        Intent intent = new Intent(this, QRScanActivity.class);
+        startActivity(intent);
+    }
 }

@@ -7,16 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import me.zhanghan177.teo_mobile.GlobalConfig;
-import me.zhanghan177.teo_mobile.TOTBeaconScanService;
-import me.zhanghan177.teo_mobile.TOTKeyStoreService;
-import me.zhanghan177.teo_mobile.TOTServiceConnection;
-import me.zhanghan177.teo_mobile.databinding.ActivityMainBinding;
+import me.zhanghan177.teo_mobile.TEOBeaconScanService;
+import me.zhanghan177.teo_mobile.TEOKeyStoreService;
+import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
-import static me.zhanghan177.teo_mobile.NetworkUtils.getIPAddress;
 import static me.zhanghan177.teo_mobile.Utilities.notImplementWarning;
 
 public class MainActivity2 extends AppCompatActivity {
@@ -26,13 +23,13 @@ public class MainActivity2 extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
-    private final TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -49,7 +46,7 @@ public class MainActivity2 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent startTOTKeyStore = new Intent(this, TOTKeyStoreService.class);
+        Intent startTOTKeyStore = new Intent(this, TEOKeyStoreService.class);
         startService(startTOTKeyStore);
 
 //        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -69,7 +66,7 @@ public class MainActivity2 extends AppCompatActivity {
 
 
         if (GlobalConfig.ENABLE_BEACON_SCAN) {
-            Intent startTOTBeaconScan = new Intent(this, TOTBeaconScanService.class);
+            Intent startTOTBeaconScan = new Intent(this, TEOBeaconScanService.class);
             startService(startTOTBeaconScan);
         }
 
@@ -79,7 +76,7 @@ public class MainActivity2 extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        Intent stopTOTKeyStore = new Intent(this, TOTKeyStoreService.class);
+        Intent stopTOTKeyStore = new Intent(this, TEOKeyStoreService.class);
         stopService(stopTOTKeyStore);
 
     }

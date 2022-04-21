@@ -3,8 +3,8 @@ package me.zhanghan177.teo_mobile.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import me.zhanghan177.teo_mobile.R;
-import me.zhanghan177.teo_mobile.TOTKeyStoreService;
-import me.zhanghan177.teo_mobile.TOTServiceConnection;
+import me.zhanghan177.teo_mobile.TEOKeyStoreService;
+import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +32,7 @@ public class EvaluationActivity extends AppCompatActivity {
     private static final int DEVICE_EVAL_PORT = 9010;
 
     private static final String TAG = "TOT Evaluation";
-    private final TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
 
 //    private static final String SPREADSHEET_ID = BuildConfig.SPREADSHEET_ID;
 //    private static final String SPREADSHEET_POST_URL = BuildConfig.SPREADSHEET_POST_URL;
@@ -78,7 +78,7 @@ public class EvaluationActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
     }
 

@@ -20,9 +20,9 @@ import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class TOTBeaconScanService extends Service implements RangeNotifier, InternalBeaconConsumer {
+public class TEOBeaconScanService extends Service implements RangeNotifier, InternalBeaconConsumer {
 
-    private final TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
     protected static final String TAG = "MonitoringActivity";
     private BeaconManager beaconManager;
     byte[] nonceLastSeen = null;
@@ -53,7 +53,7 @@ public class TOTBeaconScanService extends Service implements RangeNotifier, Inte
         }
     };
 
-    public TOTBeaconScanService() {
+    public TEOBeaconScanService() {
     }
 
     @Override
@@ -112,7 +112,7 @@ public class TOTBeaconScanService extends Service implements RangeNotifier, Inte
     public void onCreate() {
         super.onCreate();
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
 
         startScan();

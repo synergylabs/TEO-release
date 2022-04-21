@@ -37,25 +37,25 @@
         </activity>
 
         <service
-            android:name=".TOTBeaconScanService"
+            android:name=".TEOBeaconScanService"
             android:enabled="true"
             android:exported="true" />
 
         <activity android:name=".activities.EvaluationActivity" />
 
         <service
-            android:name=".TOTUserService"
+            android:name=".TEOUserService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".TOTAdminService"
+            android:name=".TEOAdminService"
             android:enabled="true"
             android:exported="true" />
 
         <activity android:name=".activities.DebugControlActivity" />
 
         <service
-            android:name=".TOTKeyStoreService"
+            android:name=".TEOKeyStoreService"
             android:enabled="true"
             android:exported="true" />
 

@@ -22,9 +22,9 @@ import static me.zhanghan177.teo_mobile.GlobalConfig.ADMIN_PORT;
 import static me.zhanghan177.teo_mobile.GlobalConfig.EVAL_MODE_SKIP_NOTIFICATION;
 import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
-import static me.zhanghan177.teo_mobile.TOTKeyStoreService.message_type_fltbuffers_size;
+import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
 
-public class TOTAdminService extends Service {
+public class TEOAdminService extends Service {
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -43,7 +43,7 @@ public class TOTAdminService extends Service {
     ServerSocket serverSocket;
     Thread serverThread = null;
 
-    private final TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
 
     byte[] pending_token = null;
     Socket pending_socket = null;
@@ -64,14 +64,14 @@ public class TOTAdminService extends Service {
         }
     }
 
-    public TOTAdminService() {
+    public TEOAdminService() {
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
 
         startAdminServer();
@@ -168,7 +168,7 @@ public class TOTAdminService extends Service {
 
     public void sendNotification() {
         // Create an explicit intent for an Activity in your app
-        Intent intent = new Intent(this, TOTAdminService.class);
+        Intent intent = new Intent(this, TEOAdminService.class);
         intent.putExtra(EXTRA_TYPE, PRE_AUTH_APPROVE);
 
         if (EVAL_MODE_SKIP_NOTIFICATION) {

@@ -4,13 +4,13 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-public class TOTServiceConnection implements ServiceConnection {
-    private TOTKeyStoreService.TOTLocalBinder TOTBinder;
+public class TEOServiceConnection implements ServiceConnection {
+    private TEOKeyStoreService.TOTLocalBinder TOTBinder;
     private boolean mBound = false;
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        setTOTBinder((TOTKeyStoreService.TOTLocalBinder) iBinder);
+        setTOTBinder((TEOKeyStoreService.TOTLocalBinder) iBinder);
         setmBound(true);
     }
 
@@ -27,11 +27,11 @@ public class TOTServiceConnection implements ServiceConnection {
         this.mBound = mBound;
     }
 
-    public TOTKeyStoreService.TOTLocalBinder getTOTBinder() {
+    public TEOKeyStoreService.TOTLocalBinder getTOTBinder() {
         return TOTBinder;
     }
 
-    private void setTOTBinder(TOTKeyStoreService.TOTLocalBinder TOTBinder) {
+    private void setTOTBinder(TEOKeyStoreService.TOTLocalBinder TOTBinder) {
         this.TOTBinder = TOTBinder;
     }
 }

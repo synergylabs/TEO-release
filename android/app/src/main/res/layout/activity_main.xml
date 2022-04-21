@@ -10,24 +10,70 @@
         android:id="@+id/tvHelloPrompt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_marginTop="32dp"
+        android:gravity="center"
         android:text="@string/hello_user_prompt"
         android:textSize="@dimen/font_size_large"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/imageButtonConfig"
-        android:layout_width="64dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="86dp"
-        android:layout_marginTop="77dp"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="657dp"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="128dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvHelloPrompt"
-        app:srcCompat="@drawable/ic_baseline_build_24"
-        android:onClick="btnConfigOnClick"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/tvHelloPrompt">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/imageViewAdminPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_admin_logo"
+            android:text="Admin" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/imageViewUserPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_user_logo"
+            android:text="User" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/imageButtonConfig"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_config_logo"
+            android:onClick="btnConfigOnClick"
+            android:text="Config" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/imageViewQRScanPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_qr_scan_logo"
+            android:onClick="btnQRScanOnClick"
+            android:text="QR Scan" />
+
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

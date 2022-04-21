@@ -20,13 +20,13 @@ import static me.zhanghan177.teo_mobile.GlobalConfig.EVAL_MODE_SKIP_NOTIFICATION
 import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
 import static me.zhanghan177.teo_mobile.GlobalConfig.USER_PORT;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
-import static me.zhanghan177.teo_mobile.TOTAdminService.EXTRA_TYPE;
-import static me.zhanghan177.teo_mobile.TOTKeyStoreService.message_type_fltbuffers_size;
+import static me.zhanghan177.teo_mobile.TEOAdminService.EXTRA_TYPE;
+import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-public class TOTUserService extends Service {
+public class TEOUserService extends Service {
 
     private static final String REAL_TIME_APPROVE = "Real time approved";
     private static final String REAL_TIME_DENIED = "Real time denied";
@@ -51,7 +51,7 @@ public class TOTUserService extends Service {
 
     byte[] sessionKey = null;
 
-    private final TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
 
     public void setSessionKey(byte[] sessionKey) {
         this.sessionKey = sessionKey;
@@ -77,7 +77,7 @@ public class TOTUserService extends Service {
         return TOTConnection.getTOTBinder().getSieveKeyNonce();
     }
 
-    public TOTUserService() {
+    public TEOUserService() {
     }
 
 
@@ -87,7 +87,7 @@ public class TOTUserService extends Service {
 
         Log.v(TAG, "Service start!");
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
 
         startUserServer();
@@ -194,10 +194,10 @@ public class TOTUserService extends Service {
 
     public void sendNotification() {
         // Create an explicit intent for an Activity in your app
-        Intent approveIntent = new Intent(this, TOTUserService.class);
+        Intent approveIntent = new Intent(this, TEOUserService.class);
         approveIntent.putExtra(EXTRA_TYPE, REAL_TIME_APPROVE);
 
-        Intent denyIntent = new Intent(this, TOTUserService.class);
+        Intent denyIntent = new Intent(this, TEOUserService.class);
         denyIntent.putExtra(EXTRA_TYPE, REAL_TIME_DENIED);
 
         if (EVAL_MODE_SKIP_NOTIFICATION) {

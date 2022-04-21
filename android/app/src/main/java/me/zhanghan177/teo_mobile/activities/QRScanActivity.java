@@ -10,15 +10,18 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.lifecycle.ViewModelProvider;
+
 import me.zhanghan177.teo_mobile.CameraXViewModel;
 import me.zhanghan177.teo_mobile.R;
-import me.zhanghan177.teo_mobile.TOTKeyStoreService;
-import me.zhanghan177.teo_mobile.TOTServiceConnection;
+import me.zhanghan177.teo_mobile.TEOKeyStoreService;
+import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -56,16 +59,24 @@ public class QRScanActivity extends AppCompatActivity {
 
     private final int lensFacing = CameraSelector.LENS_FACING_BACK;
 
-    TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    private static final int MY_CAMERA_REQUEST_CODE = 100;
+
+
+    TEOServiceConnection TOTConnection = new TEOServiceConnection();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrscan);
 
+
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+        }
+
         setupCamera();
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
     }
 

@@ -2,9 +2,9 @@ package me.zhanghan177.teo_mobile.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import me.zhanghan177.teo_mobile.R;
-import me.zhanghan177.teo_mobile.TOTAdminService;
-import me.zhanghan177.teo_mobile.TOTKeyStoreService;
-import me.zhanghan177.teo_mobile.TOTServiceConnection;
+import me.zhanghan177.teo_mobile.TEOAdminService;
+import me.zhanghan177.teo_mobile.TEOKeyStoreService;
+import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 public class DebugControlActivity extends AppCompatActivity {
-    TOTServiceConnection TOTConnection = new TOTServiceConnection();
+    TEOServiceConnection TOTConnection = new TEOServiceConnection();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +25,7 @@ public class DebugControlActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        Intent intent = new Intent(this, TOTKeyStoreService.class);
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -92,8 +92,8 @@ public class DebugControlActivity extends AppCompatActivity {
     }
 
     public void btnSendAdminNotificationOnClick(View view) {
-        Intent intent = new Intent(this, TOTAdminService.class);
-        intent.putExtra(TOTAdminService.EXTRA_TYPE, TOTAdminService.SEND_NOTIFICATION);
+        Intent intent = new Intent(this, TEOAdminService.class);
+        intent.putExtra(TEOAdminService.EXTRA_TYPE, TEOAdminService.SEND_NOTIFICATION);
         startService(intent);
     }
 }

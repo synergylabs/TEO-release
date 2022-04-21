@@ -17,7 +17,7 @@ import static me.zhanghan177.teo_mobile.Utilities.base64EncodeStrip;
 import static me.zhanghan177.teo_mobile.Utilities.bytesToHex;
 import static me.zhanghan177.teo_mobile.Utilities.stripLineBreak;
 
-public class TOTKeyStoreService extends Service {
+public class TEOKeyStoreService extends Service {
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -40,21 +40,21 @@ public class TOTKeyStoreService extends Service {
 
     public class TOTLocalBinder extends Binder {
         public void flushKeyPair() {
-            TOTKeyStoreService.this.flushKeyPair();
+            TEOKeyStoreService.this.flushKeyPair();
         }
 
         public String getDeviceSecretB64() {
-            return TOTKeyStoreService.this.getDeviceSecretB64();
+            return TEOKeyStoreService.this.getDeviceSecretB64();
         }
 
         public int setDeviceSecret(@NonNull String secretB64) {
             // Skipping redundant assignment
-            if (TOTKeyStoreService.this.getDeviceSecretB64().equals(secretB64)) {
+            if (TEOKeyStoreService.this.getDeviceSecretB64().equals(secretB64)) {
                 return -1;
             }
 
             try {
-                TOTKeyStoreService.this.setDeviceSecret(Base64.decode(secretB64, Base64.DEFAULT));
+                TEOKeyStoreService.this.setDeviceSecret(Base64.decode(secretB64, Base64.DEFAULT));
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Incorrect padding for Base64 string");
@@ -70,13 +70,13 @@ public class TOTKeyStoreService extends Service {
         }
 
         public int initDevice() {
-            return TOTKeyStoreService.this.initDevice();
+            return TEOKeyStoreService.this.initDevice();
         }
 
         public void setAdminInfo(String adminPubkeyB64, String adminIp, String adminPort) {
             setAdminPubkey(Base64.decode(adminPubkeyB64, Base64.DEFAULT));
             if (adminIp.equals("") || adminPort.equals("")) {
-                TOTKeyStoreService.this.resolveAdminIpPort();
+                TEOKeyStoreService.this.resolveAdminIpPort();
             } else {
                 setAdminIp(adminIp);
                 setAdminPort(Integer.parseInt(adminPort));
@@ -86,23 +86,23 @@ public class TOTKeyStoreService extends Service {
         }
 
         public String getAdminPubkeyB64() {
-            return TOTKeyStoreService.this.getAdminPubkeyB64();
+            return TEOKeyStoreService.this.getAdminPubkeyB64();
         }
 
         public int acquirePreAuthToken() {
-            return TOTKeyStoreService.this.acquirePreAuthToken();
+            return TEOKeyStoreService.this.acquirePreAuthToken();
         }
 
         public String getPreAuthTokenB64() {
-            return TOTKeyStoreService.this.getPreAuthTokenB64();
+            return TEOKeyStoreService.this.getPreAuthTokenB64();
         }
 
         public int claimDevice() {
-            return TOTKeyStoreService.this.claimDevice();
+            return TEOKeyStoreService.this.claimDevice();
         }
 
         public String getClaimedDeviceB64() {
-            return TOTKeyStoreService.this.getClaimedDeviceB64();
+            return TEOKeyStoreService.this.getClaimedDeviceB64();
         }
 
         public void setStorageInfo(String issuerPubkeyB64, String issuerIP, String issuerPort) {
@@ -112,19 +112,19 @@ public class TOTKeyStoreService extends Service {
         }
 
         public String getStoragePubkeyB64() {
-            return TOTKeyStoreService.this.getStoragePubkeyB64();
+            return TEOKeyStoreService.this.getStoragePubkeyB64();
         }
 
         public String getClientPubkeyB64() {
-            return TOTKeyStoreService.this.getClientPubkeyB64();
+            return TEOKeyStoreService.this.getClientPubkeyB64();
         }
 
         public byte[] getUserPubkey() {
-            return TOTKeyStoreService.this.getUserPubkey();
+            return TEOKeyStoreService.this.getUserPubkey();
         }
 
         public byte[] getUserPrivkey() {
-            return TOTKeyStoreService.this.getUserPrivkey();
+            return TEOKeyStoreService.this.getUserPrivkey();
         }
 
         public void setSieveKey(byte[] in) {
@@ -144,27 +144,27 @@ public class TOTKeyStoreService extends Service {
         }
 
         public void reencrypt() {
-            TOTKeyStoreService.this.reencrypt();
+            TEOKeyStoreService.this.reencrypt();
         }
 
         public void setDataUUID(String dataBlockUUID) {
-            TOTKeyStoreService.this.dataUUID = dataBlockUUID;
+            TEOKeyStoreService.this.dataUUID = dataBlockUUID;
         }
 
         public void setEncMetaUUID(String encMetaBlockUUID) {
-            TOTKeyStoreService.this.encMetaUUID = encMetaBlockUUID;
+            TEOKeyStoreService.this.encMetaUUID = encMetaBlockUUID;
         }
 
         public int releaseDevice() {
-            return TOTKeyStoreService.this.releaseDevice();
+            return TEOKeyStoreService.this.releaseDevice();
         }
 
         public int removeRealTimeAccess() {
-            return TOTKeyStoreService.this.removeRealTimeAccess();
+            return TEOKeyStoreService.this.removeRealTimeAccess();
         }
 
         public void sendProximityHeartbeat(byte[] nonce) {
-            TOTKeyStoreService.this.sendProximityHeartbeat(nonce);
+            TEOKeyStoreService.this.sendProximityHeartbeat(nonce);
         }
     }
 
@@ -248,7 +248,7 @@ public class TOTKeyStoreService extends Service {
             claimedDevicePort = devicePort;
         } while (claimedDevice == null || byteArrayAllEmpty(claimedDevice));
 
-        Intent intent = new Intent(this, TOTUserService.class);
+        Intent intent = new Intent(this, TEOUserService.class);
         startService(intent);
 
         return 0;
@@ -390,7 +390,7 @@ public class TOTKeyStoreService extends Service {
         }
     }
 
-    public TOTKeyStoreService() {
+    public TEOKeyStoreService() {
     }
 
     @Override
@@ -469,7 +469,7 @@ public class TOTKeyStoreService extends Service {
         if (res == 0) {
             // Successfully initialize devices
             // Launch admin services
-            Intent intent = new Intent(this, TOTAdminService.class);
+            Intent intent = new Intent(this, TEOAdminService.class);
             startService(intent);
         }
 
