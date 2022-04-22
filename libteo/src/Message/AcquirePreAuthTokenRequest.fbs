@@ -1,7 +1,0 @@
-namespace teo;
-
-table AcquirePreAuthTokenRequest {
-    user_pubkey:[ubyte];
-}
-
-root_type AcquirePreAuthTokenRequest;

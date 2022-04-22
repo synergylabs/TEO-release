@@ -1,7 +1,0 @@
-namespace teo;
-
-table UtilRealTimeAccessResponse {
-    granted:bool;
-}
-
-root_type UtilRealTimeAccessResponse;

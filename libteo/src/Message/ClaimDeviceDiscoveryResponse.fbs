@@ -1,8 +1,0 @@
-namespace teo;
-
-table ClaimDeviceDiscoveryResponse {
-    device_pubkey:[ubyte];
-    valid_device_proof:[ubyte];
-}
-
-root_type ClaimDeviceDiscoveryResponse;

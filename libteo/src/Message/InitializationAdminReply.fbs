@@ -1,8 +1,0 @@
-namespace teo;
-
-table InitializationAdminReply {
-    msg_nonce:[ubyte];
-    ciphertext:[ubyte];
-}
-
-root_type InitializationAdminReply;

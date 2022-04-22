@@ -1,7 +1,0 @@
-namespace teo;
-
-table UtilReleaseDevice {
-    user_pubkey:[ubyte];
-}
-
-root_type UtilReleaseDevice;

@@ -1,8 +1,0 @@
-namespace teo;
-
-table DataAccessResponse {
-    msg_nonce:[ubyte];
-    ciphertext:[ubyte];
-}
-
-root_type DataAccessResponse;

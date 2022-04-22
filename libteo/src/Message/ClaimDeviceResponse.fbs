@@ -1,9 +1,0 @@
-namespace teo;
-
-table ClaimDeviceResponse {
-    status:bool;
-    response_nonce:[ubyte];
-    challenge_response_encrypted:[ubyte];
-}
-
-root_type ClaimDeviceResponse;

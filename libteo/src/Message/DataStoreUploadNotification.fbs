@@ -1,8 +1,0 @@
-namespace teo.DataStoreUpload;
-
-table DataStoreUploadNotification {
-    session_nonce_notification:[ubyte];
-    ciphertext:[ubyte];
-}
-
-root_type DataStoreUploadNotification;

@@ -1,9 +1,0 @@
-namespace teo;
-
-table UtilRegisterIp {
-    pubkey:[ubyte];
-    ip:string;
-    port:int16;
-}
-
-root_type UtilRegisterIp;

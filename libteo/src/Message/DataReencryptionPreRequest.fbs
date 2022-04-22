@@ -1,7 +1,0 @@
-namespace teo;
-
-table DataReencryptionPreRequest {
-    ciphertext:[ubyte];
-}
-
-root_type DataReencryptionPreRequest;

@@ -1,8 +1,0 @@
-namespace teo;
-
-table AcquirePreAuthTokenResponse {
-    box_nonce:[ubyte];
-    ciphertext:[ubyte];
-}
-
-root_type AcquirePreAuthTokenResponse;
