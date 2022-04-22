@@ -21,7 +21,7 @@
 //#include "libtot/SignatureKey.hpp"
 //#include "libtot/SignatureType.hpp"
 
-namespace libtot {
+namespace teo {
     int generate_keypair(std::vector<int8_t> &pubkey, std::vector<int8_t> &privkey);
 }
 

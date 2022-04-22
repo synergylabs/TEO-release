@@ -72,7 +72,6 @@
             android:onClick="btnQRScanOnClick"
             android:text="QR Scan" />
 
-
         <TextView
             android:id="@+id/textViewPlaceholder"
             android:layout_width="match_parent"

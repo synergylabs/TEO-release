@@ -8,13 +8,11 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import static me.zhanghan177.teo_mobile.GlobalConfig.*;
 import static me.zhanghan177.teo_mobile.Utilities.base64EncodeStrip;
-import static me.zhanghan177.teo_mobile.Utilities.bytesToHex;
 import static me.zhanghan177.teo_mobile.Utilities.stripLineBreak;
 
 public class TEOKeyStoreService extends Service {
@@ -40,7 +38,7 @@ public class TEOKeyStoreService extends Service {
 
     public class TOTLocalBinder extends Binder {
         public void flushKeyPair() {
-//            TEOKeyStoreService.this.flushKeyPair();
+            TEOKeyStoreService.this.flushKeyPair();
         }
 
         public String getDeviceSecretB64() {
@@ -122,16 +120,15 @@ public class TEOKeyStoreService extends Service {
         }
 
         public String getClientPubkeyB64() {
-//            return TEOKeyStoreService.this.getClientPubkeyB64();
-            return "";
+            return TEOKeyStoreService.this.getClientPubkeyB64();
         }
 
-        public byte[] getUserPubkey() {
-            return TEOKeyStoreService.this.getUserPubkey();
+        public byte[] getClientPubkey() {
+            return TEOKeyStoreService.this.getClientPubkey();
         }
 
-        public byte[] getUserPrivkey() {
-            return TEOKeyStoreService.this.getUserPrivkey();
+        public byte[] getClientPrivkey() {
+            return TEOKeyStoreService.this.getClientPrivkey();
         }
 
         public void setSieveKey(byte[] in) {
@@ -226,13 +223,13 @@ public class TEOKeyStoreService extends Service {
 //        return adminPubkey;
 //    }
 
-//    private String getClientPubkeyB64() {
-//        if (userPrivkey == null) {
-//            return "NULL";
-//        } else {
-//            return base64EncodeStrip(userPubkey, Base64.DEFAULT);
-//        }
-//    }
+    private String getClientPubkeyB64() {
+        if (clientPubkey == null || clientPrivkey == null) {
+            return "NULL";
+        } else {
+            return base64EncodeStrip(clientPubkey, Base64.DEFAULT);
+        }
+    }
 
 //    private String getStoragePubkeyB64() {
 //        if (storagePubkey == null) {
@@ -296,8 +293,8 @@ public class TEOKeyStoreService extends Service {
     /**
      * Internal core functions.
      */
-    byte[] userPubkey = null;
-    byte[] userPrivkey = null;
+    byte[] clientPubkey = null;
+    byte[] clientPrivkey = null;
 
     byte[] deviceSecret = null;
     byte[] devicePubkey = null;
@@ -320,12 +317,12 @@ public class TEOKeyStoreService extends Service {
 
     static int message_type_fltbuffers_size = 0;
 
-    public byte[] getUserPubkey() {
-        return userPubkey;
+    public byte[] getClientPubkey() {
+        return clientPubkey;
     }
 
-    public byte[] getUserPrivkey() {
-        return userPrivkey;
+    public byte[] getClientPrivkey() {
+        return clientPrivkey;
     }
 
 //    public void setStoragePubkey(byte[] storagePubkey) {
@@ -363,14 +360,14 @@ public class TEOKeyStoreService extends Service {
         this.adminPort = adminPort;
     }
 
-    public void setUserPubkey(byte[] in) {
+    public void setClientPubkey(byte[] in) {
         Log.d(TAG, stripLineBreak("Setting user's public key to be (b64): " + base64EncodeStrip(in, Base64.DEFAULT) + ", length: " + in.length));
-        userPubkey = in;
+        clientPubkey = in;
     }
 
-    public void setUserPrivkey(byte[] in) {
+    public void setClientPrivkey(byte[] in) {
         Log.d(TAG, stripLineBreak("Setting user's private key to be (b64): " + base64EncodeStrip(in, Base64.DEFAULT) + ", length: " + in.length));
-        userPrivkey = in;
+        clientPrivkey = in;
     }
 
     public void setDeviceSecret(byte[] in) {
@@ -406,7 +403,7 @@ public class TEOKeyStoreService extends Service {
     public void onCreate() {
         super.onCreate();
 
-//        loadUserCredentials();
+        loadUserCredentials();
 
         loadLIBTOTKeySizes();
 
@@ -435,30 +432,30 @@ public class TEOKeyStoreService extends Service {
         storeUserCredentials();
     }
 
-//    private void flushKeyPair() {
-//        Log.d(TAG, "Regenerate user key pair");
-//        generateKeypairJNI();
-//        assert (userKeypairValid());
-//    }
+    private void flushKeyPair() {
+        Log.d(TAG, "Regenerate user key pair");
+        generateKeypairJNI();
+        assert (clientKeypairValid());
+    }
 
-//    private void loadUserCredentials() {
-//        SharedPreferences sharedPref = getSharedPreferences();
-//        String userPubkeyB64 = sharedPref.getString(getString(R.string.user_pubkey_b64), defaultNull);
-//        String userPrivkeyB64 = sharedPref.getString(getString(R.string.user_privkey_b64), defaultNull);
-//
-//        if (userPubkeyB64.equals(defaultNull) || userPrivkeyB64.equals(defaultNull)) {
-//            flushKeyPair();
-//        } else {
-//            setUserPubkey(Base64.decode(userPubkeyB64, Base64.DEFAULT));
-//            setUserPrivkey(Base64.decode(userPrivkeyB64, Base64.DEFAULT));
-//        }
-//    }
+    private void loadUserCredentials() {
+        SharedPreferences sharedPref = getSharedPreferences();
+        String userPubkeyB64 = sharedPref.getString(getString(R.string.user_pubkey_b64), defaultNull);
+        String userPrivkeyB64 = sharedPref.getString(getString(R.string.user_privkey_b64), defaultNull);
+
+        if (userPubkeyB64.equals(defaultNull) || userPrivkeyB64.equals(defaultNull)) {
+            flushKeyPair();
+        } else {
+            setClientPubkey(Base64.decode(userPubkeyB64, Base64.DEFAULT));
+            setClientPrivkey(Base64.decode(userPrivkeyB64, Base64.DEFAULT));
+        }
+    }
 
     private void storeUserCredentials() {
-        if (userKeypairValid()) {
+        if (clientKeypairValid()) {
             SharedPreferences.Editor editor = getSharedPreferences().edit();
-            editor.putString(getString(R.string.user_pubkey_b64), base64EncodeStrip(userPubkey, Base64.DEFAULT));
-            editor.putString(getString(R.string.user_privkey_b64), base64EncodeStrip(userPrivkey, Base64.DEFAULT));
+            editor.putString(getString(R.string.user_pubkey_b64), base64EncodeStrip(clientPubkey, Base64.DEFAULT));
+            editor.putString(getString(R.string.user_privkey_b64), base64EncodeStrip(clientPrivkey, Base64.DEFAULT));
             editor.apply();
         }
     }
@@ -497,8 +494,8 @@ public class TEOKeyStoreService extends Service {
                 getString(R.string.crypto_key_file_key), Context.MODE_PRIVATE);
     }
 
-    private boolean userKeypairValid() {
-        return userPubkey != null && userPrivkey != null;
+    private boolean clientKeypairValid() {
+        return clientPubkey != null && clientPrivkey != null;
     }
 
     @Override
@@ -517,7 +514,7 @@ public class TEOKeyStoreService extends Service {
     /**
      * Java Native Interface
      */
-//    public native int generateKeypairJNI();
+    public native int generateKeypairJNI();
 
     public native int getAsymmetricEncryptionKeySet_FULL_PK_SIZE_JNI();
 

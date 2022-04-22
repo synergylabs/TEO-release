@@ -148,7 +148,7 @@ public class TEOAdminService extends Service {
                     bytesRead = inputStream.read(request_content);
                     Log.v(TAG, "Content read: " + bytesToHex(request_content) + ", total bytes: " + bytesRead);
 
-                    pending_token = processPreAuthTokenJNI(request_content, TOTConnection.getTOTBinder().getUserPubkey(), TOTConnection.getTOTBinder().getUserPrivkey());
+                    pending_token = processPreAuthTokenJNI(request_content, TOTConnection.getTOTBinder().getClientPubkey(), TOTConnection.getTOTBinder().getClientPrivkey());
                     pending_socket = this.clientSocket;
 
                     sendNotification();

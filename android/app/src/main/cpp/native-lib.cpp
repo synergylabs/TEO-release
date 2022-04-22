@@ -11,8 +11,6 @@
 #include "test_decaf.hpp"
 #include "tot-helper.hpp"
 
-using namespace teo;
-
 std::string hello_world_helper() {
     std::string hello = "Hello from C++ helper";
 
@@ -62,46 +60,46 @@ Java_me_zhanghan177_teo_1mobile_activities_MainActivity2_integerObjectFromJNI(JN
     return newObj;
 }
 
-//extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_generateKeypairJNI(JNIEnv *env,
-//                                                                              jobject thiz) {
-//    std::vector<int8_t> pubkey;
-//    std::vector<int8_t> privkey;
-//    libtot::generate_keypair(pubkey, privkey);
-//
-//    jclass clazz = env->FindClass("me/zhanghan177/teo_mobile/TOTKeyStoreService");
-//
-//    // Update Java's object for user key pair
-//    // Update public key
-//    jbyteArray pubkey_array = env->NewByteArray(pubkey.size());
-//    env->SetByteArrayRegion(pubkey_array, 0, pubkey.size(), &pubkey[0]);
-//
-//    jmethodID midSetPubkey = env->GetMethodID(clazz, "setUserPubkey", "([B)V");
-//    env->CallVoidMethod(thiz, midSetPubkey, pubkey_array);
-//
-//    // Update private key
-//    jbyteArray privkey_array = env->NewByteArray(privkey.size());
-//    env->SetByteArrayRegion(privkey_array, 0, privkey.size(), &privkey[0]);
-//
-//    jmethodID midSetPrivkey = env->GetMethodID(clazz, "setUserPrivkey", "([B)V");
-//    env->CallVoidMethod(thiz, midSetPrivkey, privkey_array);
-//
-//    return 0;
-//}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_generateKeypairJNI(JNIEnv *env,
+                                                                      jobject thiz) {
+    std::vector<int8_t> pubkey;
+    std::vector<int8_t> privkey;
+    teo::generate_keypair(pubkey, privkey);
+
+    jclass clazz = env->FindClass("me/zhanghan177/teo_mobile/TEOKeyStoreService");
+
+    // Update Java's object for user key pair
+    // Update public key
+    jbyteArray pubkey_array = env->NewByteArray(pubkey.size());
+    env->SetByteArrayRegion(pubkey_array, 0, pubkey.size(), &pubkey[0]);
+
+    jmethodID midSetPubkey = env->GetMethodID(clazz, "setClientPubkey", "([B)V");
+    env->CallVoidMethod(thiz, midSetPubkey, pubkey_array);
+
+    // Update private key
+    jbyteArray privkey_array = env->NewByteArray(privkey.size());
+    env->SetByteArrayRegion(privkey_array, 0, privkey.size(), &privkey[0]);
+
+    jmethodID midSetPrivkey = env->GetMethodID(clazz, "setClientPrivkey", "([B)V");
+    env->CallVoidMethod(thiz, midSetPrivkey, privkey_array);
+
+    return 0;
+}
 
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getAsymmetricEncryptionKeySet_1FULL_1PK_1SIZE_1JNI(
         JNIEnv *env, jobject thiz) {
-    return AsymmetricEncryptionKeySet::FULL_PK_SIZE;
+    return teo::AsymmetricEncryptionKeySet::FULL_PK_SIZE;
 }
 
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getG_1CHALLENGE_1SIZE_1JNI(JNIEnv *env,
                                                                               jobject thiz) {
-    return G_CHALLENGE_SIZE;
+    return teo::G_CHALLENGE_SIZE;
 }
 
 //extern "C"
@@ -267,7 +265,7 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getMessageTypeFltbuffersSizeJNI(
         JNIEnv *env, jobject thiz) {
-    return get_message_type_flatbuffers_size();
+    return teo::get_message_type_flatbuffers_size();
 }
 
 //extern "C"
@@ -939,6 +937,6 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_me_zhanghan177_teo_1mobile_activities_MainActivity_teoIntegrationTestStringJNI(JNIEnv *env,
                                                                                     jobject thiz) {
-    std::string hello = native_lib_test();
+    std::string hello = teo::native_lib_test();
     return env->NewStringUTF(hello.c_str());
 }

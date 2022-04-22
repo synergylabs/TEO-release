@@ -96,7 +96,7 @@ FetchContent_MakeAvailable(Sodium)
 ## Require core TEO library
 ######################################
 FetchContent_Declare(TEO
-        GIT_REPOSITORY https://github.com/zhanghan177/libteo-cmake.git
+        GIT_REPOSITORY https://github.com/zhanghan177/libteo.git
         GIT_TAG        main
         )
 set(TEO_EXTENDED_TESTS OFF)

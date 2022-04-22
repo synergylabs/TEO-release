@@ -32,4 +32,6 @@
     <string name="hello_user_prompt">Hello User</string>
     <string name="edit_client_name_prompt">Client Name:</string>
     <string name="default_client_name">Anonymous User</string>
+    <string name="pubkey_prompt_prefix">My Public Key:</string>
+    <string name="default_pubkey_null">NULL</string>
 </resources>

@@ -5,6 +5,7 @@ import static me.zhanghan177.teo_mobile.Utilities.getClientName;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import me.zhanghan177.teo_mobile.R;
+import me.zhanghan177.teo_mobile.TEOKeyStoreService;
+import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,11 +23,18 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
+    private final TEOServiceConnection TEOConnection = new TEOServiceConnection();
+
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Start background services
+        Intent intent = new Intent(this, TEOKeyStoreService.class);
+        bindService(intent, TEOConnection, Context.BIND_AUTO_CREATE);
     }
 
     @SuppressLint("SetTextI18n")

@@ -256,8 +256,8 @@ public class TEOUserService extends Service {
                         bytesRead = inputStream.read(request_content);
 
                         byte[] response_content = processSieveCredRequestJNI(request_content,
-                                TOTConnection.getTOTBinder().getUserPubkey(),
-                                TOTConnection.getTOTBinder().getUserPrivkey());
+                                TOTConnection.getTOTBinder().getClientPubkey(),
+                                TOTConnection.getTOTBinder().getClientPrivkey());
 
                         outputStream.write(response_content);
 
@@ -269,8 +269,8 @@ public class TEOUserService extends Service {
 
                         bytesRead = inputStream.read(request_content);
                         byte[] sieveDataUUID = processUploadNotificationJNI(request_content,
-                                TOTConnection.getTOTBinder().getUserPubkey(),
-                                TOTConnection.getTOTBinder().getUserPrivkey(),
+                                TOTConnection.getTOTBinder().getClientPubkey(),
+                                TOTConnection.getTOTBinder().getClientPrivkey(),
                                 getSessionKey());
 
 
@@ -280,8 +280,8 @@ public class TEOUserService extends Service {
                         bytesRead = inputStream.read(request_content);
 
                         byte[] response_content = processDataAccessFetchJNI(request_content,
-                                TOTConnection.getTOTBinder().getUserPubkey(),
-                                TOTConnection.getTOTBinder().getUserPrivkey());
+                                TOTConnection.getTOTBinder().getClientPubkey(),
+                                TOTConnection.getTOTBinder().getClientPrivkey());
 
                         outputStream.write(response_content);
 
