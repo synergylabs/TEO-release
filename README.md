@@ -12,4 +12,4 @@ See [proverif/](proverif/).
 
 ## libteo -- Main C++ Library and Linux Demo Apps
 
-See [libteo/](libteo/).
+See [libteo/](https://github.com/zhanghan177/libteo).
