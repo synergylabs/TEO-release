@@ -2,6 +2,7 @@
 
 We provide a Dockerfile to help with replicate build dependencies. To build the docker image, run
 ```bash
+git submodule update --init --recursive
 docker build -t zhanghan177/teo .
 ```
 
