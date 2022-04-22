@@ -73,6 +73,17 @@
             android:text="QR Scan" />
 
 
+        <TextView
+            android:id="@+id/textViewPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Hello World!"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:gravity="center"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+
     </LinearLayout>
 
 

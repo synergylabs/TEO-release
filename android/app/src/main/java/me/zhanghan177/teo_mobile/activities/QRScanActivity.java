@@ -69,11 +69,6 @@ public class QRScanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrscan);
 
-
-        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
-        }
-
         setupCamera();
 
         Intent intent = new Intent(this, TEOKeyStoreService.class);
@@ -88,6 +83,13 @@ public class QRScanActivity extends AppCompatActivity {
     }
 
     private void setupCamera() {
+
+        // Check camera permission
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+        }
+
+
         previewView = findViewById(R.id.preview_view);
         cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
 

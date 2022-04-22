@@ -7,13 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import me.zhanghan177.teo_mobile.GlobalConfig;
+import me.zhanghan177.teo_mobile.R;
 import me.zhanghan177.teo_mobile.TEOBeaconScanService;
 import me.zhanghan177.teo_mobile.TEOKeyStoreService;
 import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
+import static me.zhanghan177.teo_mobile.NetworkUtils.getIPAddress;
 import static me.zhanghan177.teo_mobile.Utilities.notImplementWarning;
 
 public class MainActivity2 extends AppCompatActivity {
@@ -49,21 +52,17 @@ public class MainActivity2 extends AppCompatActivity {
         Intent startTOTKeyStore = new Intent(this, TEOKeyStoreService.class);
         startService(startTOTKeyStore);
 
-//        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
-//        setContentView(binding.getRoot());
-//
-//        /*
-//          JNI exploration
-//         */
-//        // Example of a call to a native method
-//        TextView tv = binding.sampleText;
-//        String ip = getIPAddress(true);
-//        tv.setText("My IP: " + ip);
-//
-//        TextView userGreeting = binding.textView2;
-//        String[] ipParts = ip.split("[.]");
-//        userGreeting.setText("User " + ipParts[ipParts.length - 1]);
+        /*
+          JNI exploration
+         */
+        // Example of a call to a native method
+        TextView tv = findViewById(R.id.sample_text);
+        String ip = getIPAddress(true);
+        tv.setText("My IP: " + ip);
 
+        TextView userGreeting = findViewById(R.id.textView2);
+        String[] ipParts = ip.split("[.]");
+        userGreeting.setText("User " + ipParts[ipParts.length - 1]);
 
         if (GlobalConfig.ENABLE_BEACON_SCAN) {
             Intent startTOTBeaconScan = new Intent(this, TEOBeaconScanService.class);

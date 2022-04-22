@@ -35,12 +35,12 @@ public class TEOKeyStoreService extends Service {
     String encMetaUUID;
 
 
-    // Binder given to clients
+    // Binder object to be given to clients/other activities
     private final IBinder binder = new TOTLocalBinder();
 
     public class TOTLocalBinder extends Binder {
         public void flushKeyPair() {
-            TEOKeyStoreService.this.flushKeyPair();
+//            TEOKeyStoreService.this.flushKeyPair();
         }
 
         public String getDeviceSecretB64() {
@@ -70,19 +70,20 @@ public class TEOKeyStoreService extends Service {
         }
 
         public int initDevice() {
-            return TEOKeyStoreService.this.initDevice();
+//            return TEOKeyStoreService.this.initDevice();
+            return 0;
         }
 
         public void setAdminInfo(String adminPubkeyB64, String adminIp, String adminPort) {
             setAdminPubkey(Base64.decode(adminPubkeyB64, Base64.DEFAULT));
             if (adminIp.equals("") || adminPort.equals("")) {
-                TEOKeyStoreService.this.resolveAdminIpPort();
+//                TEOKeyStoreService.this.resolveAdminIpPort();
             } else {
                 setAdminIp(adminIp);
                 setAdminPort(Integer.parseInt(adminPort));
             }
 
-            Log.v(TAG, "Admin IP: " + getAdminIp());
+//            Log.v(TAG, "Admin IP: " + getAdminIp());
         }
 
         public String getAdminPubkeyB64() {
@@ -90,33 +91,39 @@ public class TEOKeyStoreService extends Service {
         }
 
         public int acquirePreAuthToken() {
-            return TEOKeyStoreService.this.acquirePreAuthToken();
+//            return TEOKeyStoreService.this.acquirePreAuthToken();
+            return 0;
         }
 
         public String getPreAuthTokenB64() {
-            return TEOKeyStoreService.this.getPreAuthTokenB64();
+//            return TEOKeyStoreService.this.getPreAuthTokenB64();
+            return "";
         }
 
         public int claimDevice() {
-            return TEOKeyStoreService.this.claimDevice();
+//            return TEOKeyStoreService.this.claimDevice();
+            return 0;
         }
 
         public String getClaimedDeviceB64() {
-            return TEOKeyStoreService.this.getClaimedDeviceB64();
+//            return TEOKeyStoreService.this.getClaimedDeviceB64();
+            return "";
         }
 
         public void setStorageInfo(String issuerPubkeyB64, String issuerIP, String issuerPort) {
-            setStoragePubkey(Base64.decode(issuerPubkeyB64, Base64.DEFAULT));
-            setStorageIp(issuerIP);
-            setStoragePort(Integer.parseInt(issuerPort));
+//            setStoragePubkey(Base64.decode(issuerPubkeyB64, Base64.DEFAULT));
+//            setStorageIp(issuerIP);
+//            setStoragePort(Integer.parseInt(issuerPort));
         }
 
         public String getStoragePubkeyB64() {
-            return TEOKeyStoreService.this.getStoragePubkeyB64();
+//            return TEOKeyStoreService.this.getStoragePubkeyB64();
+            return "";
         }
 
         public String getClientPubkeyB64() {
-            return TEOKeyStoreService.this.getClientPubkeyB64();
+//            return TEOKeyStoreService.this.getClientPubkeyB64();
+            return "";
         }
 
         public byte[] getUserPubkey() {
@@ -144,7 +151,7 @@ public class TEOKeyStoreService extends Service {
         }
 
         public void reencrypt() {
-            TEOKeyStoreService.this.reencrypt();
+//            TEOKeyStoreService.this.reencrypt();
         }
 
         public void setDataUUID(String dataBlockUUID) {
@@ -156,111 +163,113 @@ public class TEOKeyStoreService extends Service {
         }
 
         public int releaseDevice() {
-            return TEOKeyStoreService.this.releaseDevice();
+//            return TEOKeyStoreService.this.releaseDevice();
+            return 0;
         }
 
         public int removeRealTimeAccess() {
-            return TEOKeyStoreService.this.removeRealTimeAccess();
+//            return TEOKeyStoreService.this.removeRealTimeAccess();
+            return 0;
         }
 
         public void sendProximityHeartbeat(byte[] nonce) {
-            TEOKeyStoreService.this.sendProximityHeartbeat(nonce);
+//            TEOKeyStoreService.this.sendProximityHeartbeat(nonce);
         }
     }
 
-    private void sendProximityHeartbeat(byte[] proximityNonce) {
-        if (claimedDevice == null) {
-            return;
-        }
+//    private void sendProximityHeartbeat(byte[] proximityNonce) {
+//        if (claimedDevice == null) {
+//            return;
+//        }
+//
+//        proximityHeartbeatJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, proximityNonce, userPubkey);
+//
+//        Log.d(TAG, "Heartbeat beep, nonce: " + bytesToHex(proximityNonce));
+//
+//    }
 
-        proximityHeartbeatJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, proximityNonce, userPubkey);
+//    private int releaseDevice() {
+//        if (claimedDevice != null) {
+//            releaseDeviceJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, userPubkey);
+//
+//            claimedDevice = null;
+//        }
+//        return 0;
+//    }
 
-        Log.d(TAG, "Heartbeat beep, nonce: " + bytesToHex(proximityNonce));
+//    private int removeRealTimeAccess() {
+//        if (claimedDevice != null) {
+//            removeRealTimeAccessJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, userPubkey);
+//        }
+//        return 0;
+//    }
 
-    }
+//    private void reencrypt() {
+//        reencryptJNI(userPubkey, userPrivkey, dataUUID, encMetaUUID, sieveKey, sieveKeyNonce, storageIp, storagePort);
+//    }
 
-    private int releaseDevice() {
-        if (claimedDevice != null) {
-            releaseDeviceJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, userPubkey);
+//    public String getAdminIp() {
+//        return adminIp;
+//    }
 
-            claimedDevice = null;
-        }
-        return 0;
-    }
+//    private void resolveAdminIpPort() {
+//        if (getStorageIp() == null || getStorageIp().equals("") || getStoragePort() == 0) {
+//            Toast.makeText(this, "You need to load Storage info first!!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        setAdminIp(resolveIpJNI(getAdminPubkey(), getStorageIp(), getStoragePort()));
+//        setAdminPort(ADMIN_PORT);
+//    }
 
-    private int removeRealTimeAccess() {
-        if (claimedDevice != null) {
-            removeRealTimeAccessJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, userPubkey);
-        }
-        return 0;
-    }
+//    private byte[] getAdminPubkey() {
+//        return adminPubkey;
+//    }
 
-    private void reencrypt() {
-        reencryptJNI(userPubkey, userPrivkey, dataUUID, encMetaUUID, sieveKey, sieveKeyNonce, storageIp, storagePort);
-    }
+//    private String getClientPubkeyB64() {
+//        if (userPrivkey == null) {
+//            return "NULL";
+//        } else {
+//            return base64EncodeStrip(userPubkey, Base64.DEFAULT);
+//        }
+//    }
 
-    public String getAdminIp() {
-        return adminIp;
-    }
+//    private String getStoragePubkeyB64() {
+//        if (storagePubkey == null) {
+//            return "NULL";
+//        } else {
+//            return base64EncodeStrip(storagePubkey, Base64.DEFAULT);
+//        }
+//    }
 
-    private void resolveAdminIpPort() {
-        if (getStorageIp() == null || getStorageIp().equals("") || getStoragePort() == 0) {
-            Toast.makeText(this, "You need to load Storage info first!!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//    private String getClaimedDeviceB64() {
+//        if (claimedDevice == null) {
+//            return "NULL";
+//        } else {
+//            return base64EncodeStrip(claimedDevice, Base64.DEFAULT);
+//        }
+//    }
 
-        setAdminIp(resolveIpJNI(getAdminPubkey(), getStorageIp(), getStoragePort()));
-        setAdminPort(ADMIN_PORT);
-    }
+//    private int claimDevice() {
+//        do {
+//            claimedDevice = claimDeviceJNI(userPubkey, userPrivkey, preAuthToken, deviceIp, devicePort, adminPubkey);
+//            claimedDeviceIp = deviceIp;
+//            claimedDevicePort = devicePort;
+//        } while (claimedDevice == null || byteArrayAllEmpty(claimedDevice));
+//
+//        Intent intent = new Intent(this, TEOUserService.class);
+//        startService(intent);
+//
+//        return 0;
+//    }
 
-    private byte[] getAdminPubkey() {
-        return adminPubkey;
-    }
-
-    private String getClientPubkeyB64() {
-        if (userPrivkey == null) {
-            return "NULL";
-        } else {
-            return base64EncodeStrip(userPubkey, Base64.DEFAULT);
-        }
-    }
-
-    private String getStoragePubkeyB64() {
-        if (storagePubkey == null) {
-            return "NULL";
-        } else {
-            return base64EncodeStrip(storagePubkey, Base64.DEFAULT);
-        }
-    }
-
-    private String getClaimedDeviceB64() {
-        if (claimedDevice == null) {
-            return "NULL";
-        } else {
-            return base64EncodeStrip(claimedDevice, Base64.DEFAULT);
-        }
-    }
-
-    private int claimDevice() {
-        do {
-            claimedDevice = claimDeviceJNI(userPubkey, userPrivkey, preAuthToken, deviceIp, devicePort, adminPubkey);
-            claimedDeviceIp = deviceIp;
-            claimedDevicePort = devicePort;
-        } while (claimedDevice == null || byteArrayAllEmpty(claimedDevice));
-
-        Intent intent = new Intent(this, TEOUserService.class);
-        startService(intent);
-
-        return 0;
-    }
-
-    private String getPreAuthTokenB64() {
-        if (preAuthToken == null) {
-            return "NULL";
-        } else {
-            return base64EncodeStrip(preAuthToken, Base64.DEFAULT);
-        }
-    }
+//    private String getPreAuthTokenB64() {
+//        if (preAuthToken == null) {
+//            return "NULL";
+//        } else {
+//            return base64EncodeStrip(preAuthToken, Base64.DEFAULT);
+//        }
+//    }
 
     private boolean byteArrayAllEmpty(byte[] in) {
         for (byte b : in) {
@@ -269,12 +278,12 @@ public class TEOKeyStoreService extends Service {
         return true;
     }
 
-    private int acquirePreAuthToken() {
-        do {
-            preAuthToken = acquirePreAuthTokenJNI(userPubkey, userPrivkey, adminIp, adminPort, adminPubkey);
-        } while (preAuthToken == null || byteArrayAllEmpty(preAuthToken));
-        return 0;
-    }
+//    private int acquirePreAuthToken() {
+//        do {
+//            preAuthToken = acquirePreAuthTokenJNI(userPubkey, userPrivkey, adminIp, adminPort, adminPubkey);
+//        } while (preAuthToken == null || byteArrayAllEmpty(preAuthToken));
+//        return 0;
+//    }
 
     private String getAdminPubkeyB64() {
         if (adminPubkey == null) {
@@ -319,24 +328,24 @@ public class TEOKeyStoreService extends Service {
         return userPrivkey;
     }
 
-    public void setStoragePubkey(byte[] storagePubkey) {
-        this.storagePubkey = storagePubkey;
-        registerIPtoKMS();
-    }
-
-    public void setStorageIp(String storageIp) {
-        this.storageIp = storageIp;
-        registerIPtoKMS();
-    }
-
-    public String getStorageIp() {
-        return storageIp;
-    }
-
-    public void setStoragePort(int storagePort) {
-        this.storagePort = storagePort;
-        registerIPtoKMS();
-    }
+//    public void setStoragePubkey(byte[] storagePubkey) {
+//        this.storagePubkey = storagePubkey;
+//        registerIPtoKMS();
+//    }
+//
+//    public void setStorageIp(String storageIp) {
+//        this.storageIp = storageIp;
+//        registerIPtoKMS();
+//    }
+//
+//    public String getStorageIp() {
+//        return storageIp;
+//    }
+//
+//    public void setStoragePort(int storagePort) {
+//        this.storagePort = storagePort;
+//        registerIPtoKMS();
+//    }
 
     public int getStoragePort() {
         return storagePort;
@@ -397,22 +406,22 @@ public class TEOKeyStoreService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        loadUserCredentials();
+//        loadUserCredentials();
 
         loadLIBTOTKeySizes();
 
         message_type_fltbuffers_size = getMessageTypeFltbuffersSizeJNI();
     }
 
-    private void registerIPtoKMS() {
-        if (storageIp == null || storageIp.isEmpty() || storagePort == 0 || storagePubkey == null) {
-            return;
-        }
-
-        String ip_addr = NetworkUtils.getIPAddress(true);
-
-        registerIPKmsJNI(userPubkey, ip_addr, 0, storageIp, storagePort);
-    }
+//    private void registerIPtoKMS() {
+//        if (storageIp == null || storageIp.isEmpty() || storagePort == 0 || storagePubkey == null) {
+//            return;
+//        }
+//
+//        String ip_addr = NetworkUtils.getIPAddress(true);
+//
+//        registerIPKmsJNI(userPubkey, ip_addr, 0, storageIp, storagePort);
+//    }
 
     private void loadLIBTOTKeySizes() {
         AsymmetricEncryptionKeySet_FULL_PK_SIZE = getAsymmetricEncryptionKeySet_FULL_PK_SIZE_JNI();
@@ -426,24 +435,24 @@ public class TEOKeyStoreService extends Service {
         storeUserCredentials();
     }
 
-    private void flushKeyPair() {
-        Log.d(TAG, "Regenerate user key pair");
-        generateKeypairJNI();
-        assert (userKeypairValid());
-    }
+//    private void flushKeyPair() {
+//        Log.d(TAG, "Regenerate user key pair");
+//        generateKeypairJNI();
+//        assert (userKeypairValid());
+//    }
 
-    private void loadUserCredentials() {
-        SharedPreferences sharedPref = getSharedPreferences();
-        String userPubkeyB64 = sharedPref.getString(getString(R.string.user_pubkey_b64), defaultNull);
-        String userPrivkeyB64 = sharedPref.getString(getString(R.string.user_privkey_b64), defaultNull);
-
-        if (userPubkeyB64.equals(defaultNull) || userPrivkeyB64.equals(defaultNull)) {
-            flushKeyPair();
-        } else {
-            setUserPubkey(Base64.decode(userPubkeyB64, Base64.DEFAULT));
-            setUserPrivkey(Base64.decode(userPrivkeyB64, Base64.DEFAULT));
-        }
-    }
+//    private void loadUserCredentials() {
+//        SharedPreferences sharedPref = getSharedPreferences();
+//        String userPubkeyB64 = sharedPref.getString(getString(R.string.user_pubkey_b64), defaultNull);
+//        String userPrivkeyB64 = sharedPref.getString(getString(R.string.user_privkey_b64), defaultNull);
+//
+//        if (userPubkeyB64.equals(defaultNull) || userPrivkeyB64.equals(defaultNull)) {
+//            flushKeyPair();
+//        } else {
+//            setUserPubkey(Base64.decode(userPubkeyB64, Base64.DEFAULT));
+//            setUserPrivkey(Base64.decode(userPrivkeyB64, Base64.DEFAULT));
+//        }
+//    }
 
     private void storeUserCredentials() {
         if (userKeypairValid()) {
@@ -455,26 +464,26 @@ public class TEOKeyStoreService extends Service {
     }
 
 
-    private int initDevice() {
-        if (!(deviceSecret != null && hasDeviceInfo())) {
-            String err = "No device info! Scan QR";
-            Log.e(TAG, err);
-//            Toast.makeText(this, "err", Toast.LENGTH_SHORT).show();
-            return -1;
-        }
-
-        int res = prepareInitializationRequestJNI(userPubkey, userPrivkey, deviceSecret, deviceIp, devicePort, devicePubkey);
-        Log.d(TAG, "Return result is: " + res);
-
-        if (res == 0) {
-            // Successfully initialize devices
-            // Launch admin services
-            Intent intent = new Intent(this, TEOAdminService.class);
-            startService(intent);
-        }
-
-        return res;
-    }
+//    private int initDevice() {
+//        if (!(deviceSecret != null && hasDeviceInfo())) {
+//            String err = "No device info! Scan QR";
+//            Log.e(TAG, err);
+////            Toast.makeText(this, "err", Toast.LENGTH_SHORT).show();
+//            return -1;
+//        }
+//
+//        int res = prepareInitializationRequestJNI(userPubkey, userPrivkey, deviceSecret, deviceIp, devicePort, devicePubkey);
+//        Log.d(TAG, "Return result is: " + res);
+//
+//        if (res == 0) {
+//            // Successfully initialize devices
+//            // Launch admin services
+//            Intent intent = new Intent(this, TEOAdminService.class);
+//            startService(intent);
+//        }
+//
+//        return res;
+//    }
 
 
     private boolean hasDeviceInfo() {
@@ -508,7 +517,7 @@ public class TEOKeyStoreService extends Service {
     /**
      * Java Native Interface
      */
-    public native int generateKeypairJNI();
+//    public native int generateKeypairJNI();
 
     public native int getAsymmetricEncryptionKeySet_FULL_PK_SIZE_JNI();
 
@@ -516,41 +525,41 @@ public class TEOKeyStoreService extends Service {
 
     public native int getMessageTypeFltbuffersSizeJNI();
 
-    public native int prepareInitializationRequestJNI(byte[] userPubkey, byte[] userPrivkey,
-                                                      byte[] deviceSecret, String deviceIp,
-                                                      int devicePort, byte[] devicePubkey);
+//    public native int prepareInitializationRequestJNI(byte[] userPubkey, byte[] userPrivkey,
+//                                                      byte[] deviceSecret, String deviceIp,
+//                                                      int devicePort, byte[] devicePubkey);
+//
+//    public native byte[] acquirePreAuthTokenJNI(byte[] userPubkey, byte[] userPrivkey,
+//                                                String adminIp, int adminPort, byte[] adminPubkey);
+//
+//
+//    public native byte[] claimDeviceJNI(byte[] userPubkey, byte[] userPrivkey, byte[] preAuthToken,
+//                                        String deviceIp, int devicePort, byte[] adminPubkey);
+//
+//    public native int registerIPKmsJNI(byte[] clientPubkey, String clientIp, int clientPort,
+//                                       String storageIp, int storagePort);
+//
+//    public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
+//
+//    private native void reencryptJNI(byte[] userPubkey, byte[] userPrivkey,
+//                                     String uuid, String encMetaUUID,
+//                                     byte[] sieveKey, byte[] sieveKeyNonce,
+//                                     String storageIp, int storagePort);
+//
+//    private native void releaseDeviceJNI(byte[] claimedDevice,
+//                                         String claimedDeviceIp,
+//                                         int claimedDevicePort,
+//                                         byte[] userPubkey);
+//
+//    private native void removeRealTimeAccessJNI(byte[] claimedDevice,
+//                                                String claimedDeviceIp,
+//                                                int claimedDevicePort,
+//                                                byte[] userPubkey);
 
-    public native byte[] acquirePreAuthTokenJNI(byte[] userPubkey, byte[] userPrivkey,
-                                                String adminIp, int adminPort, byte[] adminPubkey);
 
-
-    public native byte[] claimDeviceJNI(byte[] userPubkey, byte[] userPrivkey, byte[] preAuthToken,
-                                        String deviceIp, int devicePort, byte[] adminPubkey);
-
-    public native int registerIPKmsJNI(byte[] clientPubkey, String clientIp, int clientPort,
-                                       String storageIp, int storagePort);
-
-    public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
-
-    private native void reencryptJNI(byte[] userPubkey, byte[] userPrivkey,
-                                     String uuid, String encMetaUUID,
-                                     byte[] sieveKey, byte[] sieveKeyNonce,
-                                     String storageIp, int storagePort);
-
-    private native void releaseDeviceJNI(byte[] claimedDevice,
-                                         String claimedDeviceIp,
-                                         int claimedDevicePort,
-                                         byte[] userPubkey);
-
-    private native void removeRealTimeAccessJNI(byte[] claimedDevice,
-                                                String claimedDeviceIp,
-                                                int claimedDevicePort,
-                                                byte[] userPubkey);
-
-
-    private native void proximityHeartbeatJNI(byte[] claimedDevice,
-                                              String claimedDeviceIp,
-                                              int claimedDevicePort,
-                                              byte[] proximityNonce,
-                                              byte[] userPubkey);
+//    private native void proximityHeartbeatJNI(byte[] claimedDevice,
+//                                              String claimedDeviceIp,
+//                                              int claimedDevicePort,
+//                                              byte[] proximityNonce,
+//                                              byte[] userPubkey);
 }

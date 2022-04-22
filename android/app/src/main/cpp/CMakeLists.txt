@@ -9,9 +9,9 @@ cmake_minimum_required(VERSION 3.18.1)
 
 project("teo_mobile")
 
-
-option(TOT_MOBILE_NATIVE "Instruct the libtot functions we are building native libs" ON)
-
+#
+#option(TOT_MOBILE_NATIVE "Instruct the libtot functions we are building native libs" ON)
+#
 
 # Find all header files
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "**/*.hpp")
@@ -92,6 +92,20 @@ FetchContent_Declare(Sodium
 set(SODIUM_DISABLE_TESTS ON)
 FetchContent_MakeAvailable(Sodium)
 
+######################################
+## Require core TEO library
+######################################
+FetchContent_Declare(TEO
+        GIT_REPOSITORY https://github.com/zhanghan177/libteo-cmake.git
+        GIT_TAG        main
+        )
+set(TEO_EXTENDED_TESTS OFF)
+set(TEO_STANDALONE_APP OFF)
+set(TEO_STORAGE_MODULE OFF)
+set(TEO_DEMO_APPS      OFF)
+set(TEO_BLUETOOTH_BEACON OFF)
+FetchContent_MakeAvailable(TEO)
+
 #####################################
 # Link all dependencies
 #####################################
@@ -111,4 +125,5 @@ target_link_libraries( # Specifies the target library.
 
         libdecaf
         sodium
+        teo-mobile-native
         )

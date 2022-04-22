@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import me.zhanghan177.teo_mobile.R;
+
 public class UserDashboardActivity extends AppCompatActivity {
 
     @Override

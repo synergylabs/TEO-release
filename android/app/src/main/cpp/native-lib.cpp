@@ -5,16 +5,13 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#include <teo/teo.hpp>
 
 #include "native-lib.hpp"
 #include "test_decaf.hpp"
-//#include "tot-helper.hpp"
-//#include "flatbuffers/flatbuffers.h"
-//#include "libtot/libtot_client_native.hpp"
-//#include "libtot/Message.hpp"
-//#include "libtot/libtot_network.hpp"
-//
-//using namespace libtot;
+#include "tot-helper.hpp"
+
+using namespace teo;
 
 std::string hello_world_helper() {
     std::string hello = "Hello from C++ helper";
@@ -33,39 +30,38 @@ std::string hello_world_helper() {
 
     return hello;
 }
-//
-//void loadJavaArray(JNIEnv *env, const jbyteArray &arr, jbyte *&ptr, jsize &len) {
-//    ptr = env->GetByteArrayElements(arr, nullptr);
-//    len = env->GetArrayLength(arr);
-//}
-//
-//extern "C" JNIEXPORT jstring JNICALL
-//Java_me_zhanghan177_teo_1mobile_activities_MainActivity_stringFromJNI(
-//        JNIEnv *env,
-//        jobject /* this */) {
-//    std::string hello = hello_world_helper();
-//    return env->NewStringUTF(hello.c_str());
-//}
-//
-//extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_activities_MainActivity_integerFromJNI(JNIEnv *env,
-//                                                                               jobject thiz) {
-//    return MAGIC_NUMBER;
-//}
-//
-//extern "C"
-//JNIEXPORT jobject JNICALL
-//Java_me_zhanghan177_teo_1mobile_activities_MainActivity_integerObjectFromJNI(JNIEnv *env,
-//                                                                                     jobject thiz) {
-//    jclass cls = env->FindClass("java/lang/Integer");
-//    jmethodID midInit = env->GetMethodID(cls, "<init>", "(I)V");
-//    if (nullptr == midInit) return nullptr;
-//    jobject newObj = env->NewObject(cls, midInit, MAGIC_NUMBER);
-//
-//    return newObj;
-//}
-//
+
+void loadJavaArray(JNIEnv *env, const jbyteArray &arr, jbyte *&ptr, jsize &len) {
+    ptr = env->GetByteArrayElements(arr, nullptr);
+    len = env->GetArrayLength(arr);
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_me_zhanghan177_teo_1mobile_activities_MainActivity2_stringFromJNI(JNIEnv *env,
+                                                                       jobject /* this */) {
+    std::string hello = hello_world_helper();
+    return env->NewStringUTF(hello.c_str());
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_activities_MainActivity2_integerFromJNI(JNIEnv *env,
+                                                                        jobject thiz) {
+    return MAGIC_NUMBER;
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_me_zhanghan177_teo_1mobile_activities_MainActivity2_integerObjectFromJNI(JNIEnv *env,
+                                                                              jobject thiz) {
+    jclass cls = env->FindClass("java/lang/Integer");
+    jmethodID midInit = env->GetMethodID(cls, "<init>", "(I)V");
+    if (nullptr == midInit) return nullptr;
+    jobject newObj = env->NewObject(cls, midInit, MAGIC_NUMBER);
+
+    return newObj;
+}
+
 //extern "C"
 //JNIEXPORT jint JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_generateKeypairJNI(JNIEnv *env,
@@ -93,18 +89,22 @@ std::string hello_world_helper() {
 //
 //    return 0;
 //}
-//
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getAsymmetricEncryptionKeySet_1FULL_1PK_1SIZE_1JNI(
+        JNIEnv *env, jobject thiz) {
+    return AsymmetricEncryptionKeySet::FULL_PK_SIZE;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getG_1CHALLENGE_1SIZE_1JNI(JNIEnv *env,
+                                                                              jobject thiz) {
+    return G_CHALLENGE_SIZE;
+}
+
 //extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_getAsymmetricEncryptionKeySet_1FULL_1PK_1SIZE_1JNI(
-//        JNIEnv *env, jobject thiz) {
-//    return libtot::AsymmetricEncryptionKeySet::FULL_PK_SIZE;
-//}extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_getG_1CHALLENGE_1SIZE_1JNI(JNIEnv *env,
-//                                                                                      jobject thiz) {
-//    return libtot::G_CHALLENGE_SIZE;
-//}extern "C"
 //JNIEXPORT jbyteArray JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_random_1buf_1JNI(JNIEnv *env,
 //                                                                            jobject thiz) {
@@ -262,12 +262,15 @@ std::string hello_world_helper() {
 //                                       client_pubkey_len,
 //                                       client_ip_load, client_port_in,
 //                                       storage_ip_load, storage_port_in);
-//}extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_getMessageTypeFltbuffersSizeJNI(
-//        JNIEnv *env, jobject thiz) {
-//    return libtot::get_message_type_flatbuffers_size();
-//}extern "C"
+//}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getMessageTypeFltbuffersSizeJNI(
+        JNIEnv *env, jobject thiz) {
+    return get_message_type_flatbuffers_size();
+}
+
+//extern "C"
 //JNIEXPORT jstring JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_resolveIpJNI(JNIEnv *env, jobject thiz,
 //                                                                        jbyteArray query_pubkey,
@@ -894,6 +897,7 @@ std::string hello_world_helper() {
 //    network_send_message_type(device_conn, MessageType_UTIL_REMOVE_REAL_TIME_ACCESS);
 //    network_send(device_conn, builder.GetBufferPointer(), builder.GetSize());
 //}
+
 //extern "C"
 //JNIEXPORT void JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_proximityHeartbeatJNI(JNIEnv *env,
@@ -930,3 +934,11 @@ std::string hello_world_helper() {
 //    network_send_message_type(device_conn, MessageType_UTIL_HEARTBEAT);
 //    network_send(device_conn, builder.GetBufferPointer(), builder.GetSize());
 //}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_me_zhanghan177_teo_1mobile_activities_MainActivity_teoIntegrationTestStringJNI(JNIEnv *env,
+                                                                                    jobject thiz) {
+    std::string hello = native_lib_test();
+    return env->NewStringUTF(hello.c_str());
+}

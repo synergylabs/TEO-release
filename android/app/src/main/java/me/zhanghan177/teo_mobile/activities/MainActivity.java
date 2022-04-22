@@ -15,6 +15,11 @@ import me.zhanghan177.teo_mobile.R;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Used to load the 'native-lib' library on application startup.
+    static {
+        System.loadLibrary("native-lib");
+    }
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
 
         TextView helloPrompt = findViewById(R.id.tvHelloPrompt);
         helloPrompt.setText("Hello " + getClientName(this));
+
+        // Test native library integration
+        TextView placeholder = findViewById(R.id.textViewPlaceholder);
+        placeholder.setText(teoIntegrationTestStringJNI());
     }
 
     public void btnConfigOnClick(View view) {
@@ -40,4 +49,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, QRScanActivity.class);
         startActivity(intent);
     }
+
+    /*
+    JNI declaration
+     */
+    public native String teoIntegrationTestStringJNI();
 }

@@ -26,6 +26,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tot_mobile_native">
         <activity
+            android:name=".activities.UserDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AdminDashboardActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ConfigActivity"
             android:exported="false" />
         <activity android:name=".activities.MainActivity">
