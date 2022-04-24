@@ -26,21 +26,23 @@
                     android:id="@+id/textViewEditClientNamePrompt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="61dp"
-                    android:layout_marginTop="61dp"
-                    android:text="@string/edit_client_name_prompt" />
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="32dp"
+                    android:text="@string/edit_client_name_prompt"
+                    android:textSize="@dimen/font_size_medium" />
 
                 <EditText
                     android:id="@+id/editTextClientName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="48dp"
-                    android:ems="10"
+                    android:layout_marginTop="32dp"
                     android:inputType="textPersonName"
                     android:maxLines="1"
                     android:minHeight="48dp"
-                    android:text="@string/default_client_name" />
+                    android:text="@string/default_client_name"
+                    android:textSize="@dimen/font_size_medium"
+                    />
             </LinearLayout>
 
             <Space
@@ -53,19 +55,26 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/textViewDisplayClientPubkey"
+                    android:id="@+id/textViewDisplayClientPubkeyPrompt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="61dp"
-                    android:text="@string/pubkey_prompt_prefix" />
+                    android:layout_marginStart="16dp"
+                    android:text="@string/pubkey_prompt_prefix"
+                    android:textSize="@dimen/font_size_medium" />
 
                 <TextView
-                    android:id="@+id/textView4"
+                    android:id="@+id/textViewDisplayClientPubkeyContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="@string/default_pubkey_null" />
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/default_pubkey_null"
+                    android:textSize="@dimen/font_size_small" />
             </LinearLayout>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/linear_layout_spacing" />
         </LinearLayout>
     </ScrollView>
 

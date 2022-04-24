@@ -109,14 +109,13 @@ public class TEOKeyStoreService extends Service {
         }
 
         public void setStorageInfo(String issuerPubkeyB64, String issuerIP, String issuerPort) {
-//            setStoragePubkey(Base64.decode(issuerPubkeyB64, Base64.DEFAULT));
-//            setStorageIp(issuerIP);
-//            setStoragePort(Integer.parseInt(issuerPort));
+            setStoragePubkey(Base64.decode(issuerPubkeyB64, Base64.DEFAULT));
+            setStorageIp(issuerIP);
+            setStoragePort(Integer.parseInt(issuerPort));
         }
 
         public String getStoragePubkeyB64() {
-//            return TEOKeyStoreService.this.getStoragePubkeyB64();
-            return "";
+            return TEOKeyStoreService.this.getStoragePubkeyB64();
         }
 
         public String getClientPubkeyB64() {
@@ -231,13 +230,13 @@ public class TEOKeyStoreService extends Service {
         }
     }
 
-//    private String getStoragePubkeyB64() {
-//        if (storagePubkey == null) {
-//            return "NULL";
-//        } else {
-//            return base64EncodeStrip(storagePubkey, Base64.DEFAULT);
-//        }
-//    }
+    private String getStoragePubkeyB64() {
+        if (storagePubkey == null) {
+            return "NULL";
+        } else {
+            return base64EncodeStrip(storagePubkey, Base64.DEFAULT);
+        }
+    }
 
 //    private String getClaimedDeviceB64() {
 //        if (claimedDevice == null) {
@@ -325,24 +324,24 @@ public class TEOKeyStoreService extends Service {
         return clientPrivkey;
     }
 
-//    public void setStoragePubkey(byte[] storagePubkey) {
-//        this.storagePubkey = storagePubkey;
-//        registerIPtoKMS();
-//    }
-//
-//    public void setStorageIp(String storageIp) {
-//        this.storageIp = storageIp;
-//        registerIPtoKMS();
-//    }
-//
-//    public String getStorageIp() {
-//        return storageIp;
-//    }
-//
-//    public void setStoragePort(int storagePort) {
-//        this.storagePort = storagePort;
-//        registerIPtoKMS();
-//    }
+    public void setStoragePubkey(byte[] storagePubkey) {
+        this.storagePubkey = storagePubkey;
+        registerIPtoKMS();
+    }
+
+    public void setStorageIp(String storageIp) {
+        this.storageIp = storageIp;
+        registerIPtoKMS();
+    }
+
+    public String getStorageIp() {
+        return storageIp;
+    }
+
+    public void setStoragePort(int storagePort) {
+        this.storagePort = storagePort;
+        registerIPtoKMS();
+    }
 
     public int getStoragePort() {
         return storagePort;
@@ -410,15 +409,15 @@ public class TEOKeyStoreService extends Service {
         message_type_fltbuffers_size = getMessageTypeFltbuffersSizeJNI();
     }
 
-//    private void registerIPtoKMS() {
-//        if (storageIp == null || storageIp.isEmpty() || storagePort == 0 || storagePubkey == null) {
-//            return;
-//        }
-//
-//        String ip_addr = NetworkUtils.getIPAddress(true);
-//
-//        registerIPKmsJNI(userPubkey, ip_addr, 0, storageIp, storagePort);
-//    }
+    private void registerIPtoKMS() {
+        if (storageIp == null || storageIp.isEmpty() || storagePort == 0 || storagePubkey == null) {
+            return;
+        }
+
+        String ip_addr = NetworkUtils.getIPAddress(true);
+
+        registerIPKmsJNI(clientPubkey, ip_addr, 0, storageIp, storagePort);
+    }
 
     private void loadLIBTOTKeySizes() {
         AsymmetricEncryptionKeySet_FULL_PK_SIZE = getAsymmetricEncryptionKeySet_FULL_PK_SIZE_JNI();
@@ -533,8 +532,8 @@ public class TEOKeyStoreService extends Service {
 //    public native byte[] claimDeviceJNI(byte[] userPubkey, byte[] userPrivkey, byte[] preAuthToken,
 //                                        String deviceIp, int devicePort, byte[] adminPubkey);
 //
-//    public native int registerIPKmsJNI(byte[] clientPubkey, String clientIp, int clientPort,
-//                                       String storageIp, int storagePort);
+    public native int registerIPKmsJNI(byte[] clientPubkey, String clientIp, int clientPort,
+                                       String storageIp, int storagePort);
 //
 //    public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
 //

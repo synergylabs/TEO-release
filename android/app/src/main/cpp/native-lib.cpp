@@ -239,28 +239,31 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getG_1CHALLENGE_1SIZE_1JNI(JN
 //    env->SetByteArrayRegion(ret, 0, sizeof(claimed_device),
 //                            reinterpret_cast<const jbyte *>(claimed_device));
 //    return ret;
-//}extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_registerIPKmsJNI(JNIEnv *env,
-//                                                                            jobject thiz,
-//                                                                            jbyteArray client_pubkey,
-//                                                                            jstring client_ip_in,
-//                                                                            jint client_port_in,
-//                                                                            jstring storage_ip_in,
-//                                                                            jint storage_port_in) {
-//    jbyte *client_pubkey_ptr;
-//    jsize client_pubkey_len;
-//    loadJavaArray(env, client_pubkey, client_pubkey_ptr, client_pubkey_len);
-//
-//    const char *client_ip_load = env->GetStringUTFChars(client_ip_in, nullptr);
-//
-//    const char *storage_ip_load = env->GetStringUTFChars(storage_ip_in, nullptr);
-//
-//    return client_register_ip_kms_impl(reinterpret_cast<const uint8_t *>(client_pubkey_ptr),
-//                                       client_pubkey_len,
-//                                       client_ip_load, client_port_in,
-//                                       storage_ip_load, storage_port_in);
 //}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_registerIPKmsJNI(JNIEnv *env,
+                                                                    jobject thiz,
+                                                                    jbyteArray client_pubkey,
+                                                                    jstring client_ip_in,
+                                                                    jint client_port_in,
+                                                                    jstring storage_ip_in,
+                                                                    jint storage_port_in) {
+    jbyte *client_pubkey_ptr;
+    jsize client_pubkey_len;
+    loadJavaArray(env, client_pubkey, client_pubkey_ptr, client_pubkey_len);
+
+    const char *client_ip_load = env->GetStringUTFChars(client_ip_in, nullptr);
+
+    const char *storage_ip_load = env->GetStringUTFChars(storage_ip_in, nullptr);
+
+    return teo::client_register_ip_kms_impl(reinterpret_cast<const uint8_t *>(client_pubkey_ptr),
+                                       client_pubkey_len,
+                                       client_ip_load, client_port_in,
+                                       storage_ip_load, storage_port_in);
+}
+
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getMessageTypeFltbuffersSizeJNI(
