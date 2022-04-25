@@ -100,12 +100,12 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void btnAdminInitDeviceOnClick(View view) {
-        if (TOTConnection.ismBound()) {
-            int err = TOTConnection.getTOTBinder().initDevice();
-            if (err == 0) {
-                Toast.makeText(this, "Success init device", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (TOTConnection.ismBound()) {
+//            int err = TOTConnection.getTOTBinder().initDevice();
+//            if (err == 0) {
+//                Toast.makeText(this, "Success init device", Toast.LENGTH_SHORT).show();
+//            }
+//        }
     }
 
     public void btnAcquirePreAuthOnClick(View view) {

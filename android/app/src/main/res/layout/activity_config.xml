@@ -15,6 +15,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
             android:orientation="vertical">
 
             <LinearLayout
@@ -26,14 +29,13 @@
                     android:id="@+id/textViewEditClientNamePrompt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:layout_marginTop="32dp"
                     android:text="@string/edit_client_name_prompt"
                     android:textSize="@dimen/font_size_medium" />
 
                 <EditText
                     android:id="@+id/editTextClientName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="32dp"
@@ -41,8 +43,7 @@
                     android:maxLines="1"
                     android:minHeight="48dp"
                     android:text="@string/default_client_name"
-                    android:textSize="@dimen/font_size_medium"
-                    />
+                    android:textSize="@dimen/font_size_medium" />
             </LinearLayout>
 
             <Space
@@ -58,7 +59,6 @@
                     android:id="@+id/textViewDisplayClientPubkeyPrompt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:text="@string/pubkey_prompt_prefix"
                     android:textSize="@dimen/font_size_medium" />
 
@@ -75,6 +75,15 @@
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/linear_layout_spacing" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buttonResetKeypair"
+                android:layout_width="@dimen/button_width"
+                android:layout_height="wrap_content"
+                android:onClick="btnResetKeypairOnClick"
+                android:text="@string/reset_keypair_text"
+                android:textSize="@dimen/font_size_small"
+                />
         </LinearLayout>
     </ScrollView>
 

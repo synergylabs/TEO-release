@@ -43,7 +43,7 @@ public class TEOAdminService extends Service {
     ServerSocket serverSocket;
     Thread serverThread = null;
 
-    private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
+    private final TEOServiceConnection TEOConnection = new TEOServiceConnection();
 
     byte[] pending_token = null;
     Socket pending_socket = null;
@@ -72,7 +72,7 @@ public class TEOAdminService extends Service {
         super.onCreate();
 
         Intent intent = new Intent(this, TEOKeyStoreService.class);
-        bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
+        bindService(intent, TEOConnection, Context.BIND_AUTO_CREATE);
 
         startAdminServer();
     }
@@ -83,8 +83,8 @@ public class TEOAdminService extends Service {
 
         stopAdminServer();
 
-        unbindService(TOTConnection);
-        TOTConnection.setmBound(false);
+        unbindService(TEOConnection);
+        TEOConnection.setmBound(false);
     }
 
     private void stopAdminServer() {
@@ -148,7 +148,7 @@ public class TEOAdminService extends Service {
                     bytesRead = inputStream.read(request_content);
                     Log.v(TAG, "Content read: " + bytesToHex(request_content) + ", total bytes: " + bytesRead);
 
-                    pending_token = processPreAuthTokenJNI(request_content, TOTConnection.getTOTBinder().getClientPubkey(), TOTConnection.getTOTBinder().getClientPrivkey());
+                    pending_token = processPreAuthTokenJNI(request_content, TEOConnection.getTOTBinder().getClientPubkey(), TEOConnection.getTOTBinder().getClientPrivkey());
                     pending_socket = this.clientSocket;
 
                     sendNotification();

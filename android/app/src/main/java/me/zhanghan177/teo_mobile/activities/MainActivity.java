@@ -77,4 +77,14 @@ public class MainActivity extends AppCompatActivity {
     JNI declaration
      */
     public native String teoIntegrationTestStringJNI();
+
+    public void btnAdminDashboardOnClick(View view) {
+        Intent intent = new Intent(this, AdminDashboardActivity.class);
+        startActivity(intent);
+    }
+
+    public void btnUserDashboardOnClick(View view) {
+        Intent intent = new Intent(this, UserDashboardActivity.class);
+        startActivity(intent);
+    }
 }

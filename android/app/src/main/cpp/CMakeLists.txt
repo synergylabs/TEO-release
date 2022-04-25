@@ -9,10 +9,6 @@ cmake_minimum_required(VERSION 3.18.1)
 
 project("teo_mobile")
 
-#
-#option(TOT_MOBILE_NATIVE "Instruct the libtot functions we are building native libs" ON)
-#
-
 # Find all header files
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "**/*.hpp")
 
@@ -34,17 +30,6 @@ add_library( # Sets the name of the library.
         native-lib.cpp
         test_decaf.cpp
         tot-helper.cpp
-
-#        libtot_client_native.cpp
-#        libtot_helper.cpp
-#        libtot_network.cpp
-#        AsymmetricEncryptionKeySet.cpp
-#        PKAEADKey.cpp
-#        PreAuthToken.cpp
-#        PublicSecretKeyPair.cpp
-#        SharedSecretKey.cpp
-#        Sieve.cpp
-#        SignatureKey.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -99,11 +84,11 @@ FetchContent_Declare(TEO
         GIT_REPOSITORY https://github.com/zhanghan177/libteo.git
         GIT_TAG        main
         )
-set(TEO_EXTENDED_TESTS OFF)
-set(TEO_STANDALONE_APP OFF)
-set(TEO_STORAGE_MODULE OFF)
-set(TEO_DEMO_APPS      OFF)
-set(TEO_BLUETOOTH_BEACON OFF)
+set(TEO_EXTENDED_TESTS      OFF)
+set(TEO_STANDALONE_APP      OFF)
+set(TEO_STORAGE_MODULE      OFF)
+set(TEO_DEMO_APPS           OFF)
+set(TEO_BLUETOOTH_BEACON    OFF)
 FetchContent_MakeAvailable(TEO)
 
 #####################################

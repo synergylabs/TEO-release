@@ -10,7 +10,7 @@
     <string name="user_privkey_b64">user_privkey_b64</string>
     <string name="btn_debug_pane_text">[Debug] Config</string>
     <string name="flush_keypair">Flush Keypair</string>
-    <string name="btn_init_device_text">[ADMIN] Init Device</string>
+    <string name="btn_init_device_text">Init Device</string>
     <string name="btn_claim_device_text">Claim Device</string>
     <string name="btn_pre_auth_text">Acquire Pre-Auth Token</string>
     <string name="btn_reencrypt_text">Re-encrypt</string>
@@ -34,4 +34,7 @@
     <string name="default_client_name">Anonymous User</string>
     <string name="pubkey_prompt_prefix">My Public Key:</string>
     <string name="default_pubkey_null">NULL</string>
+    <string name="reset_keypair_text">Reset Keypair</string>
+    <string name="admin_dashboard_title">Admin Dashboard</string>
+    <string name="admin_managed_device_info_prompt">Device under My Management:</string>
 </resources>

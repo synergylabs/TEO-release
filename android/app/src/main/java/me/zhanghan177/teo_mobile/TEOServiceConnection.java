@@ -4,13 +4,15 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import me.zhanghan177.teo_mobile.activities.TEOBinderClass;
+
 public class TEOServiceConnection implements ServiceConnection {
-    private TEOKeyStoreService.TOTLocalBinder TOTBinder;
+    private TEOBinderClass TOTBinder;
     private boolean mBound = false;
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        setTOTBinder((TEOKeyStoreService.TOTLocalBinder) iBinder);
+        setTOTBinder((TEOBinderClass) iBinder);
         setmBound(true);
     }
 
@@ -27,11 +29,11 @@ public class TEOServiceConnection implements ServiceConnection {
         this.mBound = mBound;
     }
 
-    public TEOKeyStoreService.TOTLocalBinder getTOTBinder() {
+    public TEOBinderClass getTOTBinder() {
         return TOTBinder;
     }
 
-    private void setTOTBinder(TEOKeyStoreService.TOTLocalBinder TOTBinder) {
+    private void setTOTBinder(TEOBinderClass TOTBinder) {
         this.TOTBinder = TOTBinder;
     }
 }

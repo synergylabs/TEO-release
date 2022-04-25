@@ -1,7 +1,6 @@
 package me.zhanghan177.teo_mobile.activities;
 
 import static java.lang.Thread.sleep;
-import static me.zhanghan177.teo_mobile.GlobalConfig.SHARED_PREF_NAME;
 import static me.zhanghan177.teo_mobile.Utilities.getClientName;
 import static me.zhanghan177.teo_mobile.Utilities.saveClientName;
 
@@ -9,19 +8,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -85,6 +78,10 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
+        updateClientPubkeyDisplay();
+    }
+
+    private void updateClientPubkeyDisplay() {
         // Create background task to update client public key content on UI
         executor.execute(() -> {
             while (!TEOConnection.ismBound()) {
@@ -102,4 +99,10 @@ public class ConfigActivity extends AppCompatActivity {
         });
     }
 
+    public void btnResetKeypairOnClick(View view) {
+        if (TEOConnection.ismBound()) {
+            TEOConnection.getTOTBinder().flushKeyPair();
+            updateClientPubkeyDisplay();
+        }
+    }
 }

@@ -112,44 +112,44 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getG_1CHALLENGE_1SIZE_1JNI(JN
 //    env->SetByteArrayRegion(res, 0, sizeof(buf), buf);
 //    return res;
 //}
-//
-//extern "C"
-//JNIEXPORT jint JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_prepareInitializationRequestJNI(
-//        JNIEnv *env, jobject thiz, jbyteArray user_pubkey, jbyteArray user_privkey,
-//        jbyteArray device_secret, jstring device_ip_in, jint device_port_in,
-//        jbyteArray device_pubkey) {
-//    jbyte *user_pubkey_ptr;
-//    jsize user_pubkey_len;
-//    loadJavaArray(env, user_pubkey, user_pubkey_ptr, user_pubkey_len);
-//
-//    jbyte *user_privkey_ptr;
-//    jsize user_privkey_len;
-//    loadJavaArray(env, user_privkey, user_privkey_ptr, user_privkey_len);
-//
-//    jbyte *device_secret_ptr;
-//    jsize device_secret_len;
-//    loadJavaArray(env, device_secret, device_secret_ptr, device_secret_len);
-//
-//    const char *device_ip_load = env->GetStringUTFChars(device_ip_in, nullptr);
-//
-//    jbyte *device_pubkey_ptr;
-//    jsize device_pubkey_len;
-//    loadJavaArray(env, device_pubkey, device_pubkey_ptr, device_pubkey_len);
-//
-//    SharedSecretKey setup_token = SharedSecretKey(
-//            reinterpret_cast<const uint8_t *>(device_secret_ptr), device_secret_len);
-//
-//    AsymmetricEncryptionKeySet keySet = AsymmetricEncryptionKeySet(
-//            reinterpret_cast<const uint8_t *>(user_pubkey_ptr), user_pubkey_len,
-//            reinterpret_cast<const uint8_t *>(user_privkey_ptr), user_privkey_len);
-//
-//    return admin_initialize_device_impl(device_ip_load, device_port_in, user_pubkey_ptr,
-//                                        user_pubkey_len,
-//                                        setup_token, keySet);
-//
-//}
-//
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_prepareInitializationRequestJNI(
+        JNIEnv *env, jobject thiz,
+        jbyteArray user_pubkey, jbyteArray user_privkey,
+        jbyteArray device_secret, jstring device_ip_in,
+        jint device_port_in, jbyteArray device_pubkey) {
+    jbyte *user_pubkey_ptr;
+    jsize user_pubkey_len;
+    loadJavaArray(env, user_pubkey, user_pubkey_ptr, user_pubkey_len);
+
+    jbyte *user_privkey_ptr;
+    jsize user_privkey_len;
+    loadJavaArray(env, user_privkey, user_privkey_ptr, user_privkey_len);
+
+    jbyte *device_secret_ptr;
+    jsize device_secret_len;
+    loadJavaArray(env, device_secret, device_secret_ptr, device_secret_len);
+
+    const char *device_ip_load = env->GetStringUTFChars(device_ip_in, nullptr);
+
+    jbyte *device_pubkey_ptr;
+    jsize device_pubkey_len;
+    loadJavaArray(env, device_pubkey, device_pubkey_ptr, device_pubkey_len);
+
+    teo::SharedSecretKey setup_token = teo::SharedSecretKey(
+            reinterpret_cast<const uint8_t *>(device_secret_ptr), device_secret_len);
+
+    teo::AsymmetricEncryptionKeySet keySet = teo::AsymmetricEncryptionKeySet(
+            reinterpret_cast<const uint8_t *>(user_pubkey_ptr), user_pubkey_len,
+            reinterpret_cast<const uint8_t *>(user_privkey_ptr), user_privkey_len);
+
+    return admin_initialize_device_impl(device_ip_load, device_port_in, user_pubkey_ptr,
+                                        user_pubkey_len,
+                                        setup_token, keySet);
+}
+
 //AsymmetricEncryptionKeySet getUserKeySet(JNIEnv *env,
 //                                         jbyteArray user_pubkey,
 //                                         jbyteArray user_privkey) {
