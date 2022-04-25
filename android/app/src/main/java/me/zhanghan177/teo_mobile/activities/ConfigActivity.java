@@ -85,20 +85,6 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
-//        editTextClientName.setOnEditorActionListener((textView, actionId, keyEvent) -> {
-//            Log.v("keypress", String.valueOf(actionId));
-//            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-//                    actionId == EditorInfo.IME_ACTION_DONE ||
-//                    keyEvent == null ||
-//                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-//                // User finished typing
-//                String clientName = textView.getText().toString();
-//                saveClientName(getApplicationContext(), clientName);
-//                return true;
-//            }
-//            return false;
-//        });
-
         // Create background task to update client public key content on UI
         executor.execute(() -> {
             while (!TEOConnection.ismBound()) {

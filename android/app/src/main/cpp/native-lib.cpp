@@ -259,9 +259,9 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_registerIPKmsJNI(JNIEnv *env,
     const char *storage_ip_load = env->GetStringUTFChars(storage_ip_in, nullptr);
 
     return teo::client_register_ip_kms_impl(reinterpret_cast<const uint8_t *>(client_pubkey_ptr),
-                                       client_pubkey_len,
-                                       client_ip_load, client_port_in,
-                                       storage_ip_load, storage_port_in);
+                                            client_pubkey_len,
+                                            client_ip_load, client_port_in,
+                                            storage_ip_load, storage_port_in);
 }
 
 extern "C"
@@ -271,30 +271,33 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_getMessageTypeFltbuffersSizeJ
     return teo::get_message_type_flatbuffers_size();
 }
 
-//extern "C"
-//JNIEXPORT jstring JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_resolveIpJNI(JNIEnv *env, jobject thiz,
-//                                                                        jbyteArray query_pubkey,
-//                                                                        jstring storage_ip_in,
-//                                                                        jint storage_port_in) {
-//    jbyte *query_pubkey_ptr;
-//    jsize query_pubkey_len;
-//    loadJavaArray(env, query_pubkey, query_pubkey_ptr, query_pubkey_len);
-//
-//    const char *storage_ip_load = env->GetStringUTFChars(storage_ip_in, nullptr);
-//
-//    std::string res_ip;
-//    int res_port;
-//
-//    client_fetch_ip_kms_impl(reinterpret_cast<const uint8_t *>(query_pubkey_ptr), query_pubkey_len,
-//                             storage_ip_load, storage_port_in,
-//                             res_ip, res_port);
-//
-//    jstring result;
-//    result = env->NewStringUTF(res_ip.c_str());
-//    return result;
-//}
-//
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_resolveIpJNI(JNIEnv *env, jobject thiz,
+                                                                jbyteArray query_pubkey,
+                                                                jstring storage_ip_in,
+                                                                jint storage_port_in) {
+    jbyte *query_pubkey_ptr;
+    jsize query_pubkey_len;
+    loadJavaArray(env, query_pubkey, query_pubkey_ptr, query_pubkey_len);
+
+    const char *storage_ip_load = env->GetStringUTFChars(storage_ip_in, nullptr);
+
+    std::string res_ip;
+    int res_port;
+
+    teo::client_fetch_ip_kms_impl(reinterpret_cast<const uint8_t *>(query_pubkey_ptr),
+                                  query_pubkey_len,
+                                  storage_ip_load,
+                                  storage_port_in,
+                                  res_ip,
+                                  res_port);
+
+    jstring result;
+    result = env->NewStringUTF(res_ip.c_str());
+    return result;
+}
+
 //bool checkMessageType(JNIEnv *env, jbyteArray message_type, MessageType exp_type) {
 //    jbyte *message_type_ptr;
 //    jsize message_type_len;

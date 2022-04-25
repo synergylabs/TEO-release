@@ -531,12 +531,12 @@ public class TEOKeyStoreService extends Service {
 //
 //    public native byte[] claimDeviceJNI(byte[] userPubkey, byte[] userPrivkey, byte[] preAuthToken,
 //                                        String deviceIp, int devicePort, byte[] adminPubkey);
-//
+
     public native int registerIPKmsJNI(byte[] clientPubkey, String clientIp, int clientPort,
                                        String storageIp, int storagePort);
-//
-//    public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
-//
+
+    public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
+
 //    private native void reencryptJNI(byte[] userPubkey, byte[] userPrivkey,
 //                                     String uuid, String encMetaUUID,
 //                                     byte[] sieveKey, byte[] sieveKeyNonce,
