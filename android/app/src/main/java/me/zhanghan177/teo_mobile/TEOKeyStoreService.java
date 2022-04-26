@@ -61,6 +61,7 @@ public class TEOKeyStoreService extends Service {
     String claimedDeviceIp = null;
     int claimedDevicePort = 0;
 
+    static int notificationId = 1;
 
     static int message_type_fltbuffers_size = 0;
 
@@ -72,6 +73,10 @@ public class TEOKeyStoreService extends Service {
             return "NULL";
         }
         return base64EncodeStrip(adminManagedDevice, Base64.DEFAULT);
+    }
+
+    public static int consumeNotificationId() {
+        return ++notificationId;
     }
 
 //    private void sendProximityHeartbeat(byte[] proximityNonce) {
@@ -105,31 +110,64 @@ public class TEOKeyStoreService extends Service {
 //        reencryptJNI(userPubkey, userPrivkey, dataUUID, encMetaUUID, sieveKey, sieveKeyNonce, storageIp, storagePort);
 //    }
 
-//    public String getAdminIp() {
-//        return adminIp;
-//    }
+    public String getAdminIp() {
+        return adminIp;
+    }
 
-//    private void resolveAdminIpPort() {
-//        if (getStorageIp() == null || getStorageIp().equals("") || getStoragePort() == 0) {
-//            Toast.makeText(this, "You need to load Storage info first!!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        setAdminIp(resolveIpJNI(getAdminPubkey(), getStorageIp(), getStoragePort()));
-//        setAdminPort(ADMIN_PORT);
-//    }
+    private int resolveAdminIpPort(Context context) {
+        if (validateStorageInfo(context) != 0) return -1;
 
-//    private byte[] getAdminPubkey() {
-//        return adminPubkey;
-//    }
+        setAdminIp(resolveIpJNI(getAdminPubkey(), getStorageIp(), getStoragePort()));
+        setAdminPort(ADMIN_PORT);
+        return 0;
+    }
+
+    private byte[] getAdminPubkey() {
+        return adminPubkey;
+    }
 
     private int validateStorageInfo(Context context) {
-        if (getStorageIp() == null || getStorageIp().equals("") || getStoragePort() == 0) {
-            displayDialog(context, "You need to load Storage info first!! Try scan Storage's QR code.");
+        if (!hasStorageInfo()) {
+            String err = "You need to load Storage info first!! Try scan Storage's QR code.";
+            Log.e(TAG, err);
+            displayDialog(context, err);
             return -1;
         }
         return 0;
     }
+
+    private int validateAdminInfo(Context context) {
+        if (getAdminPubkey() == null) {
+            String err = "You need to retrieve the device's current Admin " +
+                    "info first!! Try scan device's QR code";
+            Log.e(TAG, err);
+            displayDialog(context, err);
+            return -1;
+        }
+
+        return resolveAdminIpPort(context);
+    }
+
+    private int validateDeviceInfo(Context context) {
+        if (!hasDeviceInfo()) {
+            String err = "No device info! Scan Device's info QR code";
+            Log.e(TAG, err);
+            displayDialog(context, err);
+            return -1;
+        }
+        return 0;
+    }
+
+    private int validatePreAuthToken(Context context) {
+        if (!hasPreAuthToken()) {
+            String err = "Empty pre-auth token for claiming this device! Try acquire one first.";
+            Log.e(TAG, err);
+            displayDialog(context, err);
+            return -1;
+        }
+        return 0;
+    }
+
 
     public String getClientPubkeyB64() {
         if (clientPubkey == null || clientPrivkey == null) {
@@ -147,7 +185,7 @@ public class TEOKeyStoreService extends Service {
         }
     }
 
-    private String getClaimedDeviceB64() {
+    public String getClaimedDeviceB64() {
         if (claimedDevice == null) {
             return "NULL";
         } else {
@@ -155,26 +193,41 @@ public class TEOKeyStoreService extends Service {
         }
     }
 
-//    private int claimDevice() {
-//        do {
-//            claimedDevice = claimDeviceJNI(userPubkey, userPrivkey, preAuthToken, deviceIp, devicePort, adminPubkey);
-//            claimedDeviceIp = deviceIp;
-//            claimedDevicePort = devicePort;
-//        } while (claimedDevice == null || byteArrayAllEmpty(claimedDevice));
-//
-//        Intent intent = new Intent(this, TEOUserService.class);
-//        startService(intent);
-//
-//        return 0;
-//    }
+    public int claimDevice(Context context) {
+        if (validateAdminInfo(context) != 0) {
+            return -1;
+        }
 
-//    private String getPreAuthTokenB64() {
-//        if (preAuthToken == null) {
-//            return "NULL";
-//        } else {
-//            return base64EncodeStrip(preAuthToken, Base64.DEFAULT);
-//        }
-//    }
+        if (!hasPreAuthToken()) {
+            acquirePreAuthToken(context);
+        }
+
+        if (validatePreAuthToken(context) != 0
+                || validateDeviceInfo(context) != 0) {
+            return -1;
+        }
+
+        do {
+            claimedDevice = claimDeviceJNI(clientPubkey, clientPrivkey,
+                    preAuthToken, deviceIp,
+                    devicePort, getAdminPubkey());
+            claimedDeviceIp = deviceIp;
+            claimedDevicePort = devicePort;
+        } while (claimedDevice == null || byteArrayAllEmpty(claimedDevice));
+
+        Intent intent = new Intent(this, TEOUserService.class);
+        startService(intent);
+
+        return 0;
+    }
+
+    private String getPreAuthTokenB64() {
+        if (preAuthToken == null) {
+            return "NULL";
+        } else {
+            return base64EncodeStrip(preAuthToken, Base64.DEFAULT);
+        }
+    }
 
     private boolean byteArrayAllEmpty(byte[] in) {
         for (byte b : in) {
@@ -183,18 +236,36 @@ public class TEOKeyStoreService extends Service {
         return true;
     }
 
-//    private int acquirePreAuthToken() {
-//        do {
-//            preAuthToken = acquirePreAuthTokenJNI(userPubkey, userPrivkey, adminIp, adminPort, adminPubkey);
-//        } while (preAuthToken == null || byteArrayAllEmpty(preAuthToken));
-//        return 0;
-//    }
+
+    private boolean hasPreAuthToken() {
+        return getPreAuthToken() != null;
+    }
+
+    private boolean hasStorageInfo() {
+        return (getStorageIp() != null && !(getStorageIp().equals("")) && getStoragePort() != 0);
+    }
+
+    private byte[] getPreAuthToken() {
+        return preAuthToken;
+    }
+
+    private int acquirePreAuthToken(Context context) {
+        // validate Admin info is not empty
+        if (validateAdminInfo(context) != 0) {
+            return -1;
+        }
+
+        do {
+            preAuthToken = acquirePreAuthTokenJNI(clientPubkey, clientPrivkey, adminIp, adminPort, adminPubkey);
+        } while (preAuthToken == null || byteArrayAllEmpty(preAuthToken));
+        return 0;
+    }
 
     public String getAdminPubkeyB64() {
-        if (adminPubkey == null) {
+        if (getAdminPubkey() == null) {
             return "NULL";
         } else {
-            return base64EncodeStrip(adminPubkey, Base64.DEFAULT);
+            return base64EncodeStrip(getAdminPubkey(), Base64.DEFAULT);
         }
     }
 
@@ -345,15 +416,19 @@ public class TEOKeyStoreService extends Service {
     }
 
 
-    public int initDevice(Context context) {
-        if (validateStorageInfo(context) != 0) {
-            return -1;
-        }
-
-        if (!(deviceSecret != null && hasDeviceInfo())) {
+    private int validateDeviceSecret(Context context) {
+        if (!(hasDeviceSecret() && hasDeviceInfo())) {
             String err = "No device info! Scan Device's setup QR code";
             Log.e(TAG, err);
             displayDialog(context, err);
+            return -1;
+        }
+        return 0;
+    }
+
+    public int initDevice(Context context) {
+        if (validateStorageInfo(context) != 0
+                || validateDeviceSecret(context) != 0) {
             return -1;
         }
 
@@ -376,6 +451,10 @@ public class TEOKeyStoreService extends Service {
 
     private boolean hasDeviceInfo() {
         return devicePubkey != null && deviceIp != null && !deviceIp.isEmpty();
+    }
+
+    private boolean hasDeviceSecret() {
+        return deviceSecret != null;
     }
 
 
@@ -417,12 +496,11 @@ public class TEOKeyStoreService extends Service {
                                                       byte[] deviceSecret, String deviceIp,
                                                       int devicePort, byte[] devicePubkey);
 
-//    public native byte[] acquirePreAuthTokenJNI(byte[] userPubkey, byte[] userPrivkey,
-//                                                String adminIp, int adminPort, byte[] adminPubkey);
-//
-//
-//    public native byte[] claimDeviceJNI(byte[] userPubkey, byte[] userPrivkey, byte[] preAuthToken,
-//                                        String deviceIp, int devicePort, byte[] adminPubkey);
+    public native byte[] acquirePreAuthTokenJNI(byte[] userPubkey, byte[] userPrivkey,
+                                                String adminIp, int adminPort, byte[] adminPubkey);
+
+    public native byte[] claimDeviceJNI(byte[] userPubkey, byte[] userPrivkey, byte[] preAuthToken,
+                                        String deviceIp, int devicePort, byte[] adminPubkey);
 
     public native int registerIPKmsJNI(byte[] clientPubkey, String clientIp, int clientPort,
                                        String storageIp, int storagePort);
@@ -443,7 +521,6 @@ public class TEOKeyStoreService extends Service {
 //                                                String claimedDeviceIp,
 //                                                int claimedDevicePort,
 //                                                byte[] userPubkey);
-
 
 //    private native void proximityHeartbeatJNI(byte[] claimedDevice,
 //                                              String claimedDeviceIp,

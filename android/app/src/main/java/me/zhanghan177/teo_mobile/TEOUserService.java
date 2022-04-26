@@ -21,6 +21,7 @@ import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
 import static me.zhanghan177.teo_mobile.GlobalConfig.USER_PORT;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
 import static me.zhanghan177.teo_mobile.TEOAdminService.EXTRA_TYPE;
+import static me.zhanghan177.teo_mobile.TEOKeyStoreService.consumeNotificationId;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
 
 import androidx.core.app.NotificationCompat;
@@ -34,7 +35,6 @@ public class TEOUserService extends Service {
     String CHANNEL_ID = "user";
     String notificationTitle = "Real Time Access Request";
     String notificationContent = "An app request real time data access!";
-    int notificationId = 1;
 
 
     // Used to load the 'native-lib' library on application startup.
@@ -110,6 +110,7 @@ public class TEOUserService extends Service {
                 }
 
                 NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                int notificationId = consumeNotificationId();
                 manager.cancel(notificationId);
 
                 if (pendingOutputStream == null) {
@@ -227,6 +228,7 @@ public class TEOUserService extends Service {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
             // notificationId is a unique int for each notification that you must define
+            int notificationId = consumeNotificationId();
             notificationManager.notify(notificationId, builder.build());
         }
     }
@@ -248,7 +250,7 @@ public class TEOUserService extends Service {
                     assert (message_type_fltbuffers_size != 0);
                     byte[] messageType = new byte[message_type_fltbuffers_size];
                     int bytesRead = inputStream.read(messageType);
-                    Log.v(TAG, "Message type read: " + bytesToHex(messageType) +
+                    Log.v(TAG, "Message type read: " + bytesToHex(messageType, bytesRead) +
                             ", total bytes: " + bytesRead);
 
                     if (checkMessageTypeDataStoreSieveCredRequestJNI(messageType)) {

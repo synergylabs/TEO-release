@@ -6,4 +6,77 @@
     android:layout_height="match_parent"
     tools:context=".activities.UserDashboardActivity">
 
+    <TextView
+        android:id="@+id/textViewUserDashboardTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center"
+        android:text="@string/user_dashboard_title"
+        android:textSize="@dimen/font_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TextContrastCheck" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewUserDashboardTitle">
+
+        <TextView
+            android:id="@+id/textViewUserOwnedDevicePrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/user_owned_device_info_prompt"
+            android:textSize="@dimen/font_size_small" />
+
+        <TextView
+            android:id="@+id/textViewUserOwnedDevicePubkey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/default_pubkey_null"
+            android:textSize="@dimen/font_size_small" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonUserClaimDevice"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:onClick="btnUserClaimDeviceOnClick"
+            android:text="@string/btn_claim_device_text"
+            android:textSize="@dimen/font_size_small" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/imageViewQRScanPanel"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_qr_scan_logo"
+            android:onClick="btnQRScanOnClick"
+            android:text="@string/qr_scan_text"
+            android:textSize="@dimen/font_size_small" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

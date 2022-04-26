@@ -17,9 +17,9 @@ public class NetworkUtils {
      * @param bytes toConvert
      * @return hexValue
      */
-    public static String bytesToHex(byte[] bytes) {
+    public static String bytesToHex(byte[] bytes, int content_len) {
         StringBuilder sbuf = new StringBuilder();
-        for (int idx = 0; idx < bytes.length; idx++) {
+        for (int idx = 0; idx < content_len; idx++) {
             int intVal = bytes[idx] & 0xff;
             if (intVal < 0x10) sbuf.append("0");
             sbuf.append(Integer.toHexString(intVal).toUpperCase());

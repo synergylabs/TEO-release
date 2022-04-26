@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_qr_scan_logo"
             android:onClick="btnQRScanOnClick"
-            android:text="QR Scan"
+            android:text="@string/qr_scan_text"
             android:textSize="@dimen/font_size_small" />
 
         <TextView

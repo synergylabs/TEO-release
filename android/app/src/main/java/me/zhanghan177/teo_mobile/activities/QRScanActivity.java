@@ -43,6 +43,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static me.zhanghan177.teo_mobile.GlobalConfig.*;
+import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
 
 public class QRScanActivity extends AppCompatActivity {
 
@@ -225,7 +226,6 @@ public class QRScanActivity extends AppCompatActivity {
 
                 Toast.makeText(this, "Data blocks scan successful.", Toast.LENGTH_SHORT).show();
             } else {
-
                 String type = obj.getString(JSON_MESSAGE_TYPE_TAG);
 
                 String issuerPubkeyB64 = getBase64FixSpecial(obj.getString(JSON_ISSUER_PUBKEY_TAG));
@@ -247,9 +247,22 @@ public class QRScanActivity extends AppCompatActivity {
                         Log.d(TAG, "User QR code");
 
                         String deviceAdminB64 = getBase64FixSpecial(obj.getString(JSON_DEVICE_ADMIN_TAG));
-                        TOTConnection.getTOTBinder().setAdminInfo(deviceAdminB64, "", "");
 
-                        Toast.makeText(this, "Scan Device QR for User Success!", Toast.LENGTH_SHORT).show();
+                        final String emptyAdminB64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+                        if (deviceAdminB64.equals(emptyAdminB64)) {
+                            String err = "Empty Admin public key detected! Are you sure this QR " +
+                                    "code info is up-to-date? Try generate device info one " +
+                                    "more time and refresh.";
+                            Log.e(TAG, err);
+                            displayDialog(this, err);
+                        } else {
+                            TOTConnection.getTOTBinder().setAdminInfo(deviceAdminB64, "", "");
+
+                            Toast.makeText(this,
+                                    "Scan Device QR for User Success!",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
                     } else {
                         Log.e(TAG, "Unknown QR code message type!");
                         Toast.makeText(this, "Unknown QR code message type!", Toast.LENGTH_SHORT).show();

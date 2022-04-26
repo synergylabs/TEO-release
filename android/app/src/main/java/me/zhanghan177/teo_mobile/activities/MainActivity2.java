@@ -118,13 +118,13 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void btnClaimDeviceOnClick(View view) {
-        if (TOTConnection.ismBound()) {
-            int err = TOTConnection.getTOTBinder().claimDevice();
-
-            if (err == 0) {
-                Toast.makeText(this, "Claimed device success!", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (TOTConnection.ismBound()) {
+//            int err = TOTConnection.getTOTBinder().claimDevice();
+//
+//            if (err == 0) {
+//                Toast.makeText(this, "Claimed device success!", Toast.LENGTH_SHORT).show();
+//            }
+//        }
     }
 
     public void btnReencryptOnClick(View view) {

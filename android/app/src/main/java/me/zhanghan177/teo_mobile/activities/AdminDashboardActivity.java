@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import me.zhanghan177.teo_mobile.R;
+import me.zhanghan177.teo_mobile.TEOAdminService;
 import me.zhanghan177.teo_mobile.TEOKeyStoreService;
 import me.zhanghan177.teo_mobile.TEOServiceConnection;
 
@@ -92,5 +93,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
     public void btnQRScanOnClick(View view) {
         Intent intent = new Intent(this, QRScanActivity.class);
         startActivity(intent);
+    }
+
+    public void btnTestNotificationOnClick(View view) {
+        Intent intent = new Intent(this, TEOAdminService.class);
+        intent.putExtra(TEOAdminService.EXTRA_TYPE, TEOAdminService.SEND_NOTIFICATION);
+        startService(intent);
     }
 }

@@ -27,14 +27,19 @@
         android:theme="@style/Theme.Tot_mobile_native">
         <activity
             android:name=".activities.UserDashboardActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.AdminDashboardActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.ConfigActivity"
-            android:exported="false" />
-        <activity android:name=".activities.MainActivity">
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,7 +52,9 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".activities.EvaluationActivity" />
+        <activity
+            android:name=".activities.EvaluationActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".TEOUserService"
@@ -58,7 +65,9 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".activities.DebugControlActivity" />
+        <activity
+            android:name=".activities.DebugControlActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".TEOKeyStoreService"
@@ -76,8 +85,12 @@
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="barcode,face,ocr,ica" />
 
-        <activity android:name=".activities.QRScanActivity" />
-        <activity android:name=".activities.MainActivity2" />
+        <activity
+            android:name=".activities.QRScanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.MainActivity2"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

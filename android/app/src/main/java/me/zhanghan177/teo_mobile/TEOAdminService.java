@@ -22,6 +22,7 @@ import static me.zhanghan177.teo_mobile.GlobalConfig.ADMIN_PORT;
 import static me.zhanghan177.teo_mobile.GlobalConfig.EVAL_MODE_SKIP_NOTIFICATION;
 import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
+import static me.zhanghan177.teo_mobile.TEOKeyStoreService.consumeNotificationId;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
 
 public class TEOAdminService extends Service {
@@ -54,7 +55,7 @@ public class TEOAdminService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
@@ -96,6 +97,12 @@ public class TEOAdminService extends Service {
     }
 
     class AdminServerThread implements Runnable {
+        private final Context pkgContext;
+
+        AdminServerThread(Context pkgContext) {
+            this.pkgContext = pkgContext;
+        }
+
         @Override
         public void run() {
             Socket socket = null;
@@ -110,7 +117,7 @@ public class TEOAdminService extends Service {
 
                     socket = serverSocket.accept();
 
-                    CommunicationThread commThread = new CommunicationThread(socket);
+                    CommunicationThread commThread = new CommunicationThread(socket, pkgContext);
                     new Thread(commThread).start();
 
                 } catch (IOException e) {
@@ -123,9 +130,11 @@ public class TEOAdminService extends Service {
     class CommunicationThread implements Runnable {
 
         private final Socket clientSocket;
+        private final Context pkgContext;
 
-        public CommunicationThread(Socket clientSocket) {
+        public CommunicationThread(Socket clientSocket, Context pkgContext) {
             this.clientSocket = clientSocket;
+            this.pkgContext = pkgContext;
         }
 
         public void run() {
@@ -136,7 +145,7 @@ public class TEOAdminService extends Service {
                     assert (message_type_fltbuffers_size != 0);
                     byte[] messageType = new byte[message_type_fltbuffers_size];
                     int bytesRead = inputStream.read(messageType);
-                    Log.v(TAG, "Message type read: " + bytesToHex(messageType) + ", total bytes: " + bytesRead);
+                    Log.v(TAG, "Message type read: " + bytesToHex(messageType, bytesRead) + ", total bytes: " + bytesRead);
 
                     if (!checkMessageTypeAdminPreAuthJNI(messageType)) {
                         Log.v(TAG, "Wrong message type");
@@ -146,12 +155,13 @@ public class TEOAdminService extends Service {
                     Log.v(TAG, "Receive new request for pre auth token!");
                     byte[] request_content = new byte[G_DATA_BUF_SIZE];
                     bytesRead = inputStream.read(request_content);
-                    Log.v(TAG, "Content read: " + bytesToHex(request_content) + ", total bytes: " + bytesRead);
+                    Log.v(TAG, "Content read: " + bytesToHex(request_content, bytesRead) + ", total bytes: " + bytesRead);
 
-                    pending_token = processPreAuthTokenJNI(request_content, TEOConnection.getTOTBinder().getClientPubkey(), TEOConnection.getTOTBinder().getClientPrivkey());
+                    pending_token = processPreAuthTokenJNI(request_content,
+                            TEOConnection.getTOTBinder().getClientPubkey(), TEOConnection.getTOTBinder().getClientPrivkey());
                     pending_socket = this.clientSocket;
 
-                    sendNotification();
+                    sendNotification(pkgContext);
                     return;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -162,34 +172,34 @@ public class TEOAdminService extends Service {
     }
 
     private void startAdminServer() {
-        this.serverThread = new Thread(new AdminServerThread());
+        this.serverThread = new Thread(new AdminServerThread(this));
         this.serverThread.start();
     }
 
-    public void sendNotification() {
+    public void sendNotification(Context pkgContext) {
         // Create an explicit intent for an Activity in your app
-        Intent intent = new Intent(this, TEOAdminService.class);
+        Intent intent = new Intent(pkgContext, TEOAdminService.class);
         intent.putExtra(EXTRA_TYPE, PRE_AUTH_APPROVE);
 
         if (EVAL_MODE_SKIP_NOTIFICATION) {
             startService(intent);
         } else {
-            PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, 0);
+            PendingIntent pendingIntent = PendingIntent.getService(pkgContext, 0, intent, 0);
 
             createNotificationChannel();
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(pkgContext, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_notification_admin)
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationContent)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true);
 
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(pkgContext);
 
             // notificationId is a unique int for each notification that you must define
-            int notificationId = 1;
+            int notificationId = consumeNotificationId();
             notificationManager.notify(notificationId, builder.build());
         }
     }
@@ -211,7 +221,7 @@ public class TEOAdminService extends Service {
                         }
                     }
                 } else if (type.equals(SEND_NOTIFICATION)) {
-                    sendNotification();
+                    sendNotification(this);
                 }
             }
         }

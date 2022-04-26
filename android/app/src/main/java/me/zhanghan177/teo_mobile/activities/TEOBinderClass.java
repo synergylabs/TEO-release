@@ -77,14 +77,12 @@ public class TEOBinderClass extends Binder {
         return "";
     }
 
-    public int claimDevice() {
-//            return teoKeyStoreService.claimDevice();
-        return 0;
+    public int claimDevice(Context context) {
+            return teoKeyStoreService.claimDevice(context);
     }
 
     public String getClaimedDeviceB64() {
-//            return teoKeyStoreService.getClaimedDeviceB64();
-        return "";
+            return teoKeyStoreService.getClaimedDeviceB64();
     }
 
     public void setStorageInfo(String issuerPubkeyB64, String issuerIP, String issuerPort) {

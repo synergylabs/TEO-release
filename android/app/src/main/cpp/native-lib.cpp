@@ -150,96 +150,99 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_prepareInitializationRequestJ
                                         setup_token, keySet);
 }
 
-//AsymmetricEncryptionKeySet getUserKeySet(JNIEnv *env,
-//                                         jbyteArray user_pubkey,
-//                                         jbyteArray user_privkey) {
-//    jbyte *user_pubkey_ptr;
-//    jsize user_pubkey_len;
-//    loadJavaArray(env, user_pubkey, user_pubkey_ptr, user_pubkey_len);
-//
-//    jbyte *user_privkey_ptr;
-//    jsize user_privkey_len;
-//    loadJavaArray(env, user_privkey, user_privkey_ptr, user_privkey_len);
-//
-//    return AsymmetricEncryptionKeySet(
-//            reinterpret_cast<const uint8_t *>(user_pubkey_ptr), user_pubkey_len,
-//            reinterpret_cast<const uint8_t *>(user_privkey_ptr), user_privkey_len);
-//
-//}
-//
-//extern "C"
-//JNIEXPORT jbyteArray JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_acquirePreAuthTokenJNI(JNIEnv *env,
-//                                                                                  jobject thiz,
-//                                                                                  jbyteArray user_pubkey,
-//                                                                                  jbyteArray user_privkey,
-//                                                                                  jstring admin_ip_in,
-//                                                                                  jint admin_port_in,
-//                                                                                  jbyteArray admin_pubkey) {
-//
-//    const char *admin_ip_load = env->GetStringUTFChars(admin_ip_in, nullptr);
-//
-//    jbyte *admin_pubkey_ptr;
-//    jsize admin_pubkey_len;
-//    loadJavaArray(env, admin_pubkey, admin_pubkey_ptr, admin_pubkey_len);
-//
-//    PreAuthToken token;
-//
-//    AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
-//
-//    int err = user_acquire_pre_auth_token_impl(admin_ip_load, admin_port_in,
-//                                               reinterpret_cast<const uint8_t *>(admin_pubkey_ptr),
-//                                               keySet, token);
-//
-//    jbyteArray ret = env->NewByteArray(libtot::PreAuthToken::get_token_len());
-//
-//    if (err != 0) {
-//        jbyte emp[libtot::PreAuthToken::PRE_AUTH_TOKEN_SIZE]{0};
-//        env->SetByteArrayRegion(ret, 0, libtot::PreAuthToken::get_token_len(), emp);
-//    } else {
-//        env->SetByteArrayRegion(ret, 0, libtot::PreAuthToken::get_token_len(),
-//                                reinterpret_cast<const jbyte *>(token.get_token()));
-//    }
-//    return ret;
-//}extern "C"
-//JNIEXPORT jbyteArray JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_claimDeviceJNI(JNIEnv *env, jobject thiz,
-//                                                                          jbyteArray user_pubkey,
-//                                                                          jbyteArray user_privkey,
-//                                                                          jbyteArray pre_auth_token,
-//                                                                          jstring device_ip_in,
-//                                                                          jint device_port_in,
-//                                                                          jbyteArray admin_pubkey) {
-//    AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
-//
-//    jbyte *pre_auth_token_ptr;
-//    jsize pre_auth_token_len;
-//    loadJavaArray(env, pre_auth_token, pre_auth_token_ptr, pre_auth_token_len);
-//    PreAuthToken token(reinterpret_cast<const uint8_t *>(pre_auth_token_ptr), pre_auth_token_len);
-//
-//    const char *device_ip_load = env->GetStringUTFChars(device_ip_in, nullptr);
-//
-//    jbyte *admin_pubkey_ptr;
-//    jsize admin_pubkey_len;
-//    loadJavaArray(env, admin_pubkey, admin_pubkey_ptr, admin_pubkey_len);
-//
-//    uint8_t claimed_device[AsymmetricEncryptionKeySet::FULL_PK_SIZE];
-//
-//    int err = user_claim_device_impl(keySet, token,
-//                                     device_ip_load, device_port_in,
-//                                     reinterpret_cast<const uint8_t *>(admin_pubkey_ptr),
-//                                     false, claimed_device, sizeof(claimed_device));
-//
-//    if (err != 0) {
-//        // Claim failed.
-//        memset(claimed_device, 0, sizeof(claimed_device));
-//    }
-//
-//    jbyteArray ret = env->NewByteArray(sizeof(claimed_device));
-//    env->SetByteArrayRegion(ret, 0, sizeof(claimed_device),
-//                            reinterpret_cast<const jbyte *>(claimed_device));
-//    return ret;
-//}
+teo::AsymmetricEncryptionKeySet getUserKeySet(JNIEnv *env,
+                                              jbyteArray user_pubkey,
+                                              jbyteArray user_privkey) {
+    jbyte *user_pubkey_ptr;
+    jsize user_pubkey_len;
+    loadJavaArray(env, user_pubkey, user_pubkey_ptr, user_pubkey_len);
+
+    jbyte *user_privkey_ptr;
+    jsize user_privkey_len;
+    loadJavaArray(env, user_privkey, user_privkey_ptr, user_privkey_len);
+
+    return teo::AsymmetricEncryptionKeySet(
+            reinterpret_cast<const uint8_t *>(user_pubkey_ptr), user_pubkey_len,
+            reinterpret_cast<const uint8_t *>(user_privkey_ptr), user_privkey_len);
+
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_acquirePreAuthTokenJNI(JNIEnv *env,
+                                                                          jobject thiz,
+                                                                          jbyteArray user_pubkey,
+                                                                          jbyteArray user_privkey,
+                                                                          jstring admin_ip_in,
+                                                                          jint admin_port_in,
+                                                                          jbyteArray admin_pubkey) {
+
+    const char *admin_ip_load = env->GetStringUTFChars(admin_ip_in, nullptr);
+
+    jbyte *admin_pubkey_ptr;
+    jsize admin_pubkey_len;
+    loadJavaArray(env, admin_pubkey, admin_pubkey_ptr, admin_pubkey_len);
+
+    teo::PreAuthToken token;
+
+    teo::AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
+
+    int err = user_acquire_pre_auth_token_impl(admin_ip_load, admin_port_in,
+                                               reinterpret_cast<const uint8_t *>(admin_pubkey_ptr),
+                                               keySet, token);
+
+    jbyteArray ret = env->NewByteArray(teo::PreAuthToken::get_token_len());
+
+    if (err != 0) {
+        jbyte emp[teo::PreAuthToken::PRE_AUTH_TOKEN_SIZE]{0};
+        env->SetByteArrayRegion(ret, 0, teo::PreAuthToken::get_token_len(), emp);
+    } else {
+        env->SetByteArrayRegion(ret, 0, teo::PreAuthToken::get_token_len(),
+                                reinterpret_cast<const jbyte *>(token.get_token()));
+    }
+    return ret;
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_claimDeviceJNI(JNIEnv *env, jobject thiz,
+                                                                  jbyteArray user_pubkey,
+                                                                  jbyteArray user_privkey,
+                                                                  jbyteArray pre_auth_token,
+                                                                  jstring device_ip_in,
+                                                                  jint device_port_in,
+                                                                  jbyteArray admin_pubkey) {
+    teo::AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
+
+    jbyte *pre_auth_token_ptr;
+    jsize pre_auth_token_len;
+    loadJavaArray(env, pre_auth_token, pre_auth_token_ptr, pre_auth_token_len);
+    teo::PreAuthToken token(reinterpret_cast<const uint8_t *>(pre_auth_token_ptr),
+                            pre_auth_token_len);
+
+    const char *device_ip_load = env->GetStringUTFChars(device_ip_in, nullptr);
+
+    jbyte *admin_pubkey_ptr;
+    jsize admin_pubkey_len;
+    loadJavaArray(env, admin_pubkey, admin_pubkey_ptr, admin_pubkey_len);
+
+    uint8_t claimed_device[teo::AsymmetricEncryptionKeySet::FULL_PK_SIZE];
+
+    int err = user_claim_device_impl(keySet, token,
+                                     device_ip_load, device_port_in,
+                                     reinterpret_cast<const uint8_t *>(admin_pubkey_ptr),
+                                     false, claimed_device, sizeof(claimed_device));
+
+    if (err != 0) {
+        // Claim failed.
+        memset(claimed_device, 0, sizeof(claimed_device));
+    }
+
+    jbyteArray ret = env->NewByteArray(sizeof(claimed_device));
+    env->SetByteArrayRegion(ret, 0, sizeof(claimed_device),
+                            reinterpret_cast<const jbyte *>(claimed_device));
+    return ret;
+}
 
 extern "C"
 JNIEXPORT jint JNICALL
@@ -298,88 +301,62 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_resolveIpJNI(JNIEnv *env, job
     return result;
 }
 
-//bool checkMessageType(JNIEnv *env, jbyteArray message_type, MessageType exp_type) {
-//    jbyte *message_type_ptr;
-//    jsize message_type_len;
-//    loadJavaArray(env, message_type, message_type_ptr, message_type_len);
-//
-//    int message_size = libtot::get_message_type_flatbuffers_size();
-//    assert(message_size != 0 && message_type_len >= message_size);
-//
-//    auto type_msg = GetMessageTypeMsg(message_type_ptr);
-//    return (type_msg != nullptr && type_msg->type() == exp_type);
-//}
-//
+bool checkMessageType(JNIEnv *env, jbyteArray message_type, teo::MessageType exp_type) {
+    jbyte *message_type_ptr;
+    jsize message_type_len;
+    loadJavaArray(env, message_type, message_type_ptr, message_type_len);
+
+    int message_size = teo::get_message_type_flatbuffers_size();
+    assert(message_size != 0 && message_type_len >= message_size);
+
+    auto type_msg = teo::GetMessageTypeMsg(message_type_ptr);
+    return (type_msg != nullptr && type_msg->type() == exp_type);
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOAdminService_checkMessageTypeAdminPreAuthJNI(JNIEnv *env,
+                                                                                jobject thiz,
+                                                                                jbyteArray message_type) {
+    return checkMessageType(env, message_type, teo::MessageType_ACQUIRE_PRE_AUTH_TOKEN_REQUEST);
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOAdminService_processPreAuthTokenJNI(JNIEnv *env,
+                                                                       jobject thiz,
+                                                                       jbyteArray content,
+                                                                       jbyteArray user_pubkey,
+                                                                       jbyteArray user_privkey) {
+    jbyte *content_ptr;
+    jsize content_len;
+    loadJavaArray(env, content, content_ptr, content_len);
+
+    teo::AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
+
+    uint8_t out[teo::G_DATA_BUF_SIZE]{};
+    int response_len = 0;
+
+    teo::admin_process_pre_auth_token_impl(reinterpret_cast<uint8_t *>(content_ptr),
+                                           0,
+                                           out,
+                                           &response_len,
+                                           keySet);
+
+    jbyteArray ret = env->NewByteArray(response_len);
+    env->SetByteArrayRegion(ret, 0, response_len,
+                            reinterpret_cast<const jbyte *>(out));
+
+    return ret;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeDataStoreSieveCredRequestJNI(
+        JNIEnv *env, jobject thiz, jbyteArray message_type) {
+    return checkMessageType(env, message_type, teo::MessageType_DATA_STORE_SIEVE_CRED_REQUEST);
+}
 //extern "C"
-//JNIEXPORT jboolean JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTAdminService_checkMessageTypeAdminPreAuthJNI(JNIEnv *env,
-//                                                                                        jobject thiz,
-//                                                                                        jbyteArray message_type) {
-//    return checkMessageType(env, message_type, MessageType_ACQUIRE_PRE_AUTH_TOKEN_REQUEST);
-//}extern "C"
-//JNIEXPORT jbyteArray JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTAdminService_processPreAuthTokenJNI(JNIEnv *env,
-//                                                                               jobject thiz,
-//                                                                               jbyteArray content,
-//                                                                               jbyteArray user_pubkey,
-//                                                                               jbyteArray user_privkey) {
-//    jbyte *content_ptr;
-//    jsize content_len;
-//    loadJavaArray(env, content, content_ptr, content_len);
-//
-//    AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
-//
-//    auto request_msg = GetAcquirePreAuthTokenRequest(content_ptr);
-//    SignaturePreAuthToken token_content;
-//    memcpy(token_content.user_pubkey, request_msg->user_pubkey()->Data(),
-//           request_msg->user_pubkey()->Length());
-//
-//    CiphertextAcquirePreAuthTokenResponse response_payload;
-//    response_payload.type = CipherType::acquire_pre_auth_token;
-//
-//    keySet.sign_detached(response_payload.token,
-//                         reinterpret_cast<const unsigned char *>(&token_content),
-//                         sizeof(token_content));
-//
-//    LOGV("Event: Acquire pre auth token admin grant");
-//    LOGV("Token content base64: %s",
-//         base64_encode(response_payload.token, sizeof(response_payload.token)).c_str());
-//
-//    uint8_t ciphertext_buf_len = AsymmetricEncryptionKeySet::get_box_easy_cipher_len(
-//            sizeof(response_payload));
-//    auto ciphertext_buf = new uint8_t[ciphertext_buf_len];
-//    uint8_t nonce[AsymmetricEncryptionKeySet::NONCE_SIZE];
-//    keySet.box_easy(ciphertext_buf, ciphertext_buf_len,
-//                    reinterpret_cast<const uint8_t *>(&response_payload),
-//                    sizeof(response_payload), nonce, request_msg->user_pubkey()->Data());
-//
-//    flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
-//    auto nonce_obj = builder.CreateVector(nonce, sizeof(nonce));
-//    auto ciphertext_obj = builder.CreateVector(ciphertext_buf, ciphertext_buf_len);
-//    auto response_msg = CreateAcquirePreAuthTokenResponse(builder, nonce_obj, ciphertext_obj);
-//    builder.Finish(response_msg);
-//
-//    uint8_t out[G_DATA_BUF_SIZE]{};
-//    int response_type_len = network_send_message_type(0,
-//                                                      MessageType_ACQUIRE_PRE_AUTH_TOKEN_RESPONSE,
-//                                                      out);
-//    int response_content_len = network_send(0, builder.GetBufferPointer(), builder.GetSize(),
-//                                            SOCKET_SEND_FLAGS, out + response_type_len);
-//
-//    int response_len = response_type_len + response_content_len;
-//    jbyteArray ret = env->NewByteArray(response_len);
-//    env->SetByteArrayRegion(ret, 0, response_len,
-//                            reinterpret_cast<const jbyte *>(out));
-//
-//    delete[] ciphertext_buf;
-//
-//    return ret;
-//}extern "C"
-//JNIEXPORT jboolean JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTUserService_checkMessageTypeDataStoreSieveCredRequestJNI(
-//        JNIEnv *env, jobject thiz, jbyteArray message_type) {
-//    return checkMessageType(env, message_type, MessageType_DATA_STORE_SIEVE_CRED_REQUEST);
-//}extern "C"
 //JNIEXPORT jbyteArray JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTUserService_processSieveCredRequestJNI(JNIEnv *env,
 //                                                                                  jobject thiz,
@@ -475,12 +452,14 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_resolveIpJNI(JNIEnv *env, job
 //    delete[] response_cipher;
 //
 //    return ret;
-//}extern "C"
-//JNIEXPORT jboolean JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTUserService_checkMessageTypeUploadNotificationJNI(
-//        JNIEnv *env, jobject thiz, jbyteArray message_type) {
-//    return checkMessageType(env, message_type, MessageType_DATA_STORE_UPLOAD_NOTIFICATION);
-//}extern "C"
+//}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeUploadNotificationJNI(
+        JNIEnv *env, jobject thiz, jbyteArray message_type) {
+    return checkMessageType(env, message_type, teo::MessageType_DATA_STORE_UPLOAD_NOTIFICATION);
+}
+//extern "C"
 //JNIEXPORT jbyteArray JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTUserService_processUploadNotificationJNI(JNIEnv *env,
 //                                                                                    jobject thiz,
@@ -522,12 +501,14 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_resolveIpJNI(JNIEnv *env, job
 //                            notification_payload.sieve_data_block_uuid);
 //
 //    return ret;
-//}extern "C"
-//JNIEXPORT jboolean JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTUserService_checkMessageTypeDataAccessFetchJNI(
-//        JNIEnv *env, jobject thiz, jbyteArray message_type) {
-//    return checkMessageType(env, message_type, MessageType_DATA_ACCESS_FETCH);
-//}extern "C"
+//}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeDataAccessFetchJNI(
+        JNIEnv *env, jobject thiz, jbyteArray message_type) {
+    return checkMessageType(env, message_type, teo::MessageType_DATA_ACCESS_FETCH);
+}
+// extern "C"
 //JNIEXPORT jbyteArray JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTUserService_processDataAccessFetchJNI(JNIEnv *env,
 //                                                                                 jobject thiz,
@@ -811,12 +792,12 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_resolveIpJNI(JNIEnv *env, job
 //
 //
 //}
-//extern "C"
-//JNIEXPORT jboolean JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTUserService_checkMessageTypeUtilRealTimeAccessRequestJNI(
-//        JNIEnv *env, jobject thiz, jbyteArray message_type) {
-//    return checkMessageType(env, message_type, MessageType_UTIL_REAL_TIME_ACCESS_REQUEST);
-//}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeUtilRealTimeAccessRequestJNI(
+        JNIEnv *env, jobject thiz, jbyteArray message_type) {
+    return checkMessageType(env, message_type, teo::MessageType_UTIL_REAL_TIME_ACCESS_REQUEST);
+}
 //extern "C"
 //JNIEXPORT jbyteArray JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTUserService_processUtilRealTimeAccessJNI(JNIEnv *env,
