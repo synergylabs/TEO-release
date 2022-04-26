@@ -1,0 +1,3 @@
+[submodule "libteo"]
+	path = libteo
+	url = https://github.com/zhanghan177/libteo.git
