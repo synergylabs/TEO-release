@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -49,6 +51,9 @@ public class TEOAdminService extends Service {
     byte[] pending_token = null;
     Socket pending_socket = null;
 
+    private ExecutorService executor;
+
+
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -66,6 +71,7 @@ public class TEOAdminService extends Service {
     }
 
     public TEOAdminService() {
+        executor = Executors.newFixedThreadPool(2);
     }
 
     @Override
@@ -214,11 +220,16 @@ public class TEOAdminService extends Service {
                 if (type.equals(PRE_AUTH_APPROVE)) {
                     Log.v(TAG, "Pre Auth Request Approved!");
                     if (pending_socket != null && pending_token != null) {
-                        try {
-                            pending_socket.getOutputStream().write(pending_token);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    pending_socket.getOutputStream().write(pending_token);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 } else if (type.equals(SEND_NOTIFICATION)) {
                     sendNotification(this);
