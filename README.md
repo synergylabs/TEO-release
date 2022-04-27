@@ -23,7 +23,7 @@ Please refer to the table of content for each individual parts.
 
 We include several git submodules with this repo. To download this repo, please execute the following command:
 ```bash
-git clone https://github.com/zhanghan177/TEO-release
+git clone https://github.com/synergylabs/TEO-release
 cd TEO-release
 git submodule update --init --recursive
 ```
