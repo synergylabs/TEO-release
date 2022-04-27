@@ -33,7 +33,7 @@ git submodule update --init --recursive
 Each artifact compoenent has its own list of requirements:
 - ProVerif models: Docker
 - libteo: Ubuntu 20.04.4 LTS
-- Android demo app: with a complete setup including 2x Android phones (tested on Nexus 5X, Android 8.1), Raspberry Pi 4 (as TEO device), Ubuntu 20.04.4 LTS (as Storage and data accessor).
+- Android demo app: with a complete setup including 2x Android phones (tested on Nexus 5X, Android 8.1), Raspberry Pi 4 (as TEO device), Ubuntu 20.04.4 LTS (as Storage and data accessor). Moreover, make sure all devices are connected to the same local network/subnet. 
 
 ## Formal Protocol Verification Models
 
@@ -86,7 +86,7 @@ Some of the verification results are expected to be `false`, while others are su
 
 ## libteo: C++ Library and Linux Demo Apps
 
-For detailed instruction, please refer to [libteo/](https://github.com/zhanghan177/libteo).
+For detailed instruction, please refer to [libteo/](https://github.com/synergylabs/libteo).
 
 ## Android Demo App
 
