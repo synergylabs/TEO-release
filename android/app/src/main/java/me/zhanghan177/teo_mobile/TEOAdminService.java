@@ -41,7 +41,7 @@ public class TEOAdminService extends Service {
 
     String CHANNEL_ID = "admin";
     String notificationTitle = "Pre Auth Token Request";
-    String notificationContent = "A new user requests for pre auth token!";
+    String notificationContent = "Click to approve new user's request for pre auth token!";
 
     ServerSocket serverSocket;
     Thread serverThread = null;
