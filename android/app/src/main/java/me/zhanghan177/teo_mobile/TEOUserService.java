@@ -36,6 +36,9 @@ public class TEOUserService extends Service {
     String notificationTitle = "Real Time Access Request";
     String notificationContent = "An app request real time data access!";
 
+    byte[] metadata_uuid;
+    byte[] sieve_data_uuid;
+    byte[] requester_pubkey;
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -49,13 +52,7 @@ public class TEOUserService extends Service {
 
     OutputStream pendingOutputStream = null;
 
-    byte[] sessionKey = null;
-
     private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
-
-    public void setSessionKey(byte[] sessionKey) {
-        this.sessionKey = sessionKey;
-    }
 
     public void setSieveKey(byte[] sieveKey) {
         TOTConnection.getTOTBinder().setSieveKey(sieveKey);
@@ -65,16 +62,28 @@ public class TEOUserService extends Service {
         TOTConnection.getTOTBinder().setSieveKeyNonce(sieveKeyNonce);
     }
 
-    public byte[] getSessionKey() {
-        return sessionKey;
-    }
-
     public byte[] getSieveKey() {
         return TOTConnection.getTOTBinder().getSieveKey();
     }
 
     public byte[] getSieveKeyNonce() {
         return TOTConnection.getTOTBinder().getSieveKeyNonce();
+    }
+
+    public void setMetadataUUID(byte[] uuid_in) {
+        metadata_uuid = uuid_in;
+    }
+
+    public void setSieveDataUUID(byte[] uuid_in) {
+        sieve_data_uuid = uuid_in;
+    }
+
+    public void setRequesterPubkey(byte[] requester_in) {
+        requester_pubkey = requester_in;
+    }
+
+    public byte[] getRequesterPubkey() {
+        return requester_pubkey;
     }
 
     public TEOUserService() {
@@ -259,7 +268,8 @@ public class TEOUserService extends Service {
 
                         byte[] response_content = processSieveCredRequestJNI(request_content,
                                 TOTConnection.getTOTBinder().getClientPubkey(),
-                                TOTConnection.getTOTBinder().getClientPrivkey());
+                                TOTConnection.getTOTBinder().getClientPrivkey(),
+                                TOTConnection.getTOTBinder().getClaimedDevice());
 
                         outputStream.write(response_content);
 
@@ -270,10 +280,10 @@ public class TEOUserService extends Service {
                         }
 
                         bytesRead = inputStream.read(request_content);
-                        byte[] sieveDataUUID = processUploadNotificationJNI(request_content,
+                        int err = processUploadNotificationJNI(request_content,
                                 TOTConnection.getTOTBinder().getClientPubkey(),
                                 TOTConnection.getTOTBinder().getClientPrivkey(),
-                                getSessionKey());
+                                getRequesterPubkey());
 
 
 
@@ -322,13 +332,14 @@ public class TEOUserService extends Service {
     private native boolean checkMessageTypeDataStoreSieveCredRequestJNI(byte[] messageType);
 
     private native byte[] processSieveCredRequestJNI(byte[] request_content,
-                                                     byte[] userPubkey, byte[] userPrivkey);
+                                                     byte[] userPubkey, byte[] userPrivkey,
+                                                     byte[] claimedDevice);
 
     private native boolean checkMessageTypeUploadNotificationJNI(byte[] messageType);
 
-    private native byte[] processUploadNotificationJNI(byte[] request_content,
+    private native int processUploadNotificationJNI(byte[] request_content,
                                                        byte[] userPubkey, byte[] userPrivkey,
-                                                       byte[] sessionKey);
+                                                       byte[] requesterPubkey);
 
     private native boolean checkMessageTypeDataAccessFetchJNI(byte[] messageType);
 

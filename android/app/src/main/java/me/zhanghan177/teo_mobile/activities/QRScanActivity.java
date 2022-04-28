@@ -208,6 +208,11 @@ public class QRScanActivity extends AppCompatActivity {
         return input.replace(" ", "+");
     }
 
+    private void toastAndExit(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        this.finish();
+    }
+
     public void processTOTQRCode(String rawValue) {
         if (rawValue == null || !TOTConnection.ismBound()) {
             return;
@@ -224,7 +229,8 @@ public class QRScanActivity extends AppCompatActivity {
                 TOTConnection.getTOTBinder().setDataUUID(dataBlockUUID);
                 TOTConnection.getTOTBinder().setEncMetaUUID(encMetaBlockUUID);
 
-                Toast.makeText(this, "Data blocks scan successful.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Data blocks scan successful.", Toast.LENGTH_SHORT).show();
+                toastAndExit("Data blocks scan successful.");
             } else {
                 String type = obj.getString(JSON_MESSAGE_TYPE_TAG);
 
@@ -237,11 +243,13 @@ public class QRScanActivity extends AppCompatActivity {
                         String secretB64 = getBase64FixSpecial(obj.getString(JSON_DEVICE_SECRET_TAG));
                         int err = TOTConnection.getTOTBinder().setDeviceSecret(secretB64);
                         if (err == 0) {
-                            Toast.makeText(this,
-                                    "Set Device Secret to be: "
-                                            + TOTConnection.getTOTBinder().getDeviceSecretB64(),
-                                    Toast.LENGTH_SHORT)
-                                    .show();
+//                            Toast.makeText(this,
+//                                    "Set Device Secret to be: "
+//                                            + TOTConnection.getTOTBinder().getDeviceSecretB64(),
+//                                    Toast.LENGTH_SHORT)
+//                                    .show();
+                            toastAndExit("Set Device Secret to be: "
+                                    + TOTConnection.getTOTBinder().getDeviceSecretB64());
                         }
                     } else if (type.equals(JSON_MESSAGE_TYPE_USER)) {
                         Log.d(TAG, "User QR code");
@@ -258,27 +266,32 @@ public class QRScanActivity extends AppCompatActivity {
                         } else {
                             TOTConnection.getTOTBinder().setAdminInfo(deviceAdminB64, "", "");
 
-                            Toast.makeText(this,
-                                    "Scan Device QR for User Success!",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+//                            Toast.makeText(this,
+//                                    "Scan Device QR for User Success!",
+//                                    Toast.LENGTH_SHORT
+//                            ).show();
+                            toastAndExit("Scan Device QR for User Success!");
                         }
                     } else {
                         Log.e(TAG, "Unknown QR code message type!");
-                        Toast.makeText(this, "Unknown QR code message type!", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(this, "Unknown QR code message type!", Toast.LENGTH_SHORT).show();
+                        toastAndExit("Unknown QR code message type!");
                     }
 
                     TOTConnection.getTOTBinder().setDeviceInfo(issuerPubkeyB64, issuerIP, issuerPort);
                 } else if (issuer.equals(JSON_MESSAGE_ISSUER_ADMIN)) {
                     TOTConnection.getTOTBinder().setAdminInfo(issuerPubkeyB64, issuerIP, issuerPort);
-                    Toast.makeText(this, "Successfully load Admin information!", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, "Successfully load Admin information!", Toast.LENGTH_SHORT).show();
+                    toastAndExit("Successfully load Admin information!");
                 } else if (issuer.equals(JSON_MESSAGE_ISSUER_STORAGE)) {
-                    boolean notify = true;
-                    if (issuerPubkeyB64.equals(TOTConnection.getTOTBinder().getStoragePubkeyB64()))
-                        notify = false;
+//                    boolean notify = true;
+//                    if (issuerPubkeyB64.equals(TOTConnection.getTOTBinder().getStoragePubkeyB64()))
+//                        notify = false;
                     TOTConnection.getTOTBinder().setStorageInfo(issuerPubkeyB64, issuerIP, issuerPort);
-                    if (notify)
-                        Toast.makeText(this, "Successfully load Storage information!", Toast.LENGTH_SHORT).show();
+//                    if (notify) {
+//                        Toast.makeText(this, "Successfully load Storage information!", Toast.LENGTH_SHORT).show();
+                    toastAndExit("Successfully load Storage information!");
+//                    }
                 } else {
                     Log.d(TAG, "Unknown issuer!");
                 }

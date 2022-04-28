@@ -26,11 +26,6 @@ public class TEOBinderClass extends Binder {
     }
 
     public int setDeviceSecret(@NonNull String secretB64) {
-        // Skipping redundant assignment
-        if (teoKeyStoreService.getDeviceSecretB64().equals(secretB64)) {
-            return -1;
-        }
-
         try {
             teoKeyStoreService.setDeviceSecret(Base64.decode(secretB64, Base64.DEFAULT));
         } catch (IllegalArgumentException e) {
@@ -153,4 +148,7 @@ public class TEOBinderClass extends Binder {
         return teoKeyStoreService.getAdminManagedDevicePubkeyB64();
     }
 
+    public byte[] getClaimedDevice() {
+        return teoKeyStoreService.getClaimedDevice();
+    }
 }

@@ -193,6 +193,10 @@ public class TEOKeyStoreService extends Service {
         }
     }
 
+    public byte[] getClaimedDevice() {
+        return claimedDevice;
+    }
+
     public int claimDevice(Context context) {
         if (validateAdminInfo(context) != 0) {
             return -1;
