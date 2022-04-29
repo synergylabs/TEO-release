@@ -4,20 +4,14 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Binder;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import static me.zhanghan177.teo_mobile.GlobalConfig.*;
 import static me.zhanghan177.teo_mobile.Utilities.base64EncodeStrip;
 import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
 import static me.zhanghan177.teo_mobile.Utilities.stripLineBreak;
-
-import me.zhanghan177.teo_mobile.activities.TEOBinderClass;
 
 public class TEOKeyStoreService extends Service {
 
@@ -34,9 +28,6 @@ public class TEOKeyStoreService extends Service {
      */
     public byte[] sieveKey = null;
     public byte[] sieveKeyNonce = null;
-
-    public String dataUUID;
-    public String encMetaUUID;
 
     byte[] clientPubkey = null;
     byte[] clientPrivkey = null;
@@ -60,6 +51,10 @@ public class TEOKeyStoreService extends Service {
     byte[] claimedDevice = null;
     String claimedDeviceIp = null;
     int claimedDevicePort = 0;
+
+
+    public byte[] metadata_uuid;
+    public byte[] sieve_data_uuid;
 
     static int notificationId = 1;
 
@@ -109,6 +104,22 @@ public class TEOKeyStoreService extends Service {
 //    private void reencrypt() {
 //        reencryptJNI(userPubkey, userPrivkey, dataUUID, encMetaUUID, sieveKey, sieveKeyNonce, storageIp, storagePort);
 //    }
+
+    public void setMetadataUUID(byte[] uuid_in) {
+        metadata_uuid = uuid_in;
+    }
+
+    public byte[] getMetadataUUID() {
+        return metadata_uuid;
+    }
+
+    public void setSieveDataUUID(byte[] uuid_in) {
+        sieve_data_uuid = uuid_in;
+    }
+
+    public byte[] getSieveDataUUID() {
+        return sieve_data_uuid;
+    }
 
     public String getAdminIp() {
         return adminIp;

@@ -4,8 +4,6 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import me.zhanghan177.teo_mobile.activities.TEOBinderClass;
-
 public class TEOServiceConnection implements ServiceConnection {
     private TEOBinderClass TEOBinder;
     private boolean mBound = false;

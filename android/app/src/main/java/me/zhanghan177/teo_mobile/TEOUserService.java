@@ -27,6 +27,7 @@ import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_TYPE;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.consumeNotificationId;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
 import static me.zhanghan177.teo_mobile.Utilities.createNotificationChannel;
+import static me.zhanghan177.teo_mobile.activities.UserDashboardActivity.BROADCAST_ACTION_UPDATE_USER_OWNED_DATA;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -45,8 +46,6 @@ public class TEOUserService extends Service {
     String notificationTitle = "Real Time Access Request";
     String notificationContent = "Click to approve an app's request to your data!";
 
-    public byte[] metadata_uuid;
-    public byte[] sieve_data_uuid;
     public byte[] requester_pubkey;
 
     // Used to load the 'native-lib' library on application startup.
@@ -102,11 +101,19 @@ public class TEOUserService extends Service {
     }
 
     public void setMetadataUUID(byte[] uuid_in) {
-        metadata_uuid = uuid_in;
+        TEOConnection.getTEOBinder().setMetadataUUID(uuid_in);
+    }
+
+    public byte[] getMetadataUUID() {
+        return TEOConnection.getTEOBinder().getMetadataUUID();
     }
 
     public void setSieveDataUUID(byte[] uuid_in) {
-        sieve_data_uuid = uuid_in;
+        TEOConnection.getTEOBinder().setSieveDataUUID(uuid_in);
+    }
+
+    public byte[] getSieveDataUUID() {
+        return TEOConnection.getTEOBinder().getSieveDataUUID();
     }
 
     public void setRequesterPubkey(byte[] requester_in) {
@@ -158,14 +165,11 @@ public class TEOUserService extends Service {
                         setPendingFetchPayload(null);
                         setPendingAccessorPubkey(null);
                         if (msg != null) {
-                            executor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        pending_socket.getOutputStream().write(msg);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                            executor.execute(() -> {
+                                try {
+                                    pending_socket.getOutputStream().write(msg);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             });
                         } else {
@@ -314,7 +318,13 @@ public class TEOUserService extends Service {
                                 TEOConnection.getTEOBinder().getClientPrivkey(),
                                 getRequesterPubkey());
 
-
+                        if (err != 0) {
+                            Log.v(TAG, "Error processing upload notification!");
+                        } else {
+                            Intent broadcast = new Intent();
+                            broadcast.setAction(BROADCAST_ACTION_UPDATE_USER_OWNED_DATA);
+                            sendBroadcast(broadcast);
+                        }
                     } else if (checkMessageTypeDataAccessFetchJNI(messageType)) {
                         byte[] request_content = new byte[G_DATA_BUF_SIZE];
                         bytesRead = inputStream.read(request_content);

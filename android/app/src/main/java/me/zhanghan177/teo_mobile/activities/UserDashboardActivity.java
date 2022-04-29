@@ -3,11 +3,15 @@ package me.zhanghan177.teo_mobile.activities;
 import static java.lang.Thread.sleep;
 
 import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
+import static me.zhanghan177.teo_mobile.Utilities.uuidBytesToString;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.Group;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -19,10 +23,20 @@ import java.util.concurrent.Executors;
 import me.zhanghan177.teo_mobile.R;
 import me.zhanghan177.teo_mobile.TEOKeyStoreService;
 import me.zhanghan177.teo_mobile.TEOServiceConnection;
+import me.zhanghan177.teo_mobile.TEOUserService;
 
 public class UserDashboardActivity extends AppCompatActivity {
     private final TEOServiceConnection TEOConnection = new TEOServiceConnection();
     private ExecutorService executor;
+
+    public static String BROADCAST_ACTION_UPDATE_USER_OWNED_DATA = "me.zhanghan177.teo.broadcast.UPDATE_USER_OWNED_DATA";
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateOwnedDataDisplay();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +58,18 @@ public class UserDashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BROADCAST_ACTION_UPDATE_USER_OWNED_DATA);
+        registerReceiver(receiver, filter);
+
         updateOwnedDevicePubkeyDisplay();
+        updateOwnedDataDisplay();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
     }
 
     private void updateOwnedDevicePubkeyDisplay() {
@@ -61,6 +86,43 @@ public class UserDashboardActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 TextView tvPubkey = findViewById(R.id.textViewUserOwnedDevicePubkey);
                 tvPubkey.setText(TEOConnection.getTEOBinder().getClaimedDeviceB64());
+            });
+        });
+    }
+
+    private void changeOwnedDataVisibility(int vis) {
+        int[] dataGroup = {R.id.spaceUserOwnedData,
+                R.id.textViewUserOwnedDataPrompt,
+                R.id.textViewUserOwnedDataUUID,
+                R.id.viewUserOwnedDataDivider};
+        for (int id : dataGroup) {
+            View v = findViewById(id);
+            v.setVisibility(vis);
+        }
+    }
+
+    private void updateOwnedDataDisplay() {
+        runOnUiThread(() -> {
+            changeOwnedDataVisibility(View.GONE);
+        });
+
+        executor.execute(() -> {
+            while (!TEOConnection.ismBound()) {
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            runOnUiThread(() -> {
+                String uuid_str = uuidBytesToString(TEOConnection.getTEOBinder().getMetadataUUID());
+                if (!uuid_str.equals("NULL")) {
+                    TextView textViewUUID = findViewById(R.id.textViewUserOwnedDataUUID);
+                    textViewUUID.setText(uuid_str);
+
+                    changeOwnedDataVisibility(View.VISIBLE);
+                }
             });
         });
     }

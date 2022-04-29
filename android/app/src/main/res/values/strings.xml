@@ -40,4 +40,5 @@
     <string name="user_dashboard_title">User Dashboard</string>
     <string name="user_owned_device_info_prompt">Device that I own:</string>
     <string name="qr_scan_text">QR Scan</string>
+    <string name="user_owned_data_info_prompt">My latest data block:</string>
 </resources>

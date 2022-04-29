@@ -223,15 +223,15 @@ public class QRScanActivity extends AppCompatActivity {
 
             String issuer = obj.getString(JSON_MESSAGE_ISSUER_TAG);
 
-            if (issuer.equals(JSON_MESSAGE_ISSUER_DATA_BLOCK)) {
-                String dataBlockUUID = obj.getString(JSON_DATA_BLOCK_UUID_TAG);
-                String encMetaBlockUUID = obj.getString(JSON_ENC_META_BLOCK_UUID_TAG);
-                TOTConnection.getTEOBinder().setDataUUID(dataBlockUUID);
-                TOTConnection.getTEOBinder().setEncMetaUUID(encMetaBlockUUID);
-
-//                Toast.makeText(this, "Data blocks scan successful.", Toast.LENGTH_SHORT).show();
-                toastAndExit("Data blocks scan successful.");
-            } else {
+//            if (issuer.equals(JSON_MESSAGE_ISSUER_DATA_BLOCK)) {
+//                String dataBlockUUID = obj.getString(JSON_DATA_BLOCK_UUID_TAG);
+//                String encMetaBlockUUID = obj.getString(JSON_ENC_META_BLOCK_UUID_TAG);
+//                TOTConnection.getTEOBinder().setDataUUID(dataBlockUUID);
+//                TOTConnection.getTEOBinder().setEncMetaUUID(encMetaBlockUUID);
+//
+////                Toast.makeText(this, "Data blocks scan successful.", Toast.LENGTH_SHORT).show();
+//                toastAndExit("Data blocks scan successful.");
+//            } else {
                 String type = obj.getString(JSON_MESSAGE_TYPE_TAG);
 
                 String issuerPubkeyB64 = getBase64FixSpecial(obj.getString(JSON_ISSUER_PUBKEY_TAG));
@@ -295,7 +295,7 @@ public class QRScanActivity extends AppCompatActivity {
                 } else {
                     Log.d(TAG, "Unknown issuer!");
                 }
-            }
+//            }
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "Failed JSON conversion");

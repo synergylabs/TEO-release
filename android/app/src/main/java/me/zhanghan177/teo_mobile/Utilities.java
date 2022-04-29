@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import java.nio.charset.StandardCharsets;
+
 public class Utilities {
     static String keyClientName = "clientName";
 
@@ -90,4 +92,10 @@ public class Utilities {
         }
     }
 
+    public static String uuidBytesToString(byte[] uuid) {
+        if (uuid == null) {
+            return "NULL";
+        }
+        return new String(uuid, StandardCharsets.UTF_8);
+    }
 }

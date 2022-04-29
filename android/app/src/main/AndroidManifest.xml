@@ -28,7 +28,11 @@
         <activity
             android:name=".activities.UserDashboardActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="me.zhanghan177.teo.broadcast.UPDATE_USER_OWNED_DATA"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.AdminDashboardActivity"
             android:exported="false"
