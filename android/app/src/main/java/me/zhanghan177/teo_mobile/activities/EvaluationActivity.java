@@ -154,7 +154,7 @@ public class EvaluationActivity extends AppCompatActivity {
 
                 for (int i = 0; i < reps; i++) {
                     long start = System.currentTimeMillis();
-                    TOTConnection.getTOTBinder().reencrypt();
+                    TOTConnection.getTEOBinder().reencrypt();
                     long end = System.currentTimeMillis();
                     stopwatch.add(String.valueOf(end - start));
                     progressUpdateHelper(i, reps);
@@ -322,7 +322,7 @@ public class EvaluationActivity extends AppCompatActivity {
 
                 for (int i = 0; i < reps; i++) {
                     long start = System.currentTimeMillis();
-                    TOTConnection.getTOTBinder().acquirePreAuthToken();
+                    TOTConnection.getTEOBinder().acquirePreAuthToken();
 //                    TOTConnection.getTOTBinder().claimDevice();
                     long end = System.currentTimeMillis();
                     stopwatch.add(String.valueOf(end - start));
@@ -360,7 +360,7 @@ public class EvaluationActivity extends AppCompatActivity {
                 long init = System.currentTimeMillis();
                 long batteryBefore = getBatteryLevel();
 
-                TOTConnection.getTOTBinder().acquirePreAuthToken();
+                TOTConnection.getTEOBinder().acquirePreAuthToken();
 
                 ArrayList<String> stopwatch = new ArrayList<>();
                 stopwatch.add("total");

@@ -4,9 +4,12 @@ import static android.content.Context.MODE_PRIVATE;
 
 import static me.zhanghan177.teo_mobile.GlobalConfig.SHARED_PREF_NAME;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Base64;
 import android.widget.Toast;
 
@@ -70,4 +73,21 @@ public class Utilities {
         SharedPreferences sp = context.getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
         return sp.getString(keyClientName, context.getString(R.string.default_client_name));
     }
+
+    public static void createNotificationChannel(Context context, String channelID) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = context.getString(R.string.channel_name);
+            String description = context.getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(channelID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 }

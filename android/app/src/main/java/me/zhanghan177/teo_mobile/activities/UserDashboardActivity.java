@@ -60,7 +60,7 @@ public class UserDashboardActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 TextView tvPubkey = findViewById(R.id.textViewUserOwnedDevicePubkey);
-                tvPubkey.setText(TEOConnection.getTOTBinder().getClaimedDeviceB64());
+                tvPubkey.setText(TEOConnection.getTEOBinder().getClaimedDeviceB64());
             });
         });
     }
@@ -79,7 +79,7 @@ public class UserDashboardActivity extends AppCompatActivity {
 
     public void btnUserClaimDeviceOnClick(View view) {
         if (TEOConnection.ismBound()) {
-            int err = TEOConnection.getTOTBinder().claimDevice(this);
+            int err = TEOConnection.getTEOBinder().claimDevice(this);
 
             if (err == 0) {
                 Toast.makeText(this, "Claim device success!", Toast.LENGTH_SHORT).show();

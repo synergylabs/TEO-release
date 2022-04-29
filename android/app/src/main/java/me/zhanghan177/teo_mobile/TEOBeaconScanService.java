@@ -46,7 +46,7 @@ public class TEOBeaconScanService extends Service implements RangeNotifier, Inte
         public void run() {
             byte[] nonce = getProximityNonce();
             if (nonce != null) {
-                TOTConnection.getTOTBinder().sendProximityHeartbeat(nonce);
+                TOTConnection.getTEOBinder().sendProximityHeartbeat(nonce);
             }
 
             heartbeatHandler.postDelayed(this, heartbeatInterval);

@@ -82,7 +82,7 @@ FetchContent_MakeAvailable(Sodium)
 ######################################
 FetchContent_Declare(TEO
         GIT_REPOSITORY https://github.com/zhanghan177/libteo.git
-        GIT_TAG        bc08fcfab6b6b93d09307fcf5c2c2ee379617f44
+        GIT_TAG        0b30fed080c330037a2f7bdd5642a2df258b3a11
         )
 set(TEO_EXTENDED_TESTS      OFF)
 set(TEO_STANDALONE_APP      OFF)

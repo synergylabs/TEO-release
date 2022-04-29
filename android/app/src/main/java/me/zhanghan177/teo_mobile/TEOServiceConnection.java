@@ -7,12 +7,12 @@ import android.os.IBinder;
 import me.zhanghan177.teo_mobile.activities.TEOBinderClass;
 
 public class TEOServiceConnection implements ServiceConnection {
-    private TEOBinderClass TOTBinder;
+    private TEOBinderClass TEOBinder;
     private boolean mBound = false;
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        setTOTBinder((TEOBinderClass) iBinder);
+        setTEOBinder((TEOBinderClass) iBinder);
         setmBound(true);
     }
 
@@ -29,11 +29,11 @@ public class TEOServiceConnection implements ServiceConnection {
         this.mBound = mBound;
     }
 
-    public TEOBinderClass getTOTBinder() {
-        return TOTBinder;
+    public TEOBinderClass getTEOBinder() {
+        return TEOBinder;
     }
 
-    private void setTOTBinder(TEOBinderClass TOTBinder) {
-        this.TOTBinder = TOTBinder;
+    private void setTEOBinder(TEOBinderClass TEOBinder) {
+        this.TEOBinder = TEOBinder;
     }
 }

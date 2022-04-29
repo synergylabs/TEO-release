@@ -26,6 +26,7 @@ import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.consumeNotificationId;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
+import static me.zhanghan177.teo_mobile.Utilities.createNotificationChannel;
 
 public class TEOAdminService extends Service {
 
@@ -34,10 +35,7 @@ public class TEOAdminService extends Service {
         System.loadLibrary("native-lib");
     }
 
-    final static String TAG = "TOT Admin Service";
-    public static final String EXTRA_TYPE = "type";
-    public static final String PRE_AUTH_APPROVE = "pre_auth_approve";
-    public static final String SEND_NOTIFICATION = "send notification";
+    final static String TAG = "TEO Admin Service";
 
     String CHANNEL_ID = "admin";
     String notificationTitle = "Pre Auth Token Request";
@@ -51,24 +49,7 @@ public class TEOAdminService extends Service {
     byte[] pending_token = null;
     Socket pending_socket = null;
 
-    private ExecutorService executor;
-
-
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
+    private final ExecutorService executor;
 
     public TEOAdminService() {
         executor = Executors.newFixedThreadPool(2);
@@ -164,7 +145,7 @@ public class TEOAdminService extends Service {
                     Log.v(TAG, "Content read: " + bytesToHex(request_content, bytesRead) + ", total bytes: " + bytesRead);
 
                     pending_token = processPreAuthTokenJNI(request_content,
-                            TEOConnection.getTOTBinder().getClientPubkey(), TEOConnection.getTOTBinder().getClientPrivkey());
+                            TEOConnection.getTEOBinder().getClientPubkey(), TEOConnection.getTEOBinder().getClientPrivkey());
                     pending_socket = this.clientSocket;
 
                     sendNotification(pkgContext);
@@ -185,14 +166,14 @@ public class TEOAdminService extends Service {
     public void sendNotification(Context pkgContext) {
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(pkgContext, TEOAdminService.class);
-        intent.putExtra(EXTRA_TYPE, PRE_AUTH_APPROVE);
+        intent.putExtra(GlobalConfig.INTENT_EXTRA_TYPE, GlobalConfig.INTENT_EXTRA_PRE_AUTH_APPROVE);
 
         if (EVAL_MODE_SKIP_NOTIFICATION) {
             startService(intent);
         } else {
             PendingIntent pendingIntent = PendingIntent.getService(pkgContext, 0, intent, 0);
 
-            createNotificationChannel();
+            createNotificationChannel(pkgContext, CHANNEL_ID);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(pkgContext, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_notification_admin)
                     .setContentTitle(notificationTitle)
@@ -215,9 +196,9 @@ public class TEOAdminService extends Service {
         Log.v(TAG, "Receive start command!");
 
         if (intent != null) {
-            String type = intent.getStringExtra(EXTRA_TYPE);
+            String type = intent.getStringExtra(GlobalConfig.INTENT_EXTRA_TYPE);
             if (type != null) {
-                if (type.equals(PRE_AUTH_APPROVE)) {
+                if (type.equals(GlobalConfig.INTENT_EXTRA_PRE_AUTH_APPROVE)) {
                     Log.v(TAG, "Pre Auth Request Approved!");
                     if (pending_socket != null && pending_token != null) {
                         executor.execute(new Runnable() {
@@ -231,7 +212,7 @@ public class TEOAdminService extends Service {
                             }
                         });
                     }
-                } else if (type.equals(SEND_NOTIFICATION)) {
+                } else if (type.equals(GlobalConfig.INTENT_EXTRA_SEND_NOTIFICATION)) {
                     sendNotification(this);
                 }
             }

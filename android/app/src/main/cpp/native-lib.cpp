@@ -400,7 +400,7 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_processSieveCredRequestJNI(JNIEnv
 
     jclass clazz = env->FindClass("me/zhanghan177/teo_mobile/TEOUserService");
 
-    // Save Sieve Key
+    // Save Sieve Key content
     uint8_t sieve_key_buf[teo::SIEVE_KEY_SIZE]{};
     sieve_key.serialize_key_into(sieve_key_buf, sizeof(sieve_key_buf));
     jbyteArray sieve_key_buf_j = env->NewByteArray(sizeof(sieve_key_buf));
@@ -421,7 +421,7 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_processSieveCredRequestJNI(JNIEnv
     env->CallVoidMethod(thiz, midSetSieveKeyNonce, sieve_key_nonce_j);
 
     // Save requester pubkey
-    jbyteArray  requester_pubkey_j = env->NewByteArray(sizeof(requester_pubkey));
+    jbyteArray requester_pubkey_j = env->NewByteArray(sizeof(requester_pubkey));
     env->SetByteArrayRegion(requester_pubkey_j, 0, sizeof(requester_pubkey),
                             reinterpret_cast<const jbyte *>(requester_pubkey));
 
@@ -451,7 +451,7 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_processUploadNotificationJNI(JNIE
                                                                             jbyteArray request_content,
                                                                             jbyteArray user_pubkey,
                                                                             jbyteArray user_privkey,
-                                                                            jbyteArray requester_pubkey){
+                                                                            jbyteArray requester_pubkey) {
     jbyte *request_content_ptr;
     jsize request_content_len;
     loadJavaArray(env, request_content, request_content_ptr, request_content_len);
@@ -465,11 +465,12 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_processUploadNotificationJNI(JNIE
     teo::UUID metadata_UUID;
     teo::UUID sieve_data_UUID;
 
-    int err = teo::user_process_upload_notification_impl(reinterpret_cast<uint8_t *>(request_content_ptr),
-                                                         reinterpret_cast<uint8_t *>(requester_pubkey_ptr),
-                                                         keySet,
-                                                         metadata_UUID,
-                                                         sieve_data_UUID);
+    int err = teo::user_process_upload_notification_impl(
+            reinterpret_cast<uint8_t *>(request_content_ptr),
+            reinterpret_cast<uint8_t *>(requester_pubkey_ptr),
+            keySet,
+            metadata_UUID,
+            sieve_data_UUID);
     if (err != 0) {
         return -1;
     }
@@ -484,7 +485,7 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_processUploadNotificationJNI(JNIE
     env->SetByteArrayRegion(metadata_buf_j, 0, sizeof(metadata_buf),
                             reinterpret_cast<const jbyte *>(metadata_buf));
 
-    jmethodID  midSetMetadataUUID = env->GetMethodID(clazz, "setMetadataUUID", "([B)V");
+    jmethodID midSetMetadataUUID = env->GetMethodID(clazz, "setMetadataUUID", "([B)V");
     env->CallVoidMethod(thiz, midSetMetadataUUID, metadata_buf_j);
 
     // Save Sieve data UUID
@@ -494,7 +495,7 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_processUploadNotificationJNI(JNIE
     env->SetByteArrayRegion(sieve_data_buf_j, 0, sizeof(sieve_data_buf),
                             reinterpret_cast<const jbyte *>(sieve_data_buf));
 
-    jmethodID  midSetSieveDataUUID = env->GetMethodID(clazz, "setSieveDataUUID", "([B)V");
+    jmethodID midSetSieveDataUUID = env->GetMethodID(clazz, "setSieveDataUUID", "([B)V");
     env->CallVoidMethod(thiz, midSetSieveDataUUID, sieve_data_buf_j);
 
     return 0;
@@ -507,18 +508,122 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeDataAccessFetchJN
     return checkMessageType(env, message_type, teo::MessageType_DATA_ACCESS_FETCH);
 }
 
-// extern "C"
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOUserService_processDataAccessFetch1JNI(JNIEnv *env, jobject thiz,
+                                                                          jbyteArray request_content,
+                                                                          jbyteArray user_pubkey,
+                                                                          jbyteArray user_privkey) {
+    jbyte *request_content_ptr;
+    jsize request_content_len;
+    loadJavaArray(env, request_content, request_content_ptr, request_content_len);
+
+    teo::AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
+    jclass clazz = env->FindClass("me/zhanghan177/teo_mobile/TEOUserService");
+
+    teo::CiphertextDataAccessFetch fetch_payload;
+    uint8_t accessor_pubkey[teo::AsymmetricEncryptionKeySet::FULL_PK_SIZE]{};
+
+    int err = teo::user_process_data_access_fetch_1_impl(reinterpret_cast<uint8_t *>(request_content_ptr),
+                                                         keySet,
+                                                         fetch_payload,
+                                                         accessor_pubkey,
+                                                         sizeof(accessor_pubkey));
+    if (err != 0) {
+        LOGW("Error in process access fetch phase 1!");
+        return -1;
+    }
+
+    // Store pending fetch payload
+    jbyteArray fetch_payload_j = env->NewByteArray(sizeof(fetch_payload));
+    env->SetByteArrayRegion(fetch_payload_j, 0, sizeof(fetch_payload),
+                            reinterpret_cast<const jbyte *>(&fetch_payload));
+
+    jmethodID midSetPendingFetchPayload = env->GetMethodID(clazz, "setPendingFetchPayload", "([B)V");
+    env->CallVoidMethod(thiz, midSetPendingFetchPayload, fetch_payload_j);
+
+    // Store pending accessor's public key
+    jbyteArray accessor_pubkey_j = env->NewByteArray(sizeof(accessor_pubkey));
+    env->SetByteArrayRegion(accessor_pubkey_j, 0, sizeof(accessor_pubkey),
+                            reinterpret_cast<const jbyte *>(accessor_pubkey));
+
+    jmethodID  midSetPendingAccessorPubkey = env->GetMethodID(clazz, "setPendingAccessorPubkey", "([B)V");
+    env->CallVoidMethod(thiz, midSetPendingAccessorPubkey, accessor_pubkey_j);
+
+    return 0;
+}
+
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOUserService_processDataAccessFetch2JNI(JNIEnv *env, jobject thiz,
+                                                                          jbyteArray user_pubkey,
+                                                                          jbyteArray user_privkey,
+                                                                          jbyteArray sieve_key_content,
+                                                                          jbyteArray sieve_key_nonce,
+                                                                          jbyteArray fetch_payload,
+                                                                          jbyteArray accessor_pubkey) {
+    teo::AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
+
+    jbyte *sieve_key_content_ptr;
+    jsize sieve_key_content_len;
+    loadJavaArray(env, sieve_key_content, sieve_key_content_ptr, sieve_key_content_len);
+
+    jbyte *sieve_key_nonce_ptr;
+    jsize sieve_key_nonce_len;
+    loadJavaArray(env, sieve_key_nonce, sieve_key_nonce_ptr, sieve_key_nonce_len);
+
+    teo::SieveKey sieveKey (reinterpret_cast<const uint8_t *>(sieve_key_content_ptr),
+                            sieve_key_content_len,
+                            reinterpret_cast<const uint8_t *>(sieve_key_nonce_ptr),
+                            sieve_key_nonce_len);
+
+    jbyte *fetch_payload_ptr;
+    jsize fetch_payload_len;
+    loadJavaArray(env, fetch_payload, fetch_payload_ptr, fetch_payload_len);
+    teo::CiphertextDataAccessFetch fetch_payload_obj;
+    memcpy(&fetch_payload_obj, fetch_payload_ptr, fetch_payload_len);
+
+    jbyte *accessor_pubkey_ptr;
+    jsize accessor_pubkey_len;
+    loadJavaArray(env, accessor_pubkey, accessor_pubkey_ptr, accessor_pubkey_len);
+
+    jclass clazz = env->FindClass("me/zhanghan177/teo_mobile/TEOUserService");
+
+    uint8_t response_buf[teo::G_DATA_BUF_SIZE]{};
+    int response_buf_len = sizeof(response_buf);
+    int err = teo::user_process_data_access_fetch_2_impl(0,
+                                                         response_buf,
+                                                         &response_buf_len,
+                                                         keySet,
+                                                         sieveKey,
+                                                         fetch_payload_obj,
+                                                         reinterpret_cast<uint8_t *>(accessor_pubkey_ptr));
+    if (err != 0) {
+        LOGW("Failed at user process data access fetch phase 2");
+        return nullptr;
+    }
+
+    // Construct return value
+    jbyteArray ret = env->NewByteArray(response_buf_len);
+    env->SetByteArrayRegion(ret, 0, response_buf_len,
+                            reinterpret_cast<const jbyte *>(response_buf));
+
+    return ret;
+}
+
+//extern "C"
 //JNIEXPORT jbyteArray JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTUserService_processDataAccessFetchJNI(JNIEnv *env,
-//                                                                                 jobject thiz,
-//                                                                                 jbyteArray request_content,
-//                                                                                 jbyteArray user_pubkey,
-//                                                                                 jbyteArray user_privkey) {
+//Java_me_zhanghan177_teo_1mobile_TEOUserService_processDataAccessFetchJNI(JNIEnv *env,
+//                                                                         jobject thiz,
+//                                                                         jbyteArray request_content,
+//                                                                         jbyteArray user_pubkey,
+//                                                                         jbyteArray user_privkey) {
 //    jbyte *request_content_ptr;
 //    jsize request_content_len;
 //    loadJavaArray(env, request_content, request_content_ptr, request_content_len);
 //
-//    AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
+//    teo::AsymmetricEncryptionKeySet keySet = getUserKeySet(env, user_pubkey, user_privkey);
 //    jclass clazz = env->FindClass("me/zhanghan177/teo_mobile/TOTUserService");
 //
 //    auto fetch_msg = GetDataAccessFetch(request_content_ptr);
@@ -601,6 +706,7 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeDataAccessFetchJN
 //
 //    return ret;
 //}
+
 ////extern "C"
 ////JNIEXPORT void JNICALL
 ////Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_reencryptJNI(JNIEnv *env, jobject thiz,
@@ -791,12 +897,12 @@ Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeDataAccessFetchJN
 //
 //
 //}
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeUtilRealTimeAccessRequestJNI(
-        JNIEnv *env, jobject thiz, jbyteArray message_type) {
-    return checkMessageType(env, message_type, teo::MessageType_UTIL_REAL_TIME_ACCESS_REQUEST);
-}
+//extern "C"
+//JNIEXPORT jboolean JNICALL
+//Java_me_zhanghan177_teo_1mobile_TEOUserService_checkMessageTypeUtilRealTimeAccessRequestJNI(
+//        JNIEnv *env, jobject thiz, jbyteArray message_type) {
+//    return checkMessageType(env, message_type, teo::MessageType_UTIL_REAL_TIME_ACCESS_REQUEST);
+//}
 //extern "C"
 //JNIEXPORT jbyteArray JNICALL
 //Java_me_zhanghan177_teo_1mobile_TOTUserService_processUtilRealTimeAccessJNI(JNIEnv *env,

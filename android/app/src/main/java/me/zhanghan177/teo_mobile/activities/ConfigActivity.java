@@ -94,14 +94,14 @@ public class ConfigActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 TextView tvPubkey = findViewById(R.id.textViewDisplayClientPubkeyContent);
-                tvPubkey.setText(TEOConnection.getTOTBinder().getClientPubkeyB64());
+                tvPubkey.setText(TEOConnection.getTEOBinder().getClientPubkeyB64());
             });
         });
     }
 
     public void btnResetKeypairOnClick(View view) {
         if (TEOConnection.ismBound()) {
-            TEOConnection.getTOTBinder().flushKeyPair();
+            TEOConnection.getTEOBinder().flushKeyPair();
             updateClientPubkeyDisplay();
         }
     }
