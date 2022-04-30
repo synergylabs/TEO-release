@@ -71,7 +71,7 @@
             android:layout_height="@dimen/linear_layout_spacing" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/imageViewQRScanPanel"
+            android:id="@+id/buttonQRScanPanel"
             android:layout_width="@dimen/button_width"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_qr_scan_logo"
@@ -80,12 +80,12 @@
             android:textSize="@dimen/font_size_small" />
 
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buttonTestNotification"
-            android:layout_width="@dimen/button_width"
-            android:layout_height="wrap_content"
-            android:onClick="btnTestNotificationOnClick"
-            android:text="Test Notification"
-            android:textSize="@dimen/font_size_small" />
+<!--        <androidx.appcompat.widget.AppCompatButton-->
+<!--            android:id="@+id/buttonTestNotification"-->
+<!--            android:layout_width="@dimen/button_width"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:onClick="btnTestNotificationOnClick"-->
+<!--            android:text="Test Notification"-->
+<!--            android:textSize="@dimen/font_size_small" />-->
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

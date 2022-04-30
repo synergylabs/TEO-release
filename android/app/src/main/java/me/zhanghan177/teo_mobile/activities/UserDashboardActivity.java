@@ -6,7 +6,6 @@ import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
 import static me.zhanghan177.teo_mobile.Utilities.uuidBytesToString;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.Group;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,7 +22,6 @@ import java.util.concurrent.Executors;
 import me.zhanghan177.teo_mobile.R;
 import me.zhanghan177.teo_mobile.TEOKeyStoreService;
 import me.zhanghan177.teo_mobile.TEOServiceConnection;
-import me.zhanghan177.teo_mobile.TEOUserService;
 
 public class UserDashboardActivity extends AppCompatActivity {
     private final TEOServiceConnection TEOConnection = new TEOServiceConnection();
@@ -31,7 +29,7 @@ public class UserDashboardActivity extends AppCompatActivity {
 
     public static String BROADCAST_ACTION_UPDATE_USER_OWNED_DATA = "me.zhanghan177.teo.broadcast.UPDATE_USER_OWNED_DATA";
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateOwnedDataDisplay();
@@ -94,7 +92,9 @@ public class UserDashboardActivity extends AppCompatActivity {
         int[] dataGroup = {R.id.spaceUserOwnedData,
                 R.id.textViewUserOwnedDataPrompt,
                 R.id.textViewUserOwnedDataUUID,
-                R.id.viewUserOwnedDataDivider};
+                R.id.viewUserOwnedDataDivider,
+                R.id.spaceUserReEncrypt,
+                R.id.buttonUserReEncrypt};
         for (int id : dataGroup) {
             View v = findViewById(id);
             v.setVisibility(vis);
@@ -152,6 +152,22 @@ public class UserDashboardActivity extends AppCompatActivity {
                 ).show();
             }
             updateOwnedDevicePubkeyDisplay();
+        } else {
+            displayDialog(this, "TEO backend service not yet connected!");
+        }
+    }
+
+    public void btnReEncryptOnClick(View view) {
+        if (TEOConnection.ismBound()) {
+            int err = TEOConnection.getTEOBinder().reEncrypt(this);
+            if (err == 0) {
+                Toast.makeText(this, "Data re-encryption success!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,
+                        "Error re-encrypting the data block!",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         } else {
             displayDialog(this, "TEO backend service not yet connected!");
         }

@@ -87,7 +87,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="btnReencryptOnClick"
-                android:text="@string/btn_reencrypt_text" />
+                android:text="@string/btn_re_encrypt_text" />
 
             <Button
                 android:id="@+id/btn_admin_init_device"

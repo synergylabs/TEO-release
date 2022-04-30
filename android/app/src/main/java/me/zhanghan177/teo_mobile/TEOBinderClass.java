@@ -103,32 +103,25 @@ public class TEOBinderClass extends Binder {
     }
 
     public void setSieveKey(byte[] in) {
-        teoKeyStoreService.sieveKey = in;
+        teoKeyStoreService.setSieveKey(in);
     }
 
     public void setSieveKeyNonce(byte[] in) {
-        teoKeyStoreService.sieveKeyNonce = in;
+        teoKeyStoreService.setSieveKeyNonce(in);
     }
 
     public byte[] getSieveKey() {
-        return teoKeyStoreService.sieveKey;
+        return teoKeyStoreService.getSieveKey();
     }
 
     public byte[] getSieveKeyNonce() {
-        return teoKeyStoreService.sieveKeyNonce;
+        return teoKeyStoreService.getSieveKeyNonce();
     }
 
-    public void reencrypt() {
-//            teoKeyStoreService.reencrypt();
+    public int reEncrypt(Context context) {
+            return teoKeyStoreService.reEncrypt(context);
     }
 
-    //    public void setDataUUID(String dataBlockUUID) {
-//        teoKeyStoreService.dataUUID = dataBlockUUID;
-//    }
-//
-//    public void setEncMetaUUID(String encMetaBlockUUID) {
-//        teoKeyStoreService.encMetaUUID = encMetaBlockUUID;
-//    }
     public void setMetadataUUID(byte[] uuid_in) {
         teoKeyStoreService.setMetadataUUID(uuid_in);
     }

@@ -154,7 +154,7 @@ public class EvaluationActivity extends AppCompatActivity {
 
                 for (int i = 0; i < reps; i++) {
                     long start = System.currentTimeMillis();
-                    TOTConnection.getTEOBinder().reencrypt();
+//                    TOTConnection.getTEOBinder().reEncrypt();
                     long end = System.currentTimeMillis();
                     stopwatch.add(String.valueOf(end - start));
                     progressUpdateHelper(i, reps);

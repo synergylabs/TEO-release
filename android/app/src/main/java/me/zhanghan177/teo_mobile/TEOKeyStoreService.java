@@ -101,9 +101,18 @@ public class TEOKeyStoreService extends Service {
 //        return 0;
 //    }
 
-//    private void reencrypt() {
-//        reencryptJNI(userPubkey, userPrivkey, dataUUID, encMetaUUID, sieveKey, sieveKeyNonce, storageIp, storagePort);
-//    }
+    public int reEncrypt(Context context) {
+        if (validateStorageInfo(context) != 0) {
+            return -1;
+        }
+
+        return reEncryptJNI(clientPubkey, clientPrivkey,
+                metadata_uuid, sieve_data_uuid,
+                sieveKey, sieveKeyNonce,
+                storagePubkey,
+                storageIp,
+                storagePort);
+    }
 
     public void setMetadataUUID(byte[] uuid_in) {
         metadata_uuid = uuid_in;
@@ -522,12 +531,30 @@ public class TEOKeyStoreService extends Service {
 
     public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
 
-//    private native void reencryptJNI(byte[] userPubkey, byte[] userPrivkey,
-//                                     String uuid, String encMetaUUID,
-//                                     byte[] sieveKey, byte[] sieveKeyNonce,
-//                                     String storageIp, int storagePort);
-//
-//    private native void releaseDeviceJNI(byte[] claimedDevice,
+    private native int reEncryptJNI(byte[] userPubkey, byte[] userPrivkey,
+                                    byte[] metadata_uuid, byte[] sieve_data_uuid,
+                                    byte[] sieveKey, byte[] sieveKeyNonce,
+                                    byte[] storagePubkey,
+                                    String storageIp,
+                                    int storagePort);
+
+    public void setSieveKey(byte[] in) {
+        sieveKey = in;
+    }
+
+    public byte[] getSieveKey() {
+        return sieveKey;
+    }
+
+    public void setSieveKeyNonce(byte[] sieveKeyNonce) {
+        this.sieveKeyNonce = sieveKeyNonce;
+    }
+
+    public byte[] getSieveKeyNonce() {
+        return sieveKeyNonce;
+    }
+
+    //    private native void releaseDeviceJNI(byte[] claimedDevice,
 //                                         String claimedDeviceIp,
 //                                         int claimedDevicePort,
 //                                         byte[] userPubkey);

@@ -13,7 +13,7 @@
     <string name="btn_init_device_text">Init Device</string>
     <string name="btn_claim_device_text">Claim Device</string>
     <string name="btn_pre_auth_text">Acquire Pre-Auth Token</string>
-    <string name="btn_reencrypt_text">Re-encrypt</string>
+    <string name="btn_re_encrypt_text">Re-encrypt</string>
     <string name="channel_name">TEO Channel</string>
     <string name="channel_description">TEO Notification Channel</string>
     <string name="btn_eval_text">Evaluation</string>

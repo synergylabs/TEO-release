@@ -94,11 +94,24 @@
             android:background="@android:color/darker_gray" />
 
         <Space
+            android:id="@+id/spaceUserReEncrypt"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/linear_layout_spacing" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/imageViewQRScanPanel"
+            android:id="@+id/buttonUserReEncrypt"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:onClick="btnReEncryptOnClick"
+            android:text="@string/btn_re_encrypt_text"
+            android:textSize="@dimen/font_size_small" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonQRScanPanel"
             android:layout_width="@dimen/button_width"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_qr_scan_logo"
