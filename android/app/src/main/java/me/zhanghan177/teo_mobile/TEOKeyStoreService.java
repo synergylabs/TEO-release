@@ -4,20 +4,14 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Binder;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import static me.zhanghan177.teo_mobile.GlobalConfig.*;
 import static me.zhanghan177.teo_mobile.Utilities.base64EncodeStrip;
 import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
 import static me.zhanghan177.teo_mobile.Utilities.stripLineBreak;
-
-import me.zhanghan177.teo_mobile.activities.TEOBinderClass;
 
 public class TEOKeyStoreService extends Service {
 
@@ -34,9 +28,6 @@ public class TEOKeyStoreService extends Service {
      */
     public byte[] sieveKey = null;
     public byte[] sieveKeyNonce = null;
-
-    public String dataUUID;
-    public String encMetaUUID;
 
     byte[] clientPubkey = null;
     byte[] clientPrivkey = null;
@@ -60,6 +51,10 @@ public class TEOKeyStoreService extends Service {
     byte[] claimedDevice = null;
     String claimedDeviceIp = null;
     int claimedDevicePort = 0;
+
+
+    public byte[] metadata_uuid;
+    public byte[] sieve_data_uuid;
 
     static int notificationId = 1;
 
@@ -106,9 +101,34 @@ public class TEOKeyStoreService extends Service {
 //        return 0;
 //    }
 
-//    private void reencrypt() {
-//        reencryptJNI(userPubkey, userPrivkey, dataUUID, encMetaUUID, sieveKey, sieveKeyNonce, storageIp, storagePort);
-//    }
+    public int reEncrypt(Context context) {
+        if (validateStorageInfo(context) != 0) {
+            return -1;
+        }
+
+        return reEncryptJNI(clientPubkey, clientPrivkey,
+                metadata_uuid, sieve_data_uuid,
+                sieveKey, sieveKeyNonce,
+                storagePubkey,
+                storageIp,
+                storagePort);
+    }
+
+    public void setMetadataUUID(byte[] uuid_in) {
+        metadata_uuid = uuid_in;
+    }
+
+    public byte[] getMetadataUUID() {
+        return metadata_uuid;
+    }
+
+    public void setSieveDataUUID(byte[] uuid_in) {
+        sieve_data_uuid = uuid_in;
+    }
+
+    public byte[] getSieveDataUUID() {
+        return sieve_data_uuid;
+    }
 
     public String getAdminIp() {
         return adminIp;
@@ -191,6 +211,10 @@ public class TEOKeyStoreService extends Service {
         } else {
             return base64EncodeStrip(claimedDevice, Base64.DEFAULT);
         }
+    }
+
+    public byte[] getClaimedDevice() {
+        return claimedDevice;
     }
 
     public int claimDevice(Context context) {
@@ -507,12 +531,30 @@ public class TEOKeyStoreService extends Service {
 
     public native String resolveIpJNI(byte[] queryPubkey, String storageIp, int storagePort);
 
-//    private native void reencryptJNI(byte[] userPubkey, byte[] userPrivkey,
-//                                     String uuid, String encMetaUUID,
-//                                     byte[] sieveKey, byte[] sieveKeyNonce,
-//                                     String storageIp, int storagePort);
-//
-//    private native void releaseDeviceJNI(byte[] claimedDevice,
+    private native int reEncryptJNI(byte[] userPubkey, byte[] userPrivkey,
+                                    byte[] metadata_uuid, byte[] sieve_data_uuid,
+                                    byte[] sieveKey, byte[] sieveKeyNonce,
+                                    byte[] storagePubkey,
+                                    String storageIp,
+                                    int storagePort);
+
+    public void setSieveKey(byte[] in) {
+        sieveKey = in;
+    }
+
+    public byte[] getSieveKey() {
+        return sieveKey;
+    }
+
+    public void setSieveKeyNonce(byte[] sieveKeyNonce) {
+        this.sieveKeyNonce = sieveKeyNonce;
+    }
+
+    public byte[] getSieveKeyNonce() {
+        return sieveKeyNonce;
+    }
+
+    //    private native void releaseDeviceJNI(byte[] claimedDevice,
 //                                         String claimedDeviceIp,
 //                                         int claimedDevicePort,
 //                                         byte[] userPubkey);

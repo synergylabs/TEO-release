@@ -13,9 +13,9 @@
     <string name="btn_init_device_text">Init Device</string>
     <string name="btn_claim_device_text">Claim Device</string>
     <string name="btn_pre_auth_text">Acquire Pre-Auth Token</string>
-    <string name="btn_reencrypt_text">Re-encrypt</string>
-    <string name="channel_name">TOT Channel</string>
-    <string name="channel_description">TOT Notification Channel</string>
+    <string name="btn_re_encrypt_text">Re-encrypt</string>
+    <string name="channel_name">TEO Channel</string>
+    <string name="channel_description">TEO Notification Channel</string>
     <string name="btn_eval_text">Evaluation</string>
     <string name="eval_rep_radio_5">5</string>
     <string name="eval_rep_radio_100">100</string>
@@ -40,4 +40,5 @@
     <string name="user_dashboard_title">User Dashboard</string>
     <string name="user_owned_device_info_prompt">Device that I own:</string>
     <string name="qr_scan_text">QR Scan</string>
+    <string name="user_owned_data_info_prompt">My latest data block:</string>
 </resources>

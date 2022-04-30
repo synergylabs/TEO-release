@@ -110,7 +110,7 @@ public class MainActivity2 extends AppCompatActivity {
 
     public void btnAcquirePreAuthOnClick(View view) {
         if (TOTConnection.ismBound()) {
-            int err = TOTConnection.getTOTBinder().acquirePreAuthToken();
+            int err = TOTConnection.getTEOBinder().acquirePreAuthToken();
             if (err == 0) {
                 Toast.makeText(this, "Acquire Pre Auth Token Success!", Toast.LENGTH_SHORT).show();
             }
@@ -139,7 +139,7 @@ public class MainActivity2 extends AppCompatActivity {
 
     public void btnReleaseDeviceOnClick(View view) {
         if (TOTConnection.ismBound()) {
-            int err = TOTConnection.getTOTBinder().releaseDevice();
+            int err = TOTConnection.getTEOBinder().releaseDevice();
 
             if (err == 0) {
                 Toast.makeText(this, "Release device success!", Toast.LENGTH_SHORT).show();
@@ -149,7 +149,7 @@ public class MainActivity2 extends AppCompatActivity {
 
     public void btnRemoveRealTimeAccessOnClick(View view) {
         if (TOTConnection.ismBound()) {
-            int err = TOTConnection.getTOTBinder().removeRealTimeAccess();
+            int err = TOTConnection.getTEOBinder().removeRealTimeAccess();
 
             if (err == 0) {
                 Toast.makeText(this, "Remove access success!", Toast.LENGTH_SHORT).show();

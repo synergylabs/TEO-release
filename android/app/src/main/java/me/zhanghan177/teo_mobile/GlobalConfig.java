@@ -23,6 +23,10 @@ public class GlobalConfig {
 
     public static final int G_FBS_SIZE = 1024;
     public static final int G_DATA_BUF_SIZE = 4096;
+    public static final String INTENT_EXTRA_DATA_ACCESS_REQUEST = "data_access_request";
+    public static final String INTENT_EXTRA_TYPE = "type";
+    public static final String INTENT_EXTRA_PRE_AUTH_APPROVE = "pre_auth_approve";
+    public static final String INTENT_EXTRA_SEND_NOTIFICATION = "send notification";
 
     public static int AsymmetricEncryptionKeySet_FULL_PK_SIZE = 0;
     public static int G_CHALLENGE_SIZE = 0;

@@ -1,4 +1,4 @@
-package me.zhanghan177.teo_mobile.activities;
+package me.zhanghan177.teo_mobile;
 
 import android.content.Context;
 import android.os.Binder;
@@ -14,7 +14,7 @@ public class TEOBinderClass extends Binder {
     final static String TAG = "TOT Service Binder";
 
     public TEOBinderClass(TEOKeyStoreService enclosingService) {
-        teoKeyStoreService = enclosingService;    
+        teoKeyStoreService = enclosingService;
     }
 
     public void flushKeyPair() {
@@ -26,11 +26,6 @@ public class TEOBinderClass extends Binder {
     }
 
     public int setDeviceSecret(@NonNull String secretB64) {
-        // Skipping redundant assignment
-        if (teoKeyStoreService.getDeviceSecretB64().equals(secretB64)) {
-            return -1;
-        }
-
         try {
             teoKeyStoreService.setDeviceSecret(Base64.decode(secretB64, Base64.DEFAULT));
         } catch (IllegalArgumentException e) {
@@ -48,7 +43,7 @@ public class TEOBinderClass extends Binder {
     }
 
     public int initDevice(Context context) {
-            return teoKeyStoreService.initDevice(context);
+        return teoKeyStoreService.initDevice(context);
     }
 
     public void setAdminInfo(String adminPubkeyB64, String adminIp, String adminPort) {
@@ -78,11 +73,11 @@ public class TEOBinderClass extends Binder {
     }
 
     public int claimDevice(Context context) {
-            return teoKeyStoreService.claimDevice(context);
+        return teoKeyStoreService.claimDevice(context);
     }
 
     public String getClaimedDeviceB64() {
-            return teoKeyStoreService.getClaimedDeviceB64();
+        return teoKeyStoreService.getClaimedDeviceB64();
     }
 
     public void setStorageInfo(String issuerPubkeyB64, String issuerIP, String issuerPort) {
@@ -108,31 +103,39 @@ public class TEOBinderClass extends Binder {
     }
 
     public void setSieveKey(byte[] in) {
-        teoKeyStoreService.sieveKey = in;
+        teoKeyStoreService.setSieveKey(in);
     }
 
     public void setSieveKeyNonce(byte[] in) {
-        teoKeyStoreService.sieveKeyNonce = in;
+        teoKeyStoreService.setSieveKeyNonce(in);
     }
 
     public byte[] getSieveKey() {
-        return teoKeyStoreService.sieveKey;
+        return teoKeyStoreService.getSieveKey();
     }
 
     public byte[] getSieveKeyNonce() {
-        return teoKeyStoreService.sieveKeyNonce;
+        return teoKeyStoreService.getSieveKeyNonce();
     }
 
-    public void reencrypt() {
-//            teoKeyStoreService.reencrypt();
+    public int reEncrypt(Context context) {
+            return teoKeyStoreService.reEncrypt(context);
     }
 
-    public void setDataUUID(String dataBlockUUID) {
-        teoKeyStoreService.dataUUID = dataBlockUUID;
+    public void setMetadataUUID(byte[] uuid_in) {
+        teoKeyStoreService.setMetadataUUID(uuid_in);
     }
 
-    public void setEncMetaUUID(String encMetaBlockUUID) {
-        teoKeyStoreService.encMetaUUID = encMetaBlockUUID;
+    public byte[] getMetadataUUID() {
+        return teoKeyStoreService.getMetadataUUID();
+    }
+
+    public void setSieveDataUUID(byte[] uuid_in) {
+        teoKeyStoreService.setSieveDataUUID(uuid_in);
+    }
+
+    public byte[] getSieveDataUUID() {
+        return teoKeyStoreService.getSieveDataUUID();
     }
 
     public int releaseDevice() {
@@ -153,4 +156,7 @@ public class TEOBinderClass extends Binder {
         return teoKeyStoreService.getAdminManagedDevicePubkeyB64();
     }
 
+    public byte[] getClaimedDevice() {
+        return teoKeyStoreService.getClaimedDevice();
+    }
 }

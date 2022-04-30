@@ -68,7 +68,7 @@
             android:layout_height="@dimen/linear_layout_spacing" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/imageViewQRScanPanel"
+            android:id="@+id/buttonQRScanPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_qr_scan_logo"

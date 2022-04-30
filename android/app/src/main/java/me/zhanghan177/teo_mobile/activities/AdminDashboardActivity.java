@@ -16,6 +16,7 @@ import android.widget.Toast;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import me.zhanghan177.teo_mobile.GlobalConfig;
 import me.zhanghan177.teo_mobile.R;
 import me.zhanghan177.teo_mobile.TEOAdminService;
 import me.zhanghan177.teo_mobile.TEOKeyStoreService;
@@ -68,14 +69,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 TextView tvPubkey = findViewById(R.id.textViewAdminManagedDevicePubkey);
-                tvPubkey.setText(TEOConnection.getTOTBinder().getAdminManagedDevicePubkeyB64());
+                tvPubkey.setText(TEOConnection.getTEOBinder().getAdminManagedDevicePubkeyB64());
             });
         });
     }
 
     public void btnAdminInitDeviceOnClick(View view) {
         if (TEOConnection.ismBound()) {
-            int err = TEOConnection.getTOTBinder().initDevice(this);
+            int err = TEOConnection.getTEOBinder().initDevice(this);
             if (err == 0) {
                 Toast.makeText(this, "Success init device", Toast.LENGTH_SHORT).show();
             } else {
@@ -97,7 +98,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     public void btnTestNotificationOnClick(View view) {
         Intent intent = new Intent(this, TEOAdminService.class);
-        intent.putExtra(TEOAdminService.EXTRA_TYPE, TEOAdminService.SEND_NOTIFICATION);
+        intent.putExtra(GlobalConfig.INTENT_EXTRA_TYPE, GlobalConfig.INTENT_EXTRA_SEND_NOTIFICATION);
         startService(intent);
     }
 }

@@ -67,11 +67,51 @@
             android:textSize="@dimen/font_size_small" />
 
         <Space
+            android:id="@+id/spaceUserOwnedData"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <TextView
+            android:id="@+id/textViewUserOwnedDataPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/user_owned_data_info_prompt"
+            android:textSize="@dimen/font_size_small" />
+
+        <TextView
+            android:id="@+id/textViewUserOwnedDataUUID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/default_pubkey_null"
+            android:textSize="@dimen/font_size_small" />
+
+        <View
+            android:id="@+id/viewUserOwnedDataDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <Space
+            android:id="@+id/spaceUserReEncrypt"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/linear_layout_spacing" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/imageViewQRScanPanel"
+            android:id="@+id/buttonUserReEncrypt"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:onClick="btnReEncryptOnClick"
+            android:text="@string/btn_re_encrypt_text"
+            android:textSize="@dimen/font_size_small" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/linear_layout_spacing" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonQRScanPanel"
             android:layout_width="@dimen/button_width"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_qr_scan_logo"

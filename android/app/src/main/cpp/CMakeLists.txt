@@ -81,8 +81,8 @@ FetchContent_MakeAvailable(Sodium)
 ## Require core TEO library
 ######################################
 FetchContent_Declare(TEO
-        GIT_REPOSITORY https://github.com/zhanghan177/libteo.git
-        GIT_TAG        e583e68bba41310db3eb83e36f4bf61e24f8d567
+        GIT_REPOSITORY https://github.com/synergylabs/libteo.git
+        GIT_TAG        575fba38ebf0aa768bc250f3d6bb3748f62c992b
         )
 set(TEO_EXTENDED_TESTS      OFF)
 set(TEO_STANDALONE_APP      OFF)

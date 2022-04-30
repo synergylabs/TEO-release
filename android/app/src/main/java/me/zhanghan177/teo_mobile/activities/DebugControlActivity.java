@@ -1,6 +1,8 @@
 package me.zhanghan177.teo_mobile.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import me.zhanghan177.teo_mobile.GlobalConfig;
 import me.zhanghan177.teo_mobile.R;
 import me.zhanghan177.teo_mobile.TEOAdminService;
 import me.zhanghan177.teo_mobile.TEOKeyStoreService;
@@ -39,14 +41,14 @@ public class DebugControlActivity extends AppCompatActivity {
 
     public void btnFlushKeypairOnClick(View view) {
         if (TOTConnection.ismBound()) {
-            TOTConnection.getTOTBinder().flushKeyPair();
+            TOTConnection.getTEOBinder().flushKeyPair();
         }
     }
 
     public void btnDisplayDeviceSecretOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTOTBinder().getDeviceSecretB64();
+            toastText = TOTConnection.getTEOBinder().getDeviceSecretB64();
         }
         Toast.makeText(this, "Debug secret: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -54,7 +56,7 @@ public class DebugControlActivity extends AppCompatActivity {
     public void btnShowAdminPubkeyOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTOTBinder().getAdminPubkeyB64();
+            toastText = TOTConnection.getTEOBinder().getAdminPubkeyB64();
         }
         Toast.makeText(this, "Admin Pubkey: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -62,7 +64,7 @@ public class DebugControlActivity extends AppCompatActivity {
     public void btnShowPreAuthTokenOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTOTBinder().getPreAuthTokenB64();
+            toastText = TOTConnection.getTEOBinder().getPreAuthTokenB64();
         }
         Toast.makeText(this, "User Pre Auth Token: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -70,7 +72,7 @@ public class DebugControlActivity extends AppCompatActivity {
     public void btnShowClaimedDeviceOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTOTBinder().getClaimedDeviceB64();
+            toastText = TOTConnection.getTEOBinder().getClaimedDeviceB64();
         }
         Toast.makeText(this, "User Claimed Device: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -78,7 +80,7 @@ public class DebugControlActivity extends AppCompatActivity {
     public void btnShowStorageInfoOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTOTBinder().getStoragePubkeyB64();
+            toastText = TOTConnection.getTEOBinder().getStoragePubkeyB64();
         }
         Toast.makeText(this, "Storage Info: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -86,14 +88,14 @@ public class DebugControlActivity extends AppCompatActivity {
     public void btnShowKeypairOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTOTBinder().getClientPubkeyB64();
+            toastText = TOTConnection.getTEOBinder().getClientPubkeyB64();
         }
         Toast.makeText(this, "User Keypair Pubkey: " + toastText, Toast.LENGTH_SHORT).show();
     }
 
     public void btnSendAdminNotificationOnClick(View view) {
         Intent intent = new Intent(this, TEOAdminService.class);
-        intent.putExtra(TEOAdminService.EXTRA_TYPE, TEOAdminService.SEND_NOTIFICATION);
+        intent.putExtra(GlobalConfig.INTENT_EXTRA_TYPE, GlobalConfig.INTENT_EXTRA_SEND_NOTIFICATION);
         startService(intent);
     }
 }
