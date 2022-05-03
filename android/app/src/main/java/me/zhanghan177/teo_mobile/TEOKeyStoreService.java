@@ -71,7 +71,7 @@ public class TEOKeyStoreService extends Service {
     }
 
     public static int consumeNotificationId() {
-        return ++notificationId;
+        return (int)(System.currentTimeMillis()%10000)+500;
     }
 
 //    private void sendProximityHeartbeat(byte[] proximityNonce) {
@@ -228,6 +228,7 @@ public class TEOKeyStoreService extends Service {
 
         if (validatePreAuthToken(context) != 0
                 || validateDeviceInfo(context) != 0) {
+            displayDialog(context, "Pre-auth token acquisition failed!");
             return -1;
         }
 
@@ -262,7 +263,7 @@ public class TEOKeyStoreService extends Service {
 
 
     private boolean hasPreAuthToken() {
-        return getPreAuthToken() != null;
+        return getPreAuthToken() != null && (!byteArrayAllEmpty(preAuthToken));
     }
 
     private boolean hasStorageInfo() {
@@ -279,9 +280,16 @@ public class TEOKeyStoreService extends Service {
             return -1;
         }
 
-        do {
-            preAuthToken = acquirePreAuthTokenJNI(clientPubkey, clientPrivkey, adminIp, adminPort, adminPubkey);
-        } while (preAuthToken == null || byteArrayAllEmpty(preAuthToken));
+//        do {
+//            preAuthToken = acquirePreAuthTokenJNI(clientPubkey, clientPrivkey, adminIp, adminPort, adminPubkey);
+//        } while (preAuthToken == null || byteArrayAllEmpty(preAuthToken));
+
+        preAuthToken = acquirePreAuthTokenJNI(clientPubkey, clientPrivkey, adminIp, adminPort, adminPubkey);
+
+        if (preAuthToken == null || byteArrayAllEmpty(preAuthToken)) {
+            return -1;
+        }
+
         return 0;
     }
 

@@ -62,15 +62,15 @@ public class TEOBinderClass extends Binder {
         return teoKeyStoreService.getAdminPubkeyB64();
     }
 
-    public int acquirePreAuthToken() {
-//            return teoKeyStoreService.acquirePreAuthToken();
-        return 0;
-    }
+//    public int acquirePreAuthToken() {
+////            return teoKeyStoreService.acquirePreAuthToken();
+//        return 0;
+//    }
 
-    public String getPreAuthTokenB64() {
+//    public String getPreAuthTokenB64() {
 //            return teoKeyStoreService.getPreAuthTokenB64();
-        return "";
-    }
+////        return "";
+//    }
 
     public int claimDevice(Context context) {
         return teoKeyStoreService.claimDevice(context);

@@ -1,5 +1,6 @@
 package me.zhanghan177.teo_mobile;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -23,6 +25,12 @@ import androidx.core.app.NotificationManagerCompat;
 import static me.zhanghan177.teo_mobile.GlobalConfig.ADMIN_PORT;
 import static me.zhanghan177.teo_mobile.GlobalConfig.EVAL_MODE_SKIP_NOTIFICATION;
 import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_DISMISS;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_NOTIFICATION_ID;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_PRE_AUTH_APPROVE;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_TYPE;
+import static me.zhanghan177.teo_mobile.GlobalConfig.REQUEST_CODE_APPROVE;
+import static me.zhanghan177.teo_mobile.GlobalConfig.REQUEST_CODE_DENY;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.consumeNotificationId;
 import static me.zhanghan177.teo_mobile.TEOKeyStoreService.message_type_fltbuffers_size;
@@ -164,14 +172,31 @@ public class TEOAdminService extends Service {
     }
 
     public void sendNotification(Context pkgContext) {
-        // Create an explicit intent for an Activity in your app
+        int notificationId = consumeNotificationId();
+
         Intent intent = new Intent(pkgContext, TEOAdminService.class);
-        intent.putExtra(GlobalConfig.INTENT_EXTRA_TYPE, GlobalConfig.INTENT_EXTRA_PRE_AUTH_APPROVE);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        // Create an explicit intent for an Activity in your app
+        Intent approveInent = new Intent(pkgContext, TEOAdminService.class);
+        Bundle approveExtras = new Bundle();
+        approveExtras.putString(INTENT_EXTRA_TYPE, INTENT_EXTRA_PRE_AUTH_APPROVE);
+        approveExtras.putInt(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+        approveInent.putExtras(approveExtras);
+
+        Intent dismissIntent = new Intent(pkgContext, TEOAdminService.class);
+        Bundle dismissExtras = new Bundle();
+        dismissExtras.putString(INTENT_EXTRA_TYPE, INTENT_EXTRA_DISMISS);
+        dismissExtras.putInt(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+        dismissIntent.putExtras(dismissExtras);
 
         if (EVAL_MODE_SKIP_NOTIFICATION) {
-            startService(intent);
+            startService(approveInent);
         } else {
-            PendingIntent pendingIntent = PendingIntent.getService(pkgContext, 0, intent, 0);
+            PendingIntent approvePendingIntent = PendingIntent.getService(pkgContext, REQUEST_CODE_APPROVE, approveInent, 0);
+            PendingIntent dismissPendingIntent = PendingIntent.getService(pkgContext, REQUEST_CODE_DENY, dismissIntent, 0);
 
             createNotificationChannel(pkgContext, CHANNEL_ID);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(pkgContext, CHANNEL_ID)
@@ -179,15 +204,19 @@ public class TEOAdminService extends Service {
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationContent)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .addAction(R.drawable.ic_deny, "Deny", dismissPendingIntent)
+                    .addAction(R.drawable.ic_check, "Approve", approvePendingIntent)
                     .setContentIntent(pendingIntent)
-                    .setAutoCancel(true);
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true);
 
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(pkgContext);
 
             // notificationId is a unique int for each notification that you must define
-            int notificationId = consumeNotificationId();
-            notificationManager.notify(notificationId, builder.build());
+            Notification notification = builder.build();
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(notificationId, notification);
         }
     }
 
@@ -195,10 +224,16 @@ public class TEOAdminService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v(TAG, "Receive start command!");
 
-        if (intent != null) {
-            String type = intent.getStringExtra(GlobalConfig.INTENT_EXTRA_TYPE);
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
+            int notification_id = extras.getInt(INTENT_EXTRA_NOTIFICATION_ID, -1);
+            if (notification_id != -1) {
+                ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+            }
+
+            String type = extras.getString(INTENT_EXTRA_TYPE);
             if (type != null) {
-                if (type.equals(GlobalConfig.INTENT_EXTRA_PRE_AUTH_APPROVE)) {
+                if (type.equals(INTENT_EXTRA_PRE_AUTH_APPROVE)) {
                     Log.v(TAG, "Pre Auth Request Approved!");
                     if (pending_socket != null && pending_token != null) {
                         executor.execute(new Runnable() {
@@ -206,6 +241,10 @@ public class TEOAdminService extends Service {
                             public void run() {
                                 try {
                                     pending_socket.getOutputStream().write(pending_token);
+
+                                    pending_socket.close();
+                                    pending_socket = null;
+                                    pending_token = null;
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -213,7 +252,18 @@ public class TEOAdminService extends Service {
                         });
                     }
                 } else if (type.equals(GlobalConfig.INTENT_EXTRA_SEND_NOTIFICATION)) {
-                    sendNotification(this);
+                    sendNotification(getApplicationContext());
+                } else if (type.equals(INTENT_EXTRA_DISMISS)) {
+                    Log.v(TAG, "Pre Auth Request Denied!");
+                    if (pending_socket != null && pending_token != null) {
+                        try {
+                            pending_socket.close();
+                            pending_socket = null;
+                            pending_token = null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }

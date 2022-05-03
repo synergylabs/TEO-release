@@ -1,5 +1,6 @@
 package me.zhanghan177.teo_mobile;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -21,6 +23,11 @@ import java.util.concurrent.Executors;
 import static me.zhanghan177.teo_mobile.GlobalConfig.EVAL_MODE_SKIP_NOTIFICATION;
 import static me.zhanghan177.teo_mobile.GlobalConfig.G_DATA_BUF_SIZE;
 import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_DATA_ACCESS_REQUEST;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_DISMISS;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_NOTIFICATION_ID;
+import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_PRE_AUTH_APPROVE;
+import static me.zhanghan177.teo_mobile.GlobalConfig.REQUEST_CODE_APPROVE;
+import static me.zhanghan177.teo_mobile.GlobalConfig.REQUEST_CODE_DENY;
 import static me.zhanghan177.teo_mobile.GlobalConfig.USER_PORT;
 import static me.zhanghan177.teo_mobile.NetworkUtils.bytesToHex;
 import static me.zhanghan177.teo_mobile.GlobalConfig.INTENT_EXTRA_TYPE;
@@ -145,8 +152,14 @@ public class TEOUserService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v(TAG, "Receive start command!");
 
-        if (intent != null) {
-            String type = intent.getStringExtra(INTENT_EXTRA_TYPE);
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
+            int notification_id = extras.getInt(INTENT_EXTRA_NOTIFICATION_ID, -1);
+            if (notification_id != -1) {
+                ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+            }
+
+            String type = extras.getString(INTENT_EXTRA_TYPE);
             if (type != null) {
                 if (type.equals(INTENT_EXTRA_DATA_ACCESS_REQUEST)) {
                     Log.v(TAG, "Data access request Approved!");
@@ -361,14 +374,31 @@ public class TEOUserService extends Service {
     }
 
     public void sendNotification(Context pkgContext) {
-        // Create an explicit intent for an Activity in your app
+        int notificationId = consumeNotificationId();
+
         Intent intent = new Intent(pkgContext, TEOUserService.class);
-        intent.putExtra(INTENT_EXTRA_TYPE, INTENT_EXTRA_DATA_ACCESS_REQUEST);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        // Create an explicit intent for an Activity in your app
+        Intent approveInent = new Intent(pkgContext, TEOUserService.class);
+        Bundle approveExtras = new Bundle();
+        approveExtras.putString(INTENT_EXTRA_TYPE, INTENT_EXTRA_DATA_ACCESS_REQUEST);
+        approveExtras.putInt(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+        approveInent.putExtras(approveExtras);
+
+        Intent dismissIntent = new Intent(pkgContext, TEOUserService.class);
+        Bundle dismissExtras = new Bundle();
+        dismissExtras.putString(INTENT_EXTRA_TYPE, INTENT_EXTRA_DISMISS);
+        dismissExtras.putInt(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+        dismissIntent.putExtras(dismissExtras);
 
         if (EVAL_MODE_SKIP_NOTIFICATION) {
-            startService(intent);
+            startService(approveInent);
         } else {
-            PendingIntent pendingIntent = PendingIntent.getService(pkgContext, 0, intent, 0);
+            PendingIntent approvePendingIntent = PendingIntent.getService(pkgContext, REQUEST_CODE_APPROVE, approveInent, 0);
+            PendingIntent dismissPendingIntent = PendingIntent.getService(pkgContext, REQUEST_CODE_DENY, dismissIntent, 0);
 
             createNotificationChannel(pkgContext, CHANNEL_ID);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(pkgContext, CHANNEL_ID)
@@ -376,15 +406,18 @@ public class TEOUserService extends Service {
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationContent)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .addAction(R.drawable.ic_deny, "Deny", dismissPendingIntent)
+                    .addAction(R.drawable.ic_check, "Approve", approvePendingIntent)
                     .setContentIntent(pendingIntent)
-                    .setAutoCancel(true);
-
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(pkgContext);
 
             // notificationId is a unique int for each notification that you must define
-            int notificationId = consumeNotificationId();
-            notificationManager.notify(notificationId, builder.build());
+            Notification notification = builder.build();
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(notificationId, notification);
         }
     }
 

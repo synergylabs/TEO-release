@@ -109,12 +109,12 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void btnAcquirePreAuthOnClick(View view) {
-        if (TOTConnection.ismBound()) {
-            int err = TOTConnection.getTEOBinder().acquirePreAuthToken();
-            if (err == 0) {
-                Toast.makeText(this, "Acquire Pre Auth Token Success!", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (TOTConnection.ismBound()) {
+//            int err = TOTConnection.getTEOBinder().acquirePreAuthToken();
+//            if (err == 0) {
+//                Toast.makeText(this, "Acquire Pre Auth Token Success!", Toast.LENGTH_SHORT).show();
+//            }
+//        }
     }
 
     public void btnClaimDeviceOnClick(View view) {

@@ -3,10 +3,12 @@ package me.zhanghan177.teo_mobile.activities;
 import static java.lang.Thread.sleep;
 
 import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
+import static me.zhanghan177.teo_mobile.Utilities.getClientName;
 import static me.zhanghan177.teo_mobile.Utilities.uuidBytesToString;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +54,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         bindService(intent, TEOConnection, Context.BIND_AUTO_CREATE);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
@@ -59,6 +62,10 @@ public class UserDashboardActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_ACTION_UPDATE_USER_OWNED_DATA);
         registerReceiver(receiver, filter);
+
+        TextView tvTitle = findViewById(R.id.textViewUserDashboardTitle);
+        tvTitle.setText(getString(R.string.user_dashboard_title) + "\n" + getClientName(this));
+
 
         updateOwnedDevicePubkeyDisplay();
         updateOwnedDataDisplay();

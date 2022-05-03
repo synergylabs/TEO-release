@@ -64,7 +64,7 @@ public class DebugControlActivity extends AppCompatActivity {
     public void btnShowPreAuthTokenOnClick(View view) {
         String toastText = "TOT service not connected!";
         if (TOTConnection.ismBound()) {
-            toastText = TOTConnection.getTEOBinder().getPreAuthTokenB64();
+//            toastText = TOTConnection.getTEOBinder().getPreAuthTokenB64();
         }
         Toast.makeText(this, "User Pre Auth Token: " + toastText, Toast.LENGTH_SHORT).show();
     }

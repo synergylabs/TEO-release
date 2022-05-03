@@ -3,9 +3,11 @@ package me.zhanghan177.teo_mobile.activities;
 import static java.lang.Thread.sleep;
 
 import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
+import static me.zhanghan177.teo_mobile.Utilities.getClientName;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,9 +44,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
         bindService(intent, TEOConnection, Context.BIND_AUTO_CREATE);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
+
+        TextView tvTitle = findViewById(R.id.textViewAdminDashboardTitle);
+        tvTitle.setText(getString(R.string.admin_dashboard_title) + "\n" + getClientName(this));
 
         updateManagedDevicePubkeyDisplay();
     }
