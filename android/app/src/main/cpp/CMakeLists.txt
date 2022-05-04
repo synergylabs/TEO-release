@@ -82,7 +82,7 @@ FetchContent_MakeAvailable(Sodium)
 ######################################
 FetchContent_Declare(TEO
         GIT_REPOSITORY https://github.com/synergylabs/libteo.git
-        GIT_TAG        575fba38ebf0aa768bc250f3d6bb3748f62c992b
+        GIT_TAG        8941f67fcc46f09003c4b0ebc651c5f4105698ba
         )
 set(TEO_EXTENDED_TESTS      OFF)
 set(TEO_STANDALONE_APP      OFF)
