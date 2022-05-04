@@ -156,7 +156,7 @@ public class TEOUserService extends Service {
             Bundle extras = intent.getExtras();
             int notification_id = extras.getInt(INTENT_EXTRA_NOTIFICATION_ID, -1);
             if (notification_id != -1) {
-                ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+                ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
             }
 
             String type = extras.getString(INTENT_EXTRA_TYPE);
@@ -181,6 +181,8 @@ public class TEOUserService extends Service {
                             executor.execute(() -> {
                                 try {
                                     pending_socket.getOutputStream().write(msg);
+                                    pending_socket.close();
+                                    pending_socket = null;
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -188,9 +190,19 @@ public class TEOUserService extends Service {
                         } else {
                             try {
                                 pending_socket.close();
+                                pending_socket = null;
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                        }
+                    }
+                } else if (type.equals(INTENT_EXTRA_DISMISS)) {
+                    if (pending_socket != null) {
+                        try {
+                            pending_socket.close();
+                            pending_socket = null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
