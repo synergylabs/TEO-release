@@ -209,7 +209,8 @@ It is important that you start the following terminals/sessions/programs in the 
 6. Request access 
     ```bash
     # terminal 5
-    ./build/apps/accessor <storage-ip> <storage-port> <metadata_UUID>
+    ./build/apps/accessor <storage-port> <metadata_UUID>
+    teo-accessor> request <metadata_UUID>
     # go back to terminal 4
     teo-user> Do you want to grant this data access? [y/n]: # type yes or no
     # go back to terminal 5 and check the output
@@ -218,10 +219,12 @@ It is important that you start the following terminals/sessions/programs in the 
     ```bash
     # at terminal 5 (or a new one) 
     # set reps (n) > 1, as subsequent access will re-use cached key 
-    ./build/apps/accessor --reps <n> <storage-ip> <storage-port> <metadata_UUID>
+    ./build/apps/accessor <storage-port> <metadata_UUID>
+    teo-accessor> request <metadata_UUID>
     # Whenever you want to revoke accessor's access, go to terminal 4
     teo-user> reencrypt <metadata_UUID>
     # afterwards, accessor's subsequent access will fail
+    teo-accessor> retryFromCache <metadata_UUID>
     ```
 
 
