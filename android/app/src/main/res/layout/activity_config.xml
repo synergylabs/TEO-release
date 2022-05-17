@@ -84,6 +84,47 @@
                 android:text="@string/reset_keypair_text"
                 android:textSize="@dimen/font_size_small"
                 />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/linear_layout_spacing" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupBLEBeacon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+
+                >
+
+                <TextView
+                    android:id="@+id/textViewBeaconConfig"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ble_beacon_prompt" />
+
+                <RadioButton
+                    android:id="@+id/radioBeaconEnabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/enabled" />
+
+                <RadioButton
+                    android:id="@+id/radioBeaconDisabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/disabled" />
+            </RadioGroup>
+
+
         </LinearLayout>
     </ScrollView>
 

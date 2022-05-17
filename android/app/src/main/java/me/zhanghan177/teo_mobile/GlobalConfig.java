@@ -39,7 +39,6 @@ public class GlobalConfig {
     public static final int ADMIN_PORT = 9002;
     public static final int USER_PORT = 9010;
 
-    public static boolean ENABLE_BEACON_SCAN = false;
     public static boolean EVAL_MODE_SKIP_NOTIFICATION = false;
 
     public static final String SHARED_PREF_NAME = "TEOSharedPref";

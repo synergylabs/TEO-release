@@ -24,7 +24,8 @@ public class TEOBeaconScanService extends Service implements RangeNotifier, Inte
 
     private final TEOServiceConnection TOTConnection = new TEOServiceConnection();
     protected static final String TAG = "MonitoringActivity";
-    private BeaconManager beaconManager;
+    public static final String BEACON_SCAN_COMMAND = "BLEBeaconCommand";
+    private BeaconManager beaconManager = null;
     byte[] nonceLastSeen = null;
 
     Handler resetScannerHandler = new Handler();
@@ -109,16 +110,36 @@ public class TEOBeaconScanService extends Service implements RangeNotifier, Inte
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        boolean command = intent.getBooleanExtra(BEACON_SCAN_COMMAND, false);
+
+        if (command) {
+            // Enable scan
+            initScan();
+        } else {
+            // Disable scan
+            stopScan();
+            stopSelf();
+        }
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void initScan() {
+        if (beaconManager == null) {
+            startScan();
+
+            resetScannerHandler.post(resetScannerRunnable);
+            heartbeatHandler.post(heartbeatRunnable);
+        }
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
 
         Intent intent = new Intent(this, TEOKeyStoreService.class);
         bindService(intent, TOTConnection, Context.BIND_AUTO_CREATE);
-
-        startScan();
-
-        resetScannerHandler.post(resetScannerRunnable);
-        heartbeatHandler.post(heartbeatRunnable);
     }
 
     @Override
@@ -144,7 +165,10 @@ public class TEOBeaconScanService extends Service implements RangeNotifier, Inte
     }
 
     private void stopScan() {
-        beaconManager.unbindInternal(this);
+        if (beaconManager != null) {
+            beaconManager.unbindInternal(this);
+            beaconManager = null;
+        }
     }
 
     private void restartScan() {

@@ -64,10 +64,10 @@ public class MainActivity2 extends AppCompatActivity {
         String[] ipParts = ip.split("[.]");
         userGreeting.setText("User " + ipParts[ipParts.length - 1]);
 
-        if (GlobalConfig.ENABLE_BEACON_SCAN) {
+//        if (GlobalConfig.ENABLE_BEACON_SCAN) {
             Intent startTOTBeaconScan = new Intent(this, TEOBeaconScanService.class);
             startService(startTOTBeaconScan);
-        }
+//        }
 
     }
 

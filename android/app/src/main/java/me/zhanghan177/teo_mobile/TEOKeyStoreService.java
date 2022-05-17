@@ -10,8 +10,12 @@ import android.util.Log;
 
 import static me.zhanghan177.teo_mobile.GlobalConfig.*;
 import static me.zhanghan177.teo_mobile.Utilities.base64EncodeStrip;
+import static me.zhanghan177.teo_mobile.Utilities.bytesToHex;
 import static me.zhanghan177.teo_mobile.Utilities.displayDialog;
 import static me.zhanghan177.teo_mobile.Utilities.stripLineBreak;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TEOKeyStoreService extends Service {
 
@@ -56,6 +60,9 @@ public class TEOKeyStoreService extends Service {
     public byte[] metadata_uuid;
     public byte[] sieve_data_uuid;
 
+    boolean ble_beacon_enabled = false;
+    Lock data_lock = new ReentrantLock();
+
     static int notificationId = 1;
 
     static int message_type_fltbuffers_size = 0;
@@ -74,16 +81,16 @@ public class TEOKeyStoreService extends Service {
         return (int)(System.currentTimeMillis()%10000)+500;
     }
 
-//    private void sendProximityHeartbeat(byte[] proximityNonce) {
-//        if (claimedDevice == null) {
-//            return;
-//        }
-//
-//        proximityHeartbeatJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, proximityNonce, userPubkey);
-//
-//        Log.d(TAG, "Heartbeat beep, nonce: " + bytesToHex(proximityNonce));
-//
-//    }
+    public void sendProximityHeartbeat(byte[] proximityNonce) {
+        if (claimedDevice == null || !getBLEBeaconEnabled()) {
+            return;
+        }
+
+        proximityHeartbeatJNI(claimedDevice, claimedDeviceIp, claimedDevicePort, proximityNonce, clientPubkey);
+
+        Log.d(TAG, "Heartbeat beep, nonce: " + bytesToHex(proximityNonce));
+
+    }
 
 //    private int releaseDevice() {
 //        if (claimedDevice != null) {
@@ -240,8 +247,12 @@ public class TEOKeyStoreService extends Service {
             claimedDevicePort = devicePort;
         } while (claimedDevice == null || byteArrayAllEmpty(claimedDevice));
 
-        Intent intent = new Intent(this, TEOUserService.class);
-        startService(intent);
+        Intent startUserServiceIntent = new Intent(this, TEOUserService.class);
+        startService(startUserServiceIntent);
+
+        Intent startHeartbeatServiceIntent = new Intent(this, TEOBeaconScanService.class);
+        startHeartbeatServiceIntent.putExtra(TEOBeaconScanService.BEACON_SCAN_COMMAND, getBLEBeaconEnabled());
+        startService(startHeartbeatServiceIntent);
 
         return 0;
     }
@@ -562,6 +573,20 @@ public class TEOKeyStoreService extends Service {
         return sieveKeyNonce;
     }
 
+    public boolean getBLEBeaconEnabled() {
+        return ble_beacon_enabled;
+    }
+
+    public void setBLEBeaconEnabled(boolean newValue) {
+        data_lock.lock();
+        ble_beacon_enabled = newValue;
+        data_lock.unlock();
+
+        Intent intent = new Intent(this, TEOBeaconScanService.class);
+        intent.putExtra(TEOBeaconScanService.BEACON_SCAN_COMMAND, newValue);
+        startService(intent);
+    }
+
     //    private native void releaseDeviceJNI(byte[] claimedDevice,
 //                                         String claimedDeviceIp,
 //                                         int claimedDevicePort,
@@ -572,9 +597,9 @@ public class TEOKeyStoreService extends Service {
 //                                                int claimedDevicePort,
 //                                                byte[] userPubkey);
 
-//    private native void proximityHeartbeatJNI(byte[] claimedDevice,
-//                                              String claimedDeviceIp,
-//                                              int claimedDevicePort,
-//                                              byte[] proximityNonce,
-//                                              byte[] userPubkey);
+    private native void proximityHeartbeatJNI(byte[] claimedDevice,
+                                              String claimedDeviceIp,
+                                              int claimedDevicePort,
+                                              byte[] proximityNonce,
+                                              byte[] userPubkey);
 }

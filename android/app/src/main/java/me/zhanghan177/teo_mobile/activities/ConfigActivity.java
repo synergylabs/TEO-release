@@ -13,6 +13,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.concurrent.ExecutorService;
@@ -79,6 +81,27 @@ public class ConfigActivity extends AppCompatActivity {
         });
 
         updateClientPubkeyDisplay();
+        updateBLEBeaconDisplay();
+
+        RadioGroup radioGroupBLEBeacon = findViewById(R.id.radioGroupBLEBeacon);
+        radioGroupBLEBeacon.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                boolean newValue = (checkedId == R.id.radioBeaconEnabled);
+
+                executor.execute(() -> {
+                    while (!TEOConnection.ismBound()) {
+                        try {
+                            sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    TEOConnection.getTEOBinder().setBLEBeaconEnabled(newValue);
+                });
+            }
+        });
     }
 
     private void updateClientPubkeyDisplay() {
@@ -95,6 +118,25 @@ public class ConfigActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 TextView tvPubkey = findViewById(R.id.textViewDisplayClientPubkeyContent);
                 tvPubkey.setText(TEOConnection.getTEOBinder().getClientPubkeyB64());
+            });
+        });
+    }
+
+    private void updateBLEBeaconDisplay() {
+        executor.execute(() -> {
+            while (!TEOConnection.ismBound()) {
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            runOnUiThread(() -> {
+                boolean enabled = TEOConnection.getTEOBinder().getBLEBeaconEnabled();
+                int checkedButton = enabled ? R.id.radioBeaconEnabled : R.id.radioBeaconDisabled;
+                RadioButton button = findViewById(checkedButton);
+                button.setChecked(true);
             });
         });
     }

@@ -149,7 +149,7 @@ public class TEOBinderClass extends Binder {
     }
 
     public void sendProximityHeartbeat(byte[] nonce) {
-//            teoKeyStoreService.sendProximityHeartbeat(nonce);
+            teoKeyStoreService.sendProximityHeartbeat(nonce);
     }
 
     public String getAdminManagedDevicePubkeyB64() {
@@ -158,5 +158,13 @@ public class TEOBinderClass extends Binder {
 
     public byte[] getClaimedDevice() {
         return teoKeyStoreService.getClaimedDevice();
+    }
+
+    public boolean getBLEBeaconEnabled() {
+        return teoKeyStoreService.getBLEBeaconEnabled();
+    }
+
+    public void setBLEBeaconEnabled(boolean newValue) {
+        teoKeyStoreService.setBLEBeaconEnabled(newValue);
     }
 }

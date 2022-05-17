@@ -826,42 +826,42 @@ Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_reEncryptJNI(JNIEnv *env, job
 //    network_send(device_conn, builder.GetBufferPointer(), builder.GetSize());
 //}
 
-//extern "C"
-//JNIEXPORT void JNICALL
-//Java_me_zhanghan177_teo_1mobile_TOTKeyStoreService_proximityHeartbeatJNI(JNIEnv *env,
-//                                                                                 jobject thiz,
-//                                                                                 jbyteArray claimed_device_in,
-//                                                                                 jstring claimed_device_ip_in,
-//                                                                                 jint claimed_device_port,
-//                                                                                 jbyteArray proximity_nonce_in,
-//                                                                                 jbyteArray user_pubkey) {
-//    jbyte *claimed_device_ptr;
-//    jsize claimed_device_len;
-//    loadJavaArray(env, claimed_device_in, claimed_device_ptr, claimed_device_len);
-//
-//    const char *device_ip_load = env->GetStringUTFChars(claimed_device_ip_in, nullptr);
-//
-//    jbyte *proximity_nonce_ptr;
-//    jsize proximity_nonce_len;
-//    loadJavaArray(env, proximity_nonce_in, proximity_nonce_ptr, proximity_nonce_len);
-//
-//    jbyte *user_pubkey_ptr;
-//    jsize user_pubkey_len;
-//    loadJavaArray(env, user_pubkey, user_pubkey_ptr, user_pubkey_len);
-//
-//    int device_conn = network_connect(device_ip_load, claimed_device_port);
-//
-//    flatbuffers::FlatBufferBuilder builder(G_FBS_SIZE);
-//    auto proximity_nonce_obj = builder.CreateVector(
-//            reinterpret_cast<const uint8_t *>(proximity_nonce_ptr), proximity_nonce_len);
-//    auto pubkey_obj = builder.CreateVector(reinterpret_cast<const uint8_t *>(user_pubkey_ptr),
-//                                           user_pubkey_len);
-//    auto heartbeat_msg = CreateUtilHeartbeat(builder, pubkey_obj, proximity_nonce_obj);
-//    builder.Finish(heartbeat_msg);
-//
-//    network_send_message_type(device_conn, MessageType_UTIL_HEARTBEAT);
-//    network_send(device_conn, builder.GetBufferPointer(), builder.GetSize());
-//}
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_zhanghan177_teo_1mobile_TEOKeyStoreService_proximityHeartbeatJNI(JNIEnv *env,
+                                                                                 jobject thiz,
+                                                                                 jbyteArray claimed_device_in,
+                                                                                 jstring claimed_device_ip_in,
+                                                                                 jint claimed_device_port,
+                                                                                 jbyteArray proximity_nonce_in,
+                                                                                 jbyteArray user_pubkey) {
+    jbyte *claimed_device_ptr;
+    jsize claimed_device_len;
+    loadJavaArray(env, claimed_device_in, claimed_device_ptr, claimed_device_len);
+
+    const char *device_ip_load = env->GetStringUTFChars(claimed_device_ip_in, nullptr);
+
+    jbyte *proximity_nonce_ptr;
+    jsize proximity_nonce_len;
+    loadJavaArray(env, proximity_nonce_in, proximity_nonce_ptr, proximity_nonce_len);
+
+    jbyte *user_pubkey_ptr;
+    jsize user_pubkey_len;
+    loadJavaArray(env, user_pubkey, user_pubkey_ptr, user_pubkey_len);
+
+    int device_conn = teo::network_connect(device_ip_load, claimed_device_port);
+
+    flatbuffers::FlatBufferBuilder builder(teo::G_FBS_SIZE);
+    auto proximity_nonce_obj = builder.CreateVector(
+            reinterpret_cast<const uint8_t *>(proximity_nonce_ptr), proximity_nonce_len);
+    auto pubkey_obj = builder.CreateVector(reinterpret_cast<const uint8_t *>(user_pubkey_ptr),
+                                           user_pubkey_len);
+    auto heartbeat_msg = teo::CreateUtilHeartbeat(builder, pubkey_obj, proximity_nonce_obj);
+    builder.Finish(heartbeat_msg);
+
+    teo::network_send_message_type(device_conn, teo::MessageType_UTIL_HEARTBEAT);
+    teo::network_send(device_conn, builder.GetBufferPointer(), builder.GetSize());
+}
 
 extern "C"
 JNIEXPORT jstring JNICALL
