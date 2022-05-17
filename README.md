@@ -22,6 +22,7 @@
     - [Project Import](#project-import)
     - [Why You Need Two (or more) Phones](#why-you-need-two-or-more-phones)
     - [Functionalities and Demo](#functionalities-and-demo)
+    - [Bluetooth Beaconing for Proximity Detection](#bluetooth-beaconing-for-proximity-detection)
 
 This repository contains source code artifacts for the paper TEO: Ephemeral Ownership for IoT Devices to Provide Granular Data Control. It consists of three components:
 - Formal protocol models
@@ -250,3 +251,38 @@ Currently, there is a bug preventing you from using the same phone for both admi
 The basic functionality and workflow are highly similar to the Linux command-line programs ([Command Line Test Apps](#command-line-test-apps)). We have refactored our mobile app used for evaluation to accomendate for the upcoming demo submission. 
 
 One key notice is that this demo app relies on QR code scanning (rather than user input and manual typing) to pass information around (e.g., TEO devices). The user interface is fairly straightforward so you should be able to figure out when you need to scan the code (and which one). 
+
+### Bluetooth Beaconing for Proximity Detection
+
+In this experiment, you need a Raspberry Pi as TEO device (we use the `hcitool` to manage bluetooth interface), along with several phones nearby. If you want to run this in any other hardware platform, you might need to take a look at the Bluetooth control command and interface selection in `include/teo/client/Device.hpp` and `src/client/Device.cpp`. 
+
+First, make sure your TEO library is compiled with Bluetooth Beaconing flag `cmake -B build -S . -DTEO_BLUETOOTH_BEACON=ON`. 
+Then, start the storage and device as mentioned above:
+1. Start the storage server.
+   ```bash
+   # terminal 1
+   ./build/apps/storage
+   # Collect storage server's info
+   teo-storage> info 
+   ```
+2. Start the device program.
+   ```bash
+   # terminal 2 / Raspberry Pi
+   ./build/apps/device <storage-ip> <storage-port>
+   # Collect device's info for **admin**
+   teo-device> info admin
+   ```
+3. On the admin phone, start the admin dashboard, and scan QR code of both Storage and Device Info (for Admin). Then, initialize the device.
+4. On the user/owner phone, start the user dashboard. Scan QR code of both Storage and Device Info (for user, `teo-device> info user`). Claim device, and wait for admin approval.
+5. Enable beaconing on the device:
+   ```bash
+   # terminal 2
+   teo-device> beacon
+   # may require you to type sudo password since hcitool requires sudo
+   ```
+6. If you do nothing on the user's phone, you will soon experience timeout and get kicked out of the device's current owner. To check that, you can periodically type:
+   ```bash
+   teo-device> OwnerInfo
+   ```
+   If you don't type anyting, the device will propmt a notification on the terminal so you can see that as well. (Adding an update to the user's phone can be easily achieved as well. Will get that off my todo list at some point.)
+7. You can turn on the BLE beacon heartbeat mode on the user phone by going to the `Config` dashboard and set it to be enable. This way, you will stay at the device's owner.
